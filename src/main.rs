@@ -1,3 +1,6 @@
+use dotenv::dotenv;
+use std::env;
+
 #[macro_use] extern crate rocket;
 
 #[get("/world")]
@@ -17,6 +20,11 @@ fn hello(name: &str) -> String {
 
 #[launch]
 fn rocket() -> _ {
+
+    dotenv().ok();
+
+    let _secret_key = env::var("SECRET_KEY").expect("Unable to find secret key");
+
     rocket::build()
         .mount("/", routes![index, hello])
         .mount("/hello", routes![world])
