@@ -6,12 +6,25 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-dotenv = "0.15.0"
-rocket = { version = "0.5.0-rc.1", features = ["secrets"] }
+actix-web = "4.0.0-rc.1"
+actix-web-httpauth = { git = "https://github.com/actix/actix-web-httpauth" }
+actix-rt = "2.4.0"
+actix-multipart = "0.3.0"
+actix-service = "2.0.1"
 
+dotenv = "0.15.0"
 chrono = {version = "0.4.19", features = ["serde"] }
 serde = "1.0.130"
 serde_derive = "1.0"
 derive_more = "0.99.5"
 serde_json = "1.0"
 uuid = { version = "0.8.2", features = ["serde", "v4"] }
+
+# templating
+tera = "1.15.0"
+tera-text-filters = "1.0"
+Inflector = "0.11.4"
+
+# localization
+fluent-templates = { version = "*", features = ["tera"] }
+deepl-api = { git = "https://github.com/ToferC/deepl-api-rs.git", branch="master" }
