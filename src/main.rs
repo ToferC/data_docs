@@ -4,6 +4,8 @@ use std::env;
 use tera::{Tera};
 use tera_text_filters::snake_case;
 
+use data_docs::handlers;
+
 use fluent_templates::{FluentLoader, static_loader};
 // https://lib.rs/crates/fluent-templates
 
@@ -18,7 +20,7 @@ static_loader! {
 }
 
 #[actix_rt::main]
-async fn main() {
+async fn main() -> std::io::Result<()> {
 
     dotenv().ok();
 
@@ -50,7 +52,7 @@ async fn main() {
             .app_data("Default")
             .wrap(middleware::Logger::default())
     })
-    .bind((host, port))?
+    .bind(format!("{}:{}", host, port))?
     .run()
     .await
 }
