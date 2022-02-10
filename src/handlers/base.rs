@@ -1,6 +1,5 @@
 use actix_web::{web, get, Responder, HttpResponse, HttpRequest};
 use actix_identity::Identity;
-use tera::Context;
 
 use crate::{generate_basic_context, AppData};
 

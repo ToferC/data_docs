@@ -7,6 +7,7 @@ use actix_identity::{IdentityService, CookieIdentityPolicy};
 
 use data_docs::handlers;
 use data_docs::AppData;
+use data_docs::database;
 
 use fluent_templates::{FluentLoader, static_loader};
 // https://lib.rs/crates/fluent-templates
@@ -39,7 +40,9 @@ async fn main() -> std::io::Result<()> {
         (String::from("127.0.0.1"), String::from("8080"))
     };
 
-    let cookie_secret_key = env::var("SECRET_KEY").expect("Unable to find secret key");
+    let cookie_secret_key = env::var("COOKIE_SECRET_KEY").expect("Unable to find secret key");
+
+    database::init();
 
     HttpServer::new(move || {
         let mut tera = Tera::new(
@@ -49,11 +52,13 @@ async fn main() -> std::io::Result<()> {
         tera.full_reload().expect("Error running auto-reload with Tera");
         tera.register_function("fluent", FluentLoader::new(&*LOCALES));
 
+        let data = AppData {
+            tmpl: tera,
+        };
+
         App::new()
             .configure(handlers::configure_services)
-            .app_data(AppData {
-                tmpl: tera,
-            })
+            .data(data.clone())
             .wrap(middleware::Logger::default())
             .wrap(IdentityService::new(
                 CookieIdentityPolicy::new(&cookie_secret_key.as_bytes())

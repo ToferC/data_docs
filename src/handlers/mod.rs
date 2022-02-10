@@ -4,7 +4,7 @@ pub mod users;
 pub mod forms;
 pub mod utility;
 
-pub use base::index;
+pub use base::{index, raw_index};
 pub use routes::configure_services;
 pub use users::*;
 pub use forms::*;
