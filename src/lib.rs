@@ -2,16 +2,17 @@ pub mod models;
 pub mod handlers;
 pub mod database;
 pub mod errors;
+pub mod schema;
 
 use tera::{Tera, Context};
 use actix_identity::Identity;
 use actix_session::Session;
 
 #[macro_use]
-extern crate diesel_migrations;
+extern crate diesel;
 
 #[macro_use]
-embed_migrations!();
+extern crate diesel_migrations;
 
 #[derive(Clone, Debug)]
 pub struct AppData {

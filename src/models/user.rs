@@ -17,8 +17,7 @@ use diesel::{QueryDsl};
 #[derive(Serialize, Deserialize, Queryable, Insertable, Debug, Associations, Identifiable, AsChangeset, Clone)]
 #[table_name = "users"]
 pub struct User {
-    pub id: i32,
-    pub user_uuid: Uuid,
+    pub id: Uuid,
     pub hash: Vec<u8>,
     pub salt: String,
     pub email: String,
@@ -32,7 +31,6 @@ pub struct User {
 #[derive(Debug, Insertable)]
 #[table_name = "users"]
 pub struct InsertableUser {
-    pub user_uuid: Uuid,
     pub hash: Vec<u8>,
     pub salt: String,
     pub email: String,
@@ -45,7 +43,6 @@ pub struct InsertableUser {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct SlimUser {
-    pub user_uuid: Uuid,
     pub user_name: String,
     pub email: String,
     pub slug: String,
@@ -87,7 +84,6 @@ impl From<UserData> for InsertableUser {
         Self {
             user_name: user_name.clone(),
             slug: user_name.clone().to_snake_case(),
-            user_uuid: Uuid::new_v4(),
             email,
             hash,
             created_at: chrono::Local::now().naive_local(),
@@ -128,7 +124,7 @@ impl User {
         Ok(users)
     }
 
-    pub fn find(id: i32) -> Result<Self, CustomError> {
+    pub fn find(id: Uuid) -> Result<Self, CustomError> {
         let conn = database::connection()?;
         let user = users::table.filter(users::id.eq(id)).first(&conn)?;
         Ok(user)
@@ -154,9 +150,9 @@ impl User {
         Ok(user)
     }
 
-    pub fn find_id_from_slug(slug: &String) -> Result<i32, CustomError> {
+    pub fn find_id_from_slug(slug: &String) -> Result<Uuid, CustomError> {
         let conn = database::connection()?;
-        let id: i32 = users::table.select(users::id).filter(users::slug.eq(slug)).first(&conn)?;
+        let id: Uuid = users::table.select(users::id).filter(users::slug.eq(slug)).first(&conn)?;
         Ok(id)
     }
 
@@ -182,7 +178,7 @@ impl User {
         Ok(user)
     }
 
-    pub fn update_password(user_id: i32, password: &String) -> Result<Self, CustomError> {
+    pub fn update_password(user_id: Uuid, password: &String) -> Result<Self, CustomError> {
         let conn = database::connection()?;
 
         let salt = make_salt();
@@ -197,7 +193,7 @@ impl User {
         Ok(user)
     }
 
-    pub fn delete(id: i32) -> Result<usize, CustomError> {
+    pub fn delete(id: Uuid) -> Result<usize, CustomError> {
         let conn = database::connection()?;
         let res = diesel::delete(users::table.filter(users::id.eq(id))).execute(&conn)?;
         Ok(res)
@@ -205,8 +201,7 @@ impl User {
 
     pub fn dummy() -> Self {
         User {
-            id: 9999999,
-            user_uuid: Uuid::default(),
+            id: Uuid::new_v4(),
             hash: Vec::new(),
             salt: "".to_string(),
             email: "".to_string(),
@@ -222,7 +217,6 @@ impl User {
 impl From<User> for SlimUser {
     fn from(user: User) -> Self {
         let User {
-            user_uuid,
             user_name,
             email,
             role,
@@ -231,7 +225,6 @@ impl From<User> for SlimUser {
         } = user;
 
         Self {
-            user_uuid,
             user_name,
             email,
             role,
@@ -251,7 +244,7 @@ pub fn make_salt() -> String {
 
     let password: String = (0..PASSWORD_LEN)
         .map(|_| {
-            let idx = rng.gen_range(0, CHARSET.len());
+            let idx = rng.gen_range(0..CHARSET.len());
             CHARSET[idx] as char
         })
         .collect();

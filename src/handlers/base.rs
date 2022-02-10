@@ -1,11 +1,12 @@
 use actix_web::{web, get, Responder, HttpResponse, HttpRequest};
 use actix_identity::Identity;
+use tera::Context;
 
 use crate::{generate_basic_context, AppData};
 
 #[get("/")]
 pub async fn raw_index() -> impl Responder {
-    return HttpResponse::Found().append_header(("Location", "/en")).finish()
+    return HttpResponse::Found().header("Location", "/en").finish()
 }
 
 #[get("/{lang}")]

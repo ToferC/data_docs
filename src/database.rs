@@ -1,6 +1,3 @@
-extern crate diesel;
-
-
 use crate::errors::CustomError;
 use diesel::pg::PgConnection;
 use diesel::r2d2::ConnectionManager;
@@ -8,10 +5,11 @@ use lazy_static::lazy_static;
 use r2d2;
 use std::env;
 
-use crate::embedded_migrations;
 
 type Pool = r2d2::Pool<ConnectionManager<PgConnection>>;
 pub type DbConnection = r2d2::PooledConnection<ConnectionManager<PgConnection>>;
+
+embed_migrations!();
 
 lazy_static! {
     static ref POOL: Pool = {

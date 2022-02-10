@@ -3,8 +3,10 @@ use dotenv::dotenv;
 use std::env;
 use tera::{Tera};
 use tera_text_filters::snake_case;
+use actix_identity::{IdentityService, CookieIdentityPolicy};
 
 use data_docs::handlers;
+use data_docs::AppData;
 
 use fluent_templates::{FluentLoader, static_loader};
 // https://lib.rs/crates/fluent-templates
@@ -37,7 +39,7 @@ async fn main() -> std::io::Result<()> {
         (String::from("127.0.0.1"), String::from("8080"))
     };
 
-    let _secret_key = env::var("SECRET_KEY").expect("Unable to find secret key");
+    let cookie_secret_key = env::var("SECRET_KEY").expect("Unable to find secret key");
 
     HttpServer::new(move || {
         let mut tera = Tera::new(
@@ -49,8 +51,14 @@ async fn main() -> std::io::Result<()> {
 
         App::new()
             .configure(handlers::configure_services)
-            .app_data("Default")
+            .app_data(AppData {
+                tmpl: tera,
+            })
             .wrap(middleware::Logger::default())
+            .wrap(IdentityService::new(
+                CookieIdentityPolicy::new(&cookie_secret_key.as_bytes())
+                .name("user-auth")
+                .secure(false)))
     })
     .bind(format!("{}:{}", host, port))?
     .run()
