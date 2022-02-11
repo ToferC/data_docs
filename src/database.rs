@@ -4,7 +4,7 @@ use diesel::r2d2::ConnectionManager;
 use lazy_static::lazy_static;
 use r2d2;
 use std::env;
-use crate::models::{User, UserData, InsertableUser};
+use crate::models::{User, UserData};
 
 
 type Pool = r2d2::Pool<ConnectionManager<PgConnection>>;

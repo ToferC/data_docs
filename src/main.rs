@@ -77,8 +77,9 @@ async fn main() -> std::io::Result<()> {
         let generated = generate();
 
         App::new()
-            .data(data.clone())
+            .wrap(middleware::Logger::default())
             .configure(handlers::configure_services)
+            .data(data.clone())
             .service(actix_web_static_files::ResourceFiles::new(
                 "/static", generated,
             ))
@@ -86,7 +87,6 @@ async fn main() -> std::io::Result<()> {
                 CookieIdentityPolicy::new(&cookie_secret_key.as_bytes())
                 .name("user-auth")
                 .secure(false)))
-            .wrap(middleware::Logger::default())
     })
     .bind(format!("{}:{}", host, port))?
     .run()

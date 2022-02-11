@@ -33,7 +33,7 @@
 
         <br>
         {% if user.validated %}
-            <p><a class="btn btn-dark" href="/{{ lang }}/add_community">{{ fluent(key="add-community-button", lang=lang )}}</a></p>
+            <p>VALIDATED - Add Document Button</p>
         {% else %}
             <p><strong>{{ fluent(key="must-verify", lang=lang )}}</strong></p>
             <a class="btn btn-dark" href="/{{ lang }}/resend_email_verification">{{ fluent(key="send-email-verification", lang=lang )}}</a>
