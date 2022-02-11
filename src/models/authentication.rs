@@ -1,11 +1,12 @@
-use error_handler::error_handler::CustomError;
+use crate::errors::CustomError;
 use chrono::{Duration, prelude::*};
 use serde::{Serialize, Deserialize};
+use uuid::Uuid;
 
 use crate::{generate_unique_code, schema::{
     email_verification_code, password_reset_token}
 };
-use database;
+use crate::database;
 
 use diesel::prelude::*;
 use diesel::RunQueryDsl;
@@ -14,7 +15,7 @@ use diesel::{QueryDsl};
 #[derive(Serialize, Deserialize, Queryable, Insertable, Debug, Identifiable, AsChangeset, Clone)]
 #[table_name = "email_verification_code"]
 pub struct EmailVerification {
-    pub id: i32,
+    pub id: Uuid,
     pub email_address: String,
     pub activation_code: String,
     pub expires_on: NaiveDateTime,
@@ -64,7 +65,7 @@ impl EmailVerification {
         Ok(v)
     }
 
-    pub fn delete(id: i32) -> Result<usize, CustomError> {
+    pub fn delete(id: Uuid) -> Result<usize, CustomError> {
         let conn = database::connection()?;
         let res = diesel::delete(email_verification_code::table.filter(
             email_verification_code::id.eq(id)
@@ -76,7 +77,7 @@ impl EmailVerification {
 #[derive(Serialize, Deserialize, Queryable, Insertable, Debug, Identifiable, AsChangeset, Clone)]
 #[table_name = "password_reset_token"]
 pub struct PasswordResetToken {
-    pub id: i32,
+    pub id: Uuid,
     pub email_address: String,
     pub reset_token: String,
     pub expires_on: NaiveDateTime,
@@ -126,7 +127,7 @@ impl PasswordResetToken {
         Ok(v)
     }
 
-    pub fn delete(id: i32) -> Result<usize, CustomError> {
+    pub fn delete(id: Uuid) -> Result<usize, CustomError> {
         let conn = database::connection()?;
         let res = diesel::delete(password_reset_token::table.filter(
             password_reset_token::id.eq(id)

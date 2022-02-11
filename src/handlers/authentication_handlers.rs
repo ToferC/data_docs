@@ -97,7 +97,7 @@ pub async fn login_form_input(
 
 #[get("/{lang}/register")]
 pub async fn register_handler(
-     web::Path(lang): web::Path<String>,
+    web::Path(lang): web::Path<String>,
     data: web::Data<AppData>,
     
     req:HttpRequest,

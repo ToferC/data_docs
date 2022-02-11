@@ -16,3 +16,11 @@ This repo is a learning and test project to transform the massive amount of unst
 - [ ] Approvals
 - [ ] Useful metadata and tagging
 - [ ] API (probably GraphQL)
+
+## Setup
+* Clone the repository
+* Create `.env` file with the following environmental variables:
+    * COOKIE_SECRET_KEY
+    * DATABASE_URL
+    * SENDGRID_API_KEY
+    * DEEPL_API_KEY

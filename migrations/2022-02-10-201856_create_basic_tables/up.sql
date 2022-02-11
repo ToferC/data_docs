@@ -13,3 +13,17 @@ CREATE TABLE users (
 );
 
 CREATE UNIQUE INDEX users__email_idx ON users(email);
+
+CREATE TABLE IF NOT EXISTS email_verification_code (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    email_address VARCHAR(128) UNIQUE NOT NULL,
+    activation_code VARCHAR(5) UNIQUE NOT NULL,
+    expires_on TIMESTAMP NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS password_reset_token (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    email_address VARCHAR(128) UNIQUE NOT NULL,
+    reset_token VARCHAR(36) UNIQUE NOT NULL,
+    expires_on TIMESTAMP NOT NULL
+);

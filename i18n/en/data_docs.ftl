@@ -3,6 +3,7 @@ welcome-to = Welcome to Data Docs
 
 ## General Section
 
+data-docs = Data Docs
 -app-name = Data Docs
 app-description = { -app-name } is a learning project and experiment in constructing organizational documents as native data structures.
 app-mvp = Data Docs MVP
@@ -18,7 +19,7 @@ login = Log in
 register = Register
 
 ## Footer
-footer-1 = Please note that this work is a learning project and experiment in collecting and and gaining insight from sensitive or personal information while protecting the privacy of participants.
+footer-1 = Please note that this work is a learning project and experiment in using work documentation as native data.
 available-licence = The Data Docs project is available on GitHub under an MIT licence here:
 developed-by = Developed by ToferC 2022
 

@@ -7,7 +7,7 @@ use serde::{Deserialize};
 use regex::Regex;
 
 use crate::{AppData, generate_email_context};
-use crate::models::{Communities, CommunityData, Email, People};
+use crate::models::{Email};
 
 // for for single email address
 #[derive(Debug, Deserialize)]
@@ -19,6 +19,8 @@ pub struct EmailForm {
 pub struct EmailsForm {
     pub emails: String,
 }
+
+/*
 
 #[post("/{lang}/person/{code}")]
 pub async fn email_person_info(
@@ -34,13 +36,13 @@ pub async fn email_person_info(
         return HttpResponse::Found().header("Location", format!("/{}/person/{}", &lang, code)).finish()
     };
 
-    let person = People::find_from_code(&code);
+    // Use for documents
 
     match person {
         Ok(person) => {
             let (mut ctx, _, _, _) = generate_email_context(id, &lang, req.uri().path());
 
-            let community = Communities::find(person.community_id).unwrap();
+            // Get individual data here
 
             let application_url: String;
             let environment = env::var("ENVIRONMENT").unwrap();
@@ -51,12 +53,6 @@ pub async fn email_person_info(
                 application_url = format!("http://localhost:8088/{}", &lang);
             };
 
-            ctx.insert("person", &person);
-            
-            let phrase_map = community.get_phrases(&lang);
-
-            ctx.insert("community", &community);
-            ctx.insert("phrases", &phrase_map);
             ctx.insert("application_url", &application_url);
 
             let rendered = data.tmpl.render("emails/email_person.html", &ctx).unwrap();
@@ -83,6 +79,7 @@ pub async fn email_person_info(
         }
     };
 }
+
 
 #[post("/{lang}/send_community_email/{slug}")]
 pub async fn send_community_email(
@@ -189,3 +186,4 @@ pub async fn send_community_email(
         }
     };
 }
+*/
