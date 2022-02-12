@@ -7,6 +7,7 @@ data-docs = Data Docs
 -app-name = Data Docs
 app-description = { -app-name } is a learning project and experiment in constructing organizational documents as native data structures.
 app-mvp = Data Docs MVP
+-user-support-email = usersupport@intersectional-data.ca
 
 ## Base & Navbar
 button-explore-demo-data = Explore demonstration data

@@ -42,7 +42,7 @@ pub fn init() {
                 email: admin_email.trim().to_owned(),
                 password: admin_pwd.trim().to_owned(),
                 validated: true,
-                role: "ADMIN".to_owned(),
+                role: "admin".to_owned(),
             };
         
             let admin = User::create(admin_data)

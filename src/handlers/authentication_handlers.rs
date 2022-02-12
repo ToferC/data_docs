@@ -188,7 +188,7 @@ pub async fn register_form_input(
             let email = Email::new(
                 user.email.clone(), 
                 rendered_email, 
-                "Email Verification Code - Intersectional Data".to_string(), 
+                "Email Verification Code - Data Docs".to_string(), 
                 data.mail_client.clone(),
             );
 
@@ -286,7 +286,7 @@ pub async fn resend_email_verification(
             let email = Email::new(
                 user.email.clone(), 
                 rendered_email, 
-                "Email Verification Code - Intersectional Data".to_string(), 
+                "Email Verification Code - Data Docs".to_string(), 
                 data.mail_client.clone(),
             );
 
