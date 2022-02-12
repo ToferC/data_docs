@@ -7,7 +7,7 @@ use actix_session::{Session, UserSession};
 use actix_identity::{Identity};
 use serde::{Deserialize};
 
-use crate::{AppData, generate_basic_context, generate_email_context, extract_identity_data};
+use crate::{AppData, generate_basic_context, generate_email_context, extract_identity_data, APP_NAME};
 use crate::models::{User, verify, UserData, EmailVerification, 
     InsertableVerification, Email, PasswordResetToken, 
     InsertablePasswordResetToken};
@@ -188,7 +188,7 @@ pub async fn register_form_input(
             let email = Email::new(
                 user.email.clone(), 
                 rendered_email, 
-                "Email Verification Code - Data Docs".to_string(), 
+                format!("Email Verification Code - {}", APP_NAME), 
                 data.mail_client.clone(),
             );
 
@@ -286,7 +286,7 @@ pub async fn resend_email_verification(
             let email = Email::new(
                 user.email.clone(), 
                 rendered_email, 
-                "Email Verification Code - Data Docs".to_string(), 
+                format!("Email Verification Code - {}", APP_NAME), 
                 data.mail_client.clone(),
             );
 

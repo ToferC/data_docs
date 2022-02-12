@@ -19,6 +19,8 @@ extern crate diesel;
 #[macro_use]
 extern crate diesel_migrations;
 
+const APP_NAME: &str = "Data Docs";
+
 #[derive(Clone, Debug)]
 pub struct AppData {
     pub tmpl: Tera,

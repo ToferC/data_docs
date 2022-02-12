@@ -1,28 +1,24 @@
-use chrono::NaiveDateTime;
 use serde::{Serialize, Deserialize};
 use uuid::Uuid;
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct Memo {
+pub struct Document {
     pub id: Uuid,
-    pub lang: String,
-    pub purpose: String,
-    pub title_id: Uuid,
-    pub issue_id: Uuid,
-    pub background_id: Uuid,
-    pub recommendation_id: Option<Uuid>,
-    pub created_at: NaiveDateTime,
+    pub purpose_text_id: Uuid,
+    pub approvals: Vec<Uuid>, // Replace with Approvals
+    pub publishable: bool,
 }
 
-#[derive(Debug)]
-pub struct MemoForm {
-    pub lang: String,
-    pub purpose: String,
-    pub title: String,
-    pub issue: String,
-    pub background: String,
-    pub recommendation: String,
-    pub updated_at: String,
-    pub author_id: String,
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Section {
+    pub id: Uuid,
+    pub document_id: Uuid,
+    pub template_section_id: Uuid, // References the template section so we don't duplicate the data
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Content {
+    pub id: Uuid,
+    pub section_id: Uuid,
 }
 
