@@ -29,6 +29,13 @@ templates = Templates
 template-index = Template Index
 template-name = Template Name
 updated-on = Updated On
+sections = Sections
+section-instructions = Instructions: 
+section-help-text = Help Text:
+section-character-limit = Character Limit: { $limit -> 
+    [0] No limit.
+    *[other] Limit of { $limit } characters.
+}
 
 ## Login Page
 email-address = Email address

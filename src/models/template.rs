@@ -38,6 +38,7 @@ pub struct Template {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 // A human readable Template
 pub struct ReadableTemplate {
+    pub id: Uuid,
     pub name_text: String,
     pub purpose_text: String,
     pub created_at: NaiveDateTime,
@@ -59,11 +60,11 @@ impl Template {
         Ok(v)
     }
 
-    pub fn get_by_uuid(id: Uuid, lang: &str) -> Result<(Template, Vec<TemplateSection>, BTreeMap<Uuid, String>), CustomError> {
+    pub fn get_by_slug(slug: &str, lang: &str) -> Result<(ReadableTemplate, Vec<ReadableTemplateSection>), CustomError> {
         let conn = database::connection()?;
 
         let template = templates::table
-            .filter(templates::id.eq(id))
+            .filter(templates::slug.eq(slug))
             .first::<Self>(&conn)?;
 
         let sections = TemplateSection::belonging_to(&template)
@@ -71,6 +72,7 @@ impl Template {
 
         // Get texts for template and each section
         let mut text_ids = Vec::new();
+
         text_ids.push(template.name_text_id);
         text_ids.push(template.purpose_text_id);
 
@@ -82,7 +84,39 @@ impl Template {
 
         let texts = Text::get_text_map(text_ids, lang)?;
 
-        Ok((template, sections, texts))
+        let readable_template = ReadableTemplate {
+            id: template.id,
+            name_text: texts.get(&template.name_text_id).unwrap().to_string(),
+            purpose_text: texts.get(&template.purpose_text_id).unwrap().to_string(),
+            created_at: template.created_at,
+            updated_at: template.updated_at,
+            slug: template.slug.to_owned(),
+        };
+
+        let mut readable_sections = Vec::new();
+
+        for section in sections.iter() {
+
+            let limit = if let Some(i) = section.character_limit {
+                i
+            } else {
+                0
+            };
+
+            let readable_template_section = ReadableTemplateSection {
+                header_text: texts.get(&section.header_text_id).unwrap().to_string(),
+                instructions_text: texts.get(&section.instructions_text_id).unwrap().to_string(),
+                help_text: texts.get(&section.help_text_id).unwrap().to_string(),
+                order_number: section.order_number,
+                character_limit: limit,
+                id: section.id,
+                template_id: section.template_id,
+            };
+
+            readable_sections.push(readable_template_section);
+        }
+
+        Ok((readable_template, readable_sections))
     }
 
     pub fn get_all_readable(lang: &str) -> Result<Vec<ReadableTemplate>, CustomError> {
@@ -105,6 +139,7 @@ impl Template {
 
         for template in templates.iter() {
             let readable_template = ReadableTemplate {
+                id: template.id,
                 name_text: texts.get(&template.name_text_id).unwrap().to_string(),
                 purpose_text: texts.get(&template.purpose_text_id).unwrap().to_string(),
                 created_at: template.created_at,
@@ -220,6 +255,17 @@ pub struct TemplateSection {
     pub instructions_text_id: Uuid,
     pub help_text_id: Uuid,
     pub character_limit: Option<i32>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ReadableTemplateSection {
+    pub id: Uuid,
+    pub template_id: Uuid,
+    pub header_text: String,
+    pub order_number: i32,
+    pub instructions_text: String,
+    pub help_text: String,
+    pub character_limit: i32,
 }
 
 impl TemplateSection {

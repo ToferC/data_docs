@@ -54,6 +54,7 @@ use crate::handlers::{
 
     // templates
     template_index,
+    template,
 
 };
 
@@ -105,4 +106,5 @@ pub fn configure_services(config: &mut web::ServiceConfig) {
 
      // templates
      config.service(template_index);
+     config.service(template);
 }

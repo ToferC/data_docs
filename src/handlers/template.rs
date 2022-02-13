@@ -35,3 +35,33 @@ pub async fn template_index(
         HttpResponse::Ok().body(rendered)
     }
 }
+
+#[get("/{lang}/template/{slug}")]
+pub async fn template(
+    data: web::Data<AppData>,
+    web::Path((lang, slug)): web::Path<(String, String)>,
+    
+    id: Identity,
+    req:HttpRequest) -> impl Responder {
+
+    let (mut ctx, _session_user, role, lang) = generate_basic_context(id, &lang, req.uri().path());
+
+    if role == "CHANGE TO NOT SIGNED IN".to_string() {
+        let err = CustomError::new(
+            406,
+            "Not authorized".to_string(),
+        );
+        println!("{}", &err);
+        return err.error_response()
+    } else {
+
+        let (template, sections) = Template::get_by_slug(&slug, &lang)
+            .expect("Unable to load templates");
+
+        ctx.insert("template", &template);
+        ctx.insert("sections", &sections);
+
+        let rendered = data.tmpl.render("templates/template.html", &ctx).unwrap();
+        HttpResponse::Ok().body(rendered)
+    }
+}
