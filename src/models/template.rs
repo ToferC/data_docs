@@ -5,6 +5,7 @@ use diesel::prelude::*;
 use diesel::{BelongingToDsl, QueryDsl};
 use chrono::NaiveDateTime;
 use uuid::Uuid;
+use inflector::Inflector;
 
 use crate::errors::CustomError;
 use crate::database;
@@ -31,6 +32,17 @@ pub struct Template {
     pub purpose_text_id: Uuid,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
+    pub slug: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+// A human readable Template
+pub struct ReadableTemplate {
+    pub name_text: String,
+    pub purpose_text: String,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+    pub slug: String,
 }
 
 impl Template {
@@ -73,7 +85,40 @@ impl Template {
         Ok((template, sections, texts))
     }
 
-    pub fn get_all(lang: &str) -> Result<(Vec<(Template, Vec<TemplateSection>)>, BTreeMap<Uuid, String>), CustomError> {
+    pub fn get_all_readable(lang: &str) -> Result<Vec<ReadableTemplate>, CustomError> {
+        let conn = database::connection()?;
+
+        let templates = templates::table
+            .load::<Self>(&conn)?;
+
+        let mut text_ids = Vec::new();
+
+        // Get texts for template
+        for template in templates.iter() {
+            text_ids.push(template.name_text_id);
+            text_ids.push(template.purpose_text_id);
+        };
+
+        let texts = Text::get_text_map(text_ids, lang)?;
+
+        let mut readable_templates = Vec::new();
+
+        for template in templates.iter() {
+            let readable_template = ReadableTemplate {
+                name_text: texts.get(&template.name_text_id).unwrap().to_string(),
+                purpose_text: texts.get(&template.purpose_text_id).unwrap().to_string(),
+                created_at: template.created_at,
+                updated_at: template.updated_at,
+                slug: template.slug.to_owned(),
+            };
+
+            readable_templates.push(readable_template);
+        };
+            
+        Ok(readable_templates)
+    }
+
+    pub fn get_all_with_data(lang: &str) -> Result<(Vec<(Template, Vec<TemplateSection>)>, BTreeMap<Uuid, String>), CustomError> {
         let conn = database::connection()?;
 
         let templates = templates::table
@@ -130,32 +175,36 @@ impl Template {
 pub struct InsertableTemplate {
     pub name_text_id: Uuid,
     pub purpose_text_id: Uuid,
+    pub slug: String,
 }
 
 impl InsertableTemplate {
     pub fn new(
-        name_text: String,
-        purpose_text: String,
+        raw_name_text: String,
+        raw_purpose_text: String,
         lang: String,
     ) -> Result<Self, CustomError> {
 
         let insertable_name_text = InsertableText::new(
             lang.to_owned(), 
-            name_text,
+            raw_name_text.to_owned(),
             None);
 
         let name_text = Text::create(&insertable_name_text)?;
 
         let insertable_purpose_text = InsertableText::new(
             lang.to_owned(), 
-            purpose_text,
+            raw_purpose_text,
             None);
+
+        let slug = raw_name_text.to_snake_case();
 
         let purpose_text = Text::create(&insertable_purpose_text)?;
 
         Ok(InsertableTemplate {
             name_text_id: name_text.id,
             purpose_text_id: purpose_text.id,
+            slug: slug,
         })
     }
 }

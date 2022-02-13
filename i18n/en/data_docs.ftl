@@ -24,6 +24,12 @@ footer-1 = Please note that this work is a learning project and experiment in us
 available-licence = The Data Docs project is available on GitHub under an MIT licence here:
 developed-by = Developed by ToferC 2022
 
+## Templates
+templates = Templates
+template-index = Template Index
+template-name = Template Name
+updated-on = Updated On
+
 ## Login Page
 email-address = Email address
 email-address-helper = Enter the email address you used to register.

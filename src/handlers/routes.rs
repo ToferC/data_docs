@@ -52,6 +52,9 @@ use crate::handlers::{
     delete_user,
     delete_user_handler,
 
+    // templates
+    template_index,
+
 };
 
 pub fn configure_services(config: &mut web::ServiceConfig) {
@@ -99,4 +102,7 @@ pub fn configure_services(config: &mut web::ServiceConfig) {
      config.service(edit_user_post);
      config.service(delete_user);
      config.service(delete_user_handler);
+
+     // templates
+     config.service(template_index);
 }

@@ -20,7 +20,7 @@ pub async fn template_api(
     let (_ctx, _, _, _) = generate_basic_context(id, &lang, req.uri().path());
 
 
-    let data = Template::get_all(&lang).unwrap();
+    let data = Template::get_all_with_data(&lang).unwrap();
 
     HttpResponse::Ok().json(data)
 }

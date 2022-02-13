@@ -51,6 +51,7 @@ table! {
         purpose_text_id -> Uuid,
         created_at -> Timestamp,
         updated_at -> Timestamp,
+        slug -> Varchar,
     }
 }
 
