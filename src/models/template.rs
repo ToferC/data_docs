@@ -1,8 +1,17 @@
+use std::collections::BTreeMap;
+
 use serde::{Deserialize, Serialize};
+use diesel::prelude::*;
+use diesel::{BelongingToDsl, QueryDsl};
 use chrono::NaiveDateTime;
 use uuid::Uuid;
 
-#[derive(Debug, Serialize, Deserialize)]
+use crate::errors::CustomError;
+use crate::database;
+use crate::schema::{templates, template_sections, texts};
+use crate::models::{Text, InsertableText, Document, Section};
+
+#[derive(Debug, Serialize, Deserialize, Insertable, AsChangeset, Queryable, Identifiable)]
 /// Core data structure which to build a Document
 ///Intent here is that users can create template with all the elements to enable other users
 /// to build a document. An example is a memo for approval. The memo has
@@ -15,6 +24,7 @@ use uuid::Uuid;
 /// When a user is creating a memo, they will see a screen with a single markdown window for each section. They will enter 
 /// the text in the markdown window and when saved, the text will be saved to the database and the structural data will be 
 /// entered to recreate and manage the document.
+#[table_name = "templates"]
 pub struct Template {
     pub id: Uuid,
     pub name_text_id: Uuid,
@@ -23,13 +33,226 @@ pub struct Template {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+impl Template {
+    pub fn create(
+        template: &InsertableTemplate,
+    ) -> Result<Self, CustomError> {
+
+        let conn = database::connection()?;
+
+        let v = diesel::insert_into(templates::table)
+            .values(template)
+            .get_result(&conn)?;
+
+        Ok(v)
+    }
+
+    pub fn get_by_uuid(id: Uuid, lang: &str) -> Result<(Template, Vec<TemplateSection>, BTreeMap<Uuid, String>), CustomError> {
+        let conn = database::connection()?;
+
+        let template = templates::table
+            .filter(templates::id.eq(id))
+            .first::<Self>(&conn)?;
+
+        let sections = TemplateSection::belonging_to(&template)
+            .load::<TemplateSection>(&conn)?;
+
+        // Get texts for template and each section
+        let mut text_ids = Vec::new();
+        text_ids.push(template.name_text_id);
+        text_ids.push(template.purpose_text_id);
+
+        for section in sections.iter() {
+            text_ids.push(section.header_text_id);
+            text_ids.push(section.instructions_text_id);
+            text_ids.push(section.help_text_id);
+        }
+
+        let texts = Text::get_text_map(text_ids, lang)?;
+
+        Ok((template, sections, texts))
+    }
+
+    pub fn get_all(lang: &str) -> Result<(Vec<(Template, Vec<TemplateSection>)>, BTreeMap<Uuid, String>), CustomError> {
+        let conn = database::connection()?;
+
+        let templates = templates::table
+            .load::<Self>(&conn)?;
+
+        let sections = TemplateSection::belonging_to(&templates)
+            .load::<TemplateSection>(&conn)?;
+
+        // Get texts for template and each section
+        let mut text_ids = Vec::new();
+        
+        for template in templates.iter() {
+            text_ids.push(template.name_text_id);
+            text_ids.push(template.purpose_text_id);
+        };
+
+        for section in sections.clone().into_iter() {
+            text_ids.push(section.header_text_id);
+            text_ids.push(section.instructions_text_id);
+            text_ids.push(section.help_text_id);
+        }
+
+        let sections = sections.grouped_by(&templates);
+
+        let texts = Text::get_text_map(text_ids, lang)?;
+
+        let v = templates
+            .into_iter()
+            .zip(sections)
+            .collect();
+
+        Ok((v, texts))
+    }
+
+    pub fn get_texts(&self, lang: &str) -> Vec<Text> {
+        let conn = database::connection().unwrap();
+
+        let mut text_ids = Vec::new();
+        text_ids.push(self.name_text_id);
+        text_ids.push(self.purpose_text_id);
+
+        let texts = texts::table
+            .filter(texts::lang.eq(lang))
+            .filter(texts::id.eq_any(text_ids))
+            .load::<Text>(&conn)
+            .unwrap();
+
+        texts
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, Insertable)]
+#[table_name = "templates"]
+pub struct InsertableTemplate {
+    pub name_text_id: Uuid,
+    pub purpose_text_id: Uuid,
+}
+
+impl InsertableTemplate {
+    pub fn new(
+        name_text: String,
+        purpose_text: String,
+        lang: String,
+    ) -> Result<Self, CustomError> {
+
+        let insertable_name_text = InsertableText::new(
+            lang.to_owned(), 
+            name_text,
+            None);
+
+        let name_text = Text::create(&insertable_name_text)?;
+
+        let insertable_purpose_text = InsertableText::new(
+            lang.to_owned(), 
+            purpose_text,
+            None);
+
+        let purpose_text = Text::create(&insertable_purpose_text)?;
+
+        Ok(InsertableTemplate {
+            name_text_id: name_text.id,
+            purpose_text_id: purpose_text.id,
+        })
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, AsChangeset, Insertable, Queryable, Associations, Identifiable, Clone)]
+#[table_name = "template_sections"]
+#[belongs_to(Template)]
 pub struct TemplateSection {
     pub id: Uuid,
-    pub document_id: Uuid,
+    pub template_id: Uuid,
     pub header_text_id: Uuid,
-    pub order: usize,
+    pub order_number: i32,
     pub instructions_text_id: Uuid,
-    pub help_text_text_id: Uuid,
-    pub character_limit: usize,
+    pub help_text_id: Uuid,
+    pub character_limit: Option<i32>,
+}
+
+impl TemplateSection {
+    pub fn create(template_section: &InsertableTemplateSection) -> Result<Self, CustomError> {
+
+        let conn = database::connection()?;
+
+        let v = diesel::insert_into(template_sections::table)
+            .values(template_section)
+            .get_result(&conn)?;
+
+        Ok(v)
+    }
+
+    pub fn get_texts(&self, lang: &str) -> Vec<Text> {
+        let conn = database::connection().unwrap();
+
+        let mut text_ids = Vec::new();
+        text_ids.push(self.header_text_id);
+        text_ids.push(self.instructions_text_id);
+        text_ids.push(self.help_text_id);
+
+        let texts = texts::table
+            .filter(texts::lang.eq(lang))
+            .filter(texts::id.eq_any(text_ids))
+            .load::<Text>(&conn)
+            .unwrap();
+
+        texts
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, Insertable)]
+#[table_name = "template_sections"]
+pub struct InsertableTemplateSection {
+    pub template_id: Uuid,
+    pub header_text_id: Uuid,
+    pub order_number: i32,
+    pub instructions_text_id: Uuid,
+    pub help_text_id: Uuid,
+    pub character_limit: Option<i32>,
+}
+
+impl InsertableTemplateSection {
+    pub fn new(
+        template_id: Uuid,
+        header_text: String,
+        order_number: i32,
+        instructions_text: String,
+        help_text: String,
+        character_limit: Option<i32>,
+        lang: String,
+    ) -> Result<Self, CustomError> {
+
+        let insertable_header_text = InsertableText::new(
+            lang.to_owned(), 
+            header_text,
+            None);
+
+        let header_text = Text::create(&insertable_header_text)?;
+
+        let insertable_instructions_text = InsertableText::new(
+            lang.to_owned(), 
+            instructions_text,
+            None);
+
+        let instructions_text = Text::create(&insertable_instructions_text)?;
+
+        let insertable_help_text = InsertableText::new(
+            lang.to_owned(), 
+            help_text,
+            None);
+
+        let help_text = Text::create(&insertable_help_text)?;
+
+        Ok(InsertableTemplateSection {
+            template_id,
+            header_text_id: header_text.id,
+            order_number,
+            instructions_text_id: instructions_text.id,
+            help_text_id: help_text.id,
+            character_limit,
+        })
+    }
 }

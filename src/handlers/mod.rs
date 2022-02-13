@@ -6,6 +6,7 @@ pub mod utility;
 pub mod errors;
 pub mod email;
 pub mod authentication_handlers;
+pub mod api;
 
 pub use base::{index, raw_index};
 pub use routes::configure_services;
@@ -15,3 +16,4 @@ pub use utility::*;
 pub use email::*;
 pub use errors::*;
 pub use authentication_handlers::*;
+pub use api::*;

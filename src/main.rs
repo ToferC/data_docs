@@ -1,4 +1,5 @@
 use actix_web::{HttpServer, App, web, guard, middleware};
+use data_docs::construct_demo_template;
 use dotenv::dotenv;
 use std::env;
 use tera::{Tera};
@@ -48,6 +49,9 @@ async fn main() -> std::io::Result<()> {
     let cookie_secret_key = env::var("COOKIE_SECRET_KEY").expect("Unable to find secret key");
 
     database::init();
+
+    // Testing
+    construct_demo_template();
 
     // SendGrid email API
     let sendgrid_var = env::var("SENDGRID_API_KEY");

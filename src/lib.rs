@@ -13,6 +13,9 @@ use rand::distributions::Alphanumeric;
 
 use sendgrid::SGClient;
 
+use models::{Document, Template, InsertableTemplate, InsertableTemplateSection, TemplateSection};
+use errors::CustomError;
+
 #[macro_use]
 extern crate diesel;
 
@@ -25,6 +28,66 @@ const APP_NAME: &str = "Data Docs";
 pub struct AppData {
     pub tmpl: Tera,
     pub mail_client: SGClient,
+}
+
+// Test in constucting template and simple document
+pub fn construct_demo_template() -> Result<Template, CustomError> {
+
+    let template = InsertableTemplate::new(
+        "Demo Template".to_string(),
+        "Demo Purpose".to_string(),
+        "en".to_string(),
+    )?;
+
+    let template = Template::create(&template)?;
+
+    let issue = InsertableTemplateSection::new(
+        template.id,
+        "Issue".to_string(),
+        0,
+        "Highlight the key issues in less than five bullets.".to_string(),
+        "Complete the document to the best of your ability".to_string(),
+        None,
+        "en".to_string(),
+    )?;
+
+    let background = InsertableTemplateSection::new(
+        template.id,
+        "Background".to_string(),
+        1,
+        "Explain the relevant information to provide general understanding.".to_string(),
+        "Complete the document to the best of your ability".to_string(),
+        None,
+        "en".to_string(),
+    )?;
+
+    let options = InsertableTemplateSection::new(
+        template.id,
+        "Options".to_string(),
+        2,
+        "Outline options available and pros and cons".to_string(),
+        "Complete the document to the best of your ability".to_string(),
+        None,
+        "en".to_string()
+    )?;
+
+    let recommendation = InsertableTemplateSection::new(
+        template.id,
+        "Recommendation".to_string(),
+        3,
+        "Outline recommendations".to_string(),
+        "Complete the document to the best of your ability".to_string(),
+        None,
+        "en".to_string()
+    )?;
+
+    let issue = TemplateSection::create(&issue)?;
+    let background = TemplateSection::create(&background)?;
+    let options = TemplateSection::create(&options)?;
+    let recommendation = TemplateSection::create(&recommendation)?;
+
+    Ok(template)
+
 }
 
 /// Generate context, session_user, role and node_names from id and lang
