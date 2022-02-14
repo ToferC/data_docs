@@ -2,14 +2,14 @@
 
 This repo is a learning and test project to transform the massive amount of unstructured word documents we create and use every day into a structured and useful data source that supports:
 
-- [ ] Web server using Rocket
-- [ ] Diesel accessing Postgresql DB
+- [x] Web server using Actix-Web
+- [x] Diesel accessing Postgresql DB
 - [ ] Docker Containerization
 - [ ] Authentication and permissions through Microsoft Active Directory
 - [ ] Markdown
 - [ ] Publishing
 - [ ] Search
-- [ ] Pro-active disclosure
+- [ ] Proactive disclosure
 - [ ] Analytics
 - [ ] Editing and change history
 - [ ] Translation
