@@ -1,7 +1,10 @@
 table! {
     documents (id) {
         id -> Uuid,
+        title_text_id -> Uuid,
         purpose_text_id -> Uuid,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
         publishable -> Bool,
     }
 }

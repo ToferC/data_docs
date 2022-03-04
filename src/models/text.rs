@@ -35,6 +35,16 @@ impl Text {
         Ok(v)
     }
 
+    pub fn get_text_by_id(text_id: Uuid, lang: &str) -> Result<Text, CustomError> {
+        let conn = database::connection()?;
+        let text = texts::table
+            .filter(texts::id.eq(text_id)
+            .and(texts::lang.eq(lang)))
+            .get_result(&conn)?;
+
+        Ok(text)
+    }
+
     pub fn get_text_map(ids: Vec<Uuid>, lang: &str) -> Result<BTreeMap<Uuid, String>, CustomError> {
         let conn = database::connection()?;
         let texts = texts::table

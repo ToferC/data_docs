@@ -51,7 +51,10 @@ CREATE TABLE IF NOT EXISTS template_sections (
 
 CREATE TABLE IF NOT EXISTS documents (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    title_text_id UUID NOT NULL,
     purpose_text_id UUID NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
     publishable bool NOT NULL DEFAULT false
 );
 

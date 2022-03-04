@@ -8,6 +8,7 @@ pub mod email;
 pub mod authentication_handlers;
 pub mod api;
 pub mod template;
+pub mod text;
 
 pub use base::{index, raw_index};
 pub use routes::configure_services;
@@ -19,3 +20,4 @@ pub use errors::*;
 pub use authentication_handlers::*;
 pub use api::*;
 pub use template::*;
+pub use text::*;
