@@ -218,19 +218,22 @@ impl InsertableTemplate {
         raw_name_text: String,
         raw_purpose_text: String,
         lang: String,
+        created_by: Uuid,
     ) -> Result<Self, CustomError> {
 
         let insertable_name_text = InsertableText::new(
             lang.to_owned(), 
             raw_name_text.to_owned(),
-            None);
+            None,
+            created_by);
 
         let name_text = Text::create(&insertable_name_text)?;
 
         let insertable_purpose_text = InsertableText::new(
             lang.to_owned(), 
             raw_purpose_text,
-            None);
+            None,
+            created_by);
 
         let slug = raw_name_text.to_snake_case();
 
@@ -296,6 +299,41 @@ impl TemplateSection {
 
         texts
     }
+
+    pub fn get_readable_by_id(id: Uuid, lang: &str) -> Result<ReadableTemplateSection, CustomError> {
+        let conn = database::connection()?;
+
+        let template_section: TemplateSection = template_sections::table
+            .filter(template_sections::id.eq(id))
+            .get_result(&conn)?;
+
+        // Get texts for template and each section
+        let mut text_ids = Vec::new();
+
+        text_ids.push(template_section.header_text_id);
+        text_ids.push(template_section.instructions_text_id);
+        text_ids.push(template_section.help_text_id);
+
+        let texts = Text::get_text_map(text_ids, lang)?;
+
+        let limit = if let Some(i) = template_section.character_limit {
+            i
+        } else {
+            0
+        };
+
+        let readable_template_section = ReadableTemplateSection {
+            header_text: texts.get(&template_section.header_text_id).unwrap().to_string(),
+            instructions_text: texts.get(&template_section.instructions_text_id).unwrap().to_string(),
+            help_text: texts.get(&template_section.help_text_id).unwrap().to_string(),
+            order_number: template_section.order_number,
+            character_limit: limit,
+            id: template_section.id,
+            template_id: template_section.template_id,
+        };
+
+        Ok(readable_template_section)
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, Insertable)]
@@ -318,26 +356,30 @@ impl InsertableTemplateSection {
         help_text: String,
         character_limit: Option<i32>,
         lang: String,
+        created_by_id: Uuid,
     ) -> Result<Self, CustomError> {
 
         let insertable_header_text = InsertableText::new(
             lang.to_owned(), 
             header_text,
-            None);
+            None,
+            created_by_id);
 
         let header_text = Text::create(&insertable_header_text)?;
 
         let insertable_instructions_text = InsertableText::new(
             lang.to_owned(), 
             instructions_text,
-            None);
+            None,
+            created_by_id);
 
         let instructions_text = Text::create(&insertable_instructions_text)?;
 
         let insertable_help_text = InsertableText::new(
             lang.to_owned(), 
             help_text,
-            None);
+            None,
+            created_by_id);
 
         let help_text = Text::create(&insertable_help_text)?;
 

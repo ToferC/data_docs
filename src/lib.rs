@@ -7,13 +7,14 @@ pub mod schema;
 use tera::{Tera, Context};
 use actix_identity::Identity;
 use actix_session::Session;
+use std::env;
 
 use rand::{thread_rng, Rng};
 use rand::distributions::Alphanumeric;
 
 use sendgrid::SGClient;
 
-use models::{Document, Template, InsertableTemplate, InsertableTemplateSection, TemplateSection};
+use models::{User, Template, InsertableTemplate, InsertableTemplateSection, TemplateSection};
 use errors::CustomError;
 
 #[macro_use]
@@ -33,10 +34,16 @@ pub struct AppData {
 // Test in constucting template and simple document
 pub fn construct_demo_template() -> Result<Template, CustomError> {
 
+    let user_email = env::var("USER_EMAIL").expect("Unable to retrieve USER_EMAIL");
+
+    // load user
+    let user = User::find_from_email(&user_email)?;
+
     let template = InsertableTemplate::new(
         "Demo Template".to_string(),
         "Demo Purpose".to_string(),
         "en".to_string(),
+        user.id,
     )?;
 
     let template = Template::create(&template)?;
@@ -49,6 +56,7 @@ pub fn construct_demo_template() -> Result<Template, CustomError> {
         "Complete the document to the best of your ability".to_string(),
         None,
         "en".to_string(),
+        user.id,
     )?;
 
     let background = InsertableTemplateSection::new(
@@ -59,6 +67,7 @@ pub fn construct_demo_template() -> Result<Template, CustomError> {
         "Complete the document to the best of your ability".to_string(),
         None,
         "en".to_string(),
+        user.id,
     )?;
 
     let options = InsertableTemplateSection::new(
@@ -68,7 +77,8 @@ pub fn construct_demo_template() -> Result<Template, CustomError> {
         "Outline options available and pros and cons".to_string(),
         "Complete the document to the best of your ability".to_string(),
         None,
-        "en".to_string()
+        "en".to_string(),
+        user.id,
     )?;
 
     let recommendation = InsertableTemplateSection::new(
@@ -78,7 +88,8 @@ pub fn construct_demo_template() -> Result<Template, CustomError> {
         "Outline recommendations".to_string(),
         "Complete the document to the best of your ability".to_string(),
         None,
-        "en".to_string()
+        "en".to_string(),
+        user.id,
     )?;
 
     let issue = TemplateSection::create(&issue)?;

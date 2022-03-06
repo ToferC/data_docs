@@ -9,9 +9,9 @@ use std::collections::BTreeMap;
 use crate::database;
 use crate::schema::{documents, sections, texts};
 use crate::errors::CustomError;
-use crate::models::{InsertableText, Text, ReadableTemplateSection};
+use crate::models::{InsertableText, Text, ReadableTemplateSection, Section, ReadableSection};
 
-#[derive(Debug, Serialize, Deserialize, AsChangeset, Queryable, Insertable)]
+#[derive(Debug, Serialize, Deserialize, AsChangeset, Queryable, Insertable, Identifiable, Associations, PartialEq, Clone)]
 #[table_name = "documents"]
 pub struct Document {
     pub id: Uuid,
@@ -46,19 +46,22 @@ impl InsertableDocument {
         raw_title_text: String,
         raw_purpose_text: String,
         lang: String,
+        created_by: Uuid,
     ) -> Result<Self, CustomError> {
 
         let insertable_name_text = InsertableText::new(
             lang.to_owned(), 
             raw_title_text.to_owned(),
-            None);
+            None,
+            created_by);
 
         let title_text = Text::create(&insertable_name_text)?;
 
         let insertable_purpose_text = InsertableText::new(
             lang.to_owned(), 
             raw_purpose_text,
-            None);
+            None,
+            created_by);
 
         let purpose_text = Text::create(&insertable_purpose_text)?;
 
@@ -83,7 +86,7 @@ impl Document {
         Ok(v)
     }
 
-    pub fn get_by_id(id: Uuid, lang: &str) -> Result<(ReadableDocument, Vec<ReadableTemplateSection>), CustomError> {
+    pub fn get_readable_by_id(id: Uuid, lang: &str) -> Result<(ReadableDocument, BTreeMap<Uuid, ReadableSection>), CustomError> {
         let conn = database::connection()?;
 
         let document = documents::table
@@ -93,17 +96,11 @@ impl Document {
         let sections = Section::belonging_to(&document)
             .load::<Section>(&conn)?;
 
-        // Get texts for document and each section
+        // Get texts for document
         let mut text_ids = Vec::new();
 
         text_ids.push(document.title_text_id);
         text_ids.push(document.purpose_text_id);
-
-        for section in sections.iter() {
-            text_ids.push(section.header_text_id);
-            text_ids.push(section.instructions_text_id);
-            text_ids.push(section.help_text_id);
-        }
 
         let texts = Text::get_text_map(text_ids, lang)?;
 
@@ -116,27 +113,13 @@ impl Document {
             publishable: document.publishable,
         };
 
-        let mut readable_sections = Vec::new();
+        // Get the ReadableSections with the data that we need to render them
+
+        let mut readable_sections: BTreeMap<Uuid, ReadableSection> = BTreeMap::new();
 
         for section in sections.iter() {
-
-            let limit = if let Some(i) = section.character_limit {
-                i
-            } else {
-                0
-            };
-
-            let readable_template_section = ReadableTemplateSection {
-                header_text: texts.get(&section.header_text_id).unwrap().to_string(),
-                instructions_text: texts.get(&section.instructions_text_id).unwrap().to_string(),
-                help_text: texts.get(&section.help_text_id).unwrap().to_string(),
-                order_number: section.order_number,
-                character_limit: limit,
-                id: section.id,
-                template_id: section.template_id,
-            };
-
-            readable_sections.push(readable_template_section);
+            let rs = ReadableSection::get_by_id(section.id, lang)?;
+            readable_sections.insert(section.id, rs);
         }
 
         Ok((readable_document, readable_sections))
@@ -176,41 +159,6 @@ impl Document {
         Ok(readable_documents)
     }
 
-    pub fn get_all_with_data(lang: &str) -> Result<(Vec<(Document, Vec<Section>)>, BTreeMap<Uuid, String>), CustomError> {
-        let conn = database::connection()?;
-
-        let documents = documents::table
-            .load::<Self>(&conn)?;
-
-        let sections = Section::belonging_to(&documents)
-            .load::<Section>(&conn)?;
-
-        // Get texts for document and each section
-        let mut text_ids = Vec::new();
-        
-        for document in documents.iter() {
-            text_ids.push(document.title_text_id);
-            text_ids.push(document.purpose_text_id);
-        };
-
-        for section in sections.clone().into_iter() {
-            text_ids.push(section.header_text_id);
-            text_ids.push(section.instructions_text_id);
-            text_ids.push(section.help_text_id);
-        }
-
-        let sections = sections.grouped_by(&documents);
-
-        let texts = Text::get_text_map(text_ids, lang)?;
-
-        let v = documents
-            .into_iter()
-            .zip(sections)
-            .collect();
-
-        Ok((v, texts))
-    }
-
     pub fn get_texts(&self, lang: &str) -> Vec<Text> {
         let conn = database::connection().unwrap();
 
@@ -226,13 +174,4 @@ impl Document {
 
         texts
     }
-}
-
-#[derive(Debug, Serialize, Deserialize, AsChangeset, Insertable, Queryable, Associations, Identifiable, Clone)]
-#[table_name = "sections"]
-#[belongs_to(Document)]
-pub struct Section {
-    pub id: Uuid,
-    pub document_id: Uuid,
-    pub template_section_id: Uuid, // References the document section so we don't duplicate the data
 }

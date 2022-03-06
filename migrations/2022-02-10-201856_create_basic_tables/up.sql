@@ -65,7 +65,9 @@ CREATE TABLE IF NOT EXISTS sections (
         REFERENCES documents(id) ON DELETE CASCADE,
     template_section_id UUID NOT NULL,
     FOREIGN KEY(template_section_id)
-        REFERENCES template_sections(id)
+        REFERENCES template_sections(id),
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS texts (
@@ -74,9 +76,10 @@ CREATE TABLE IF NOT EXISTS texts (
     FOREIGN KEY(section_id)
         REFERENCES sections(id) ON DELETE CASCADE,
     lang VARCHAR(2) NOT NULL default 'en',
-    content VARCHAR NOT NULL,
-    translated bool NOT NULL DEFAULT false,
-    machine_translation bool NOT NULL default false,
-    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    content TEXT[] NOT NULL,
+    translated bool[] NOT NULL DEFAULT '{false}',
+    machine_translation bool[] NOT NULL default '{false}',
+    created_at TIMESTAMP[] NOT NULL,
+    created_by_id UUID[] NOT NULL,
     PRIMARY KEY(id, lang)
 );

@@ -17,10 +17,11 @@ pub struct Text {
     // Might want to make this a different data type
     pub section_id: Option<Uuid>,
     pub lang: String,
-    pub content: String,
-    pub translated: bool,
-    pub machine_translation: bool,
-    pub created_at: NaiveDateTime,
+    pub content: Vec<String>,
+    pub translated: Vec<bool>,
+    pub machine_translation: Vec<bool>,
+    pub created_at: Vec<NaiveDateTime>,
+    pub created_by_id: Vec<Uuid>,
 }
 
 impl Text {
@@ -55,7 +56,8 @@ impl Text {
         let mut treemap = BTreeMap::new();
 
         for t in texts {
-            treemap.insert(t.id, t.content);
+            // get the latest version of the text
+            treemap.insert(t.id, t.content.last().unwrap().to_owned());
         };
 
         Ok(treemap)
@@ -69,9 +71,10 @@ impl From<InsertableText> for Text {
             section_id: text.section_id,
             lang: text.lang,
             content: text.content,
-            translated: false,
-            machine_translation: false,
-            created_at: chrono::Utc::now().naive_utc(),
+            translated: text.translated,
+            machine_translation: text.machine_translation,
+            created_at: vec![chrono::Utc::now().naive_utc()],
+            created_by_id: text.created_by_id,
         }
     }
 }
@@ -80,10 +83,11 @@ impl From<InsertableText> for Text {
 #[table_name = "texts"]
 pub struct InsertableText {
     pub lang: String,
-    pub content: String,
-    pub translated: bool,
-    pub machine_translation: bool,
+    pub content: Vec<String>,
+    pub translated: Vec<bool>,
+    pub machine_translation: Vec<bool>,
     pub section_id: Option<Uuid>,
+    pub created_by_id: Vec<Uuid>,
 }
 
 impl InsertableText {
@@ -93,25 +97,41 @@ impl InsertableText {
         translated: bool,
         machine_translation: bool,
         section_id: Option<Uuid>,
+        created_by_id: Uuid
     ) -> Self {
+
+        let content = vec![content];
+        let translated = vec![translated];
+        let machine_translation = vec![machine_translation];
+        let created_by_id = vec![created_by_id];
+
         InsertableText {
             lang,
             content,
             translated,
             machine_translation,
             section_id,
+            created_by_id,
         }
     }pub fn new(
         lang: String,
         content: String,
         section_id: Option<Uuid>,
+        created_by_id: Uuid,
     ) -> Self {
+
+        let content = vec![content];
+        let translated = vec![false];
+        let machine_translation = vec![false];
+        let created_by_id = vec![created_by_id];
+
         InsertableText {
             lang,
             content,
-            translated: false,
-            machine_translation: false,
+            translated,
+            machine_translation,
             section_id,
+            created_by_id,
         }
     }
 }

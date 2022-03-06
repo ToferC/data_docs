@@ -32,6 +32,8 @@ table! {
         id -> Uuid,
         document_id -> Uuid,
         template_section_id -> Uuid,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
     }
 }
 
@@ -63,10 +65,11 @@ table! {
         id -> Uuid,
         section_id -> Nullable<Uuid>,
         lang -> Varchar,
-        content -> Varchar,
-        translated -> Bool,
-        machine_translation -> Bool,
-        created_at -> Timestamp,
+        content -> Array<Text>,
+        translated -> Array<Bool>,
+        machine_translation -> Array<Bool>,
+        created_at -> Array<Timestamp>,
+        created_by_id -> Array<Uuid>,
     }
 }
 

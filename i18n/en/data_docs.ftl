@@ -9,6 +9,10 @@ app-description = { -app-name } is a learning project and experiment in construc
 app-mvp = Data Docs MVP
 -user-support-email = usersupport@intersectional-data.ca
 
+## Index
+see-documents = See Documents
+see-templates = See Templates
+
 ## Base & Navbar
 button-explore-demo-data = Explore demonstration data
 about = About the Project
