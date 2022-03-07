@@ -1,8 +1,10 @@
-<div hx-target="this" hx-swap="outerHTML">
+{% block text %}
+<div hx-target="{{text.id}}" hx-swap="outerHTML">
 
     <div><label>{{ text.content }}</label></div>
-    <button hx-get="/{{ lang }}/text_edit/{{ text.id }}" class="btn btn primary">
+    <button hx-get="/{{ lang }}/edit_text/{{ text.id }}" class="btn btn primary">
         Click to Edit
     </button>
 
 </div>
+{% endblock text %}

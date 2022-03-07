@@ -222,17 +222,17 @@ impl InsertableTemplate {
     ) -> Result<Self, CustomError> {
 
         let insertable_name_text = InsertableText::new(
+            None,
             lang.to_owned(), 
             raw_name_text.to_owned(),
-            None,
             created_by);
 
         let name_text = Text::create(&insertable_name_text)?;
 
         let insertable_purpose_text = InsertableText::new(
+            None,
             lang.to_owned(), 
             raw_purpose_text,
-            None,
             created_by);
 
         let slug = raw_name_text.to_snake_case();
@@ -360,25 +360,25 @@ impl InsertableTemplateSection {
     ) -> Result<Self, CustomError> {
 
         let insertable_header_text = InsertableText::new(
+            None,
             lang.to_owned(), 
             header_text,
-            None,
             created_by_id);
 
         let header_text = Text::create(&insertable_header_text)?;
 
         let insertable_instructions_text = InsertableText::new(
+            None,
             lang.to_owned(), 
             instructions_text,
-            None,
             created_by_id);
 
         let instructions_text = Text::create(&insertable_instructions_text)?;
 
         let insertable_help_text = InsertableText::new(
+            None,
             lang.to_owned(), 
             help_text,
-            None,
             created_by_id);
 
         let help_text = Text::create(&insertable_help_text)?;

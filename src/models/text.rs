@@ -62,6 +62,29 @@ impl Text {
 
         Ok(treemap)
     }
+
+    pub fn update(
+        text_id: Uuid, 
+        content: String, 
+        lang: &str,
+        created_by_id:Uuid,
+    ) -> Result<Self, CustomError> {
+        let conn = database::connection()?;
+
+        let mut text = Text::get_text_by_id(text_id, lang).expect("Unable to retrieve text");
+
+        text.content.push(content);
+        text.translated.push(false);
+        text.machine_translation.push(false);
+        text.created_by_id.push(created_by_id);
+        text.created_at.push(chrono::Utc::now().naive_utc());
+
+        let v = diesel::update(texts::table)
+            .filter(texts::id.eq(text_id))
+            .set(text)
+            .get_result(&conn)?;
+        Ok(v)
+    }
 }
 
 impl From<InsertableText> for Text {
@@ -114,9 +137,9 @@ impl InsertableText {
             created_by_id,
         }
     }pub fn new(
+        section_id: Option<Uuid>,
         lang: String,
         content: String,
-        section_id: Option<Uuid>,
         created_by_id: Uuid,
     ) -> Self {
 

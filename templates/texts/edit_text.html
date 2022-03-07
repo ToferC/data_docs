@@ -1,0 +1,8 @@
+<form hx-put="/{{ lang }}/text/{{ section.text_id }}" hx-target="{{ section.text_id }}" hx-swap="outerHTML">
+    <div>
+      <label>Content</label>
+      <input type="text" name="{{ section.text_id }}-content" value="{{ section.content }}">
+    </div>
+    <button class="btn">Submit</button>
+    <button class="btn" hx-get="/{{ lang }}/text/{{ section.text_id }}">Cancel</button>
+</form> 

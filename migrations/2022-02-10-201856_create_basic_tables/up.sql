@@ -55,7 +55,8 @@ CREATE TABLE IF NOT EXISTS documents (
     purpose_text_id UUID NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    publishable bool NOT NULL DEFAULT false
+    publishable bool NOT NULL DEFAULT false,
+    created_by_id UUID NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS sections (
@@ -67,7 +68,8 @@ CREATE TABLE IF NOT EXISTS sections (
     FOREIGN KEY(template_section_id)
         REFERENCES template_sections(id),
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    created_by_id UUID NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS texts (

@@ -6,6 +6,7 @@ table! {
         created_at -> Timestamp,
         updated_at -> Timestamp,
         publishable -> Bool,
+        created_by_id -> Uuid,
     }
 }
 
@@ -34,6 +35,7 @@ table! {
         template_section_id -> Uuid,
         created_at -> Timestamp,
         updated_at -> Timestamp,
+        created_by_id -> Uuid,
     }
 }
 

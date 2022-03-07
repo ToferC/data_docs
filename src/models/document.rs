@@ -21,6 +21,7 @@ pub struct Document {
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
     pub publishable: bool,
+    pub created_by_id: Uuid,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -39,6 +40,7 @@ pub struct ReadableDocument {
 pub struct InsertableDocument {
     pub title_text_id: Uuid,
     pub purpose_text_id: Uuid,
+    pub created_by_id: Uuid,
 }
 
 impl InsertableDocument {
@@ -46,28 +48,29 @@ impl InsertableDocument {
         raw_title_text: String,
         raw_purpose_text: String,
         lang: String,
-        created_by: Uuid,
+        created_by_id: Uuid,
     ) -> Result<Self, CustomError> {
 
         let insertable_name_text = InsertableText::new(
+            None,
             lang.to_owned(), 
             raw_title_text.to_owned(),
-            None,
-            created_by);
+            created_by_id);
 
         let title_text = Text::create(&insertable_name_text)?;
 
         let insertable_purpose_text = InsertableText::new(
+            None,
             lang.to_owned(), 
             raw_purpose_text,
-            None,
-            created_by);
+            created_by_id);
 
         let purpose_text = Text::create(&insertable_purpose_text)?;
 
         Ok(InsertableDocument {
             title_text_id: title_text.id,
             purpose_text_id: purpose_text.id,
+            created_by_id: created_by_id,
         })
     }
 }
