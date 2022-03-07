@@ -81,7 +81,7 @@ CREATE TABLE IF NOT EXISTS texts (
     content TEXT[] NOT NULL,
     translated bool[] NOT NULL DEFAULT '{false}',
     machine_translation bool[] NOT NULL default '{false}',
-    created_at TIMESTAMP[] NOT NULL,
+    created_at TIMESTAMP[] NOT NULL DEFAULT '{NOW()}',
     created_by_id UUID[] NOT NULL,
     PRIMARY KEY(id, lang)
 );

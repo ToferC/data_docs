@@ -50,9 +50,6 @@ async fn main() -> std::io::Result<()> {
 
     database::init();
 
-    // Testing
-    construct_demo_template();
-
     // SendGrid email API
     let sendgrid_var = env::var("SENDGRID_API_KEY");
     let sendgrid_key: String;

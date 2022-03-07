@@ -40,6 +40,8 @@ section-character-limit = Character Limit: { $limit ->
     [0] No limit.
     *[other] Limit of { $limit } characters.
 }
+create-document = Create Document
+create = Create
 
 ## Login Page
 email-address = Email address

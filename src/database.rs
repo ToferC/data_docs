@@ -5,6 +5,7 @@ use lazy_static::lazy_static;
 use r2d2;
 use std::env;
 use crate::models::{User, UserData};
+use crate::construct_demo_template;
 
 
 type Pool = r2d2::Pool<ConnectionManager<PgConnection>>;
@@ -49,6 +50,14 @@ pub fn init() {
                 .expect("Unable to create admin");
         
             println!("Admin created: {:?}", &admin);
+
+                // Testing
+            let r = construct_demo_template();
+
+            match r {
+                Ok(t) => println!("Template successful: {:?}", t),
+                Err(e) => println!("Error: {}", e),
+            };
         }
     }
 }

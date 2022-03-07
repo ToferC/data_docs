@@ -34,7 +34,7 @@ pub struct AppData {
 // Test in constucting template and simple document
 pub fn construct_demo_template() -> Result<Template, CustomError> {
 
-    let user_email = env::var("USER_EMAIL").expect("Unable to retrieve USER_EMAIL");
+    let user_email = env::var("ADMIN_EMAIL").expect("Unable to retrieve ADMIN_EMAIL");
 
     // load user
     let user = User::find_from_email(&user_email)?;
@@ -92,10 +92,12 @@ pub fn construct_demo_template() -> Result<Template, CustomError> {
         user.id,
     )?;
 
-    let issue = TemplateSection::create(&issue)?;
-    let background = TemplateSection::create(&background)?;
-    let options = TemplateSection::create(&options)?;
-    let recommendation = TemplateSection::create(&recommendation)?;
+    let _issue = TemplateSection::create(&issue)?;
+    let _background = TemplateSection::create(&background)?;
+    let _options = TemplateSection::create(&options)?;
+    let _recommendation = TemplateSection::create(&recommendation)?;
+
+    println!("{:?}", &template);
 
     Ok(template)
 

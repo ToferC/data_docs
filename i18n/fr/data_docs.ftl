@@ -9,6 +9,10 @@ app-description = { -app-name } is a learning project and experiment in construc
 app-mvp = Data Docs MVP
 -user-support-email = usersupport@intersectional-data.ca
 
+## Index
+see-documents = See Documents
+see-templates = See Templates
+
 ## Base & Navbar
 button-explore-demo-data = Explore demonstration data
 about = About the Project
@@ -23,6 +27,21 @@ register = Register
 footer-1 = Please note that this work is a learning project and experiment in using work documentation as native data.
 available-licence = The Data Docs project is available on GitHub under an MIT licence here:
 developed-by = Developed by ToferC 2022
+
+## Templates
+templates = Templates
+template-index = Template Index
+template-name = Template Name
+updated-on = Updated On
+sections = Sections
+section-instructions = Instructions: 
+section-help-text = Help Text:
+section-character-limit = Character Limit: { $limit -> 
+    [0] No limit.
+    *[other] Limit of { $limit } characters.
+}
+create-document = Create Document
+create = Create
 
 ## Login Page
 email-address = Email address

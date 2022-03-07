@@ -15,12 +15,14 @@
             <th style="text-align: center;">{{ fluent(key="template-name", lang=lang )}}</th>
             <th style="text-align: center;">{{ fluent(key="updated-on", lang=lang )}}</th>
             <th style="text-align: center;">{{ fluent(key="link", lang=lang )}}</th>
+            <th style="text-align: center;">{{ fluent(key="create-document", lang=lang )}}</th>
         </tr>
         {% for template in templates %}
             <tr>
                 <td style="text-align: center;">{{ template.name_text | title }}</td>
                 <td style="text-align: center;">{{ template.updated_at }}</td>
                 <td style="text-align: center;"><a href="/{{ lang }}/template/{{ template.slug }}">link</a></td>
+                <td style="text-align: center;"><button class="btn btn-primary" href="/{{ lang }}/template/{{ template.slug }}">{{ fluent(key="create", lang=lang )}}</button></td>
             </tr>
         {% endfor %}
         </table>
