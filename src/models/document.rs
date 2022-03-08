@@ -9,7 +9,7 @@ use std::collections::BTreeMap;
 use crate::database;
 use crate::schema::{documents, sections, texts};
 use crate::errors::CustomError;
-use crate::models::{InsertableText, Text, ReadableTemplateSection, Section, ReadableSection};
+use crate::models::{InsertableText, Text, ReadableTemplateSection, User, Section, ReadableSection};
 
 #[derive(Debug, Serialize, Deserialize, AsChangeset, Queryable, Insertable, Identifiable, Associations, PartialEq, Clone)]
 #[table_name = "documents"]
@@ -33,6 +33,7 @@ pub struct ReadableDocument {
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
     pub publishable: bool,
+    pub created_by: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Insertable)]
@@ -107,6 +108,8 @@ impl Document {
 
         let texts = Text::get_text_map(text_ids, lang)?;
 
+        let user_email = User::find_email_from_id(document.created_by_id)?;
+
         let readable_document = ReadableDocument {
             id: document.id,
             title_text: texts.get(&document.title_text_id).unwrap().to_string(),
@@ -114,6 +117,7 @@ impl Document {
             created_at: document.created_at,
             updated_at: document.updated_at,
             publishable: document.publishable,
+            created_by: user_email,
         };
 
         // Get the ReadableSections with the data that we need to render them
@@ -135,14 +139,17 @@ impl Document {
             .load::<Self>(&conn)?;
 
         let mut text_ids = Vec::new();
+        let mut user_ids = Vec::new();
 
         // Get texts for document
         for document in documents.iter() {
             text_ids.push(document.title_text_id);
             text_ids.push(document.purpose_text_id);
+            user_ids.push(document.created_by_id);
         };
 
         let texts = Text::get_text_map(text_ids, lang)?;
+        let users = User::get_user_email_map(user_ids)?;
 
         let mut readable_documents = Vec::new();
 
@@ -154,6 +161,7 @@ impl Document {
                 created_at: document.created_at,
                 updated_at: document.updated_at,
                 publishable: document.publishable,
+                created_by: users.get(&document.created_by_id).unwrap().to_string(),
             };
 
             readable_documents.push(readable_document);

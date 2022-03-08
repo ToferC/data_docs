@@ -1,5 +1,7 @@
 // Modeling from: https://github.com/clifinger/canduma/blob/master/src/user/handler.rs
 
+use std::collections::BTreeMap;
+
 use uuid::Uuid;
 use chrono::prelude::*;
 use serde::{Serialize, Deserialize};
@@ -134,6 +136,27 @@ impl User {
         let conn = database::connection()?;
         let user: User = users::table.filter(users::email.eq(email)).first(&conn)?;
         Ok(user)
+    }
+
+    pub fn get_user_email_map(ids: Vec<Uuid>) -> Result<BTreeMap<Uuid, String>, CustomError> {
+        let conn = database::connection()?;
+        let users = users::table
+            .filter(users::id.eq_any(ids))
+            .load::<User>(&conn)?;
+
+        let mut treemap = BTreeMap::new();
+
+        for u in users {
+            treemap.insert(u.id, u.email);
+        };
+
+        Ok(treemap)
+    }
+
+    pub fn find_email_from_id(id: Uuid) -> Result<String, CustomError> {
+        let conn = database::connection()?;
+        let user: User = users::table.filter(users::id.eq(id)).first(&conn)?;
+        Ok(user.email)
     }
 
     pub fn find_slim_from_email(email: &String) -> Result<SlimUser, CustomError> {
