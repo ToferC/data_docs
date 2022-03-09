@@ -19,12 +19,12 @@ pub async fn get_document(
 
     let (mut ctx, _session_user, role, lang) = generate_basic_context(id, &lang, req.uri().path());
 
-    if role == "CHANGE TO NOT SIGNED IN".to_string() {
+    if role != "user".to_string() ||
+        role != "admin".to_string() {
         let err = CustomError::new(
             406,
             "Not authorized".to_string(),
         );
-        println!("{}", &err);
         return err.error_response()
     } else {
 
@@ -39,15 +39,16 @@ pub async fn get_document(
 }
 
 #[get("/{lang}/create_document_core/{template_id}")]
-pub async fn create_document(
+pub async fn create_document_core(
     data: web::Data<AppData>,
     web::Path((lang, template_id)): web::Path<(String, Uuid)>,
     id: Identity,
     req:HttpRequest) -> impl Responder {
 
-    let (mut ctx, session_user, role, lang) = generate_basic_context(id, &lang, req.uri().path());
+    let (mut ctx, _session_user, role, lang) = generate_basic_context(id, &lang, req.uri().path());
 
-    if role == "CHANGE TO NOT SIGNED IN".to_string() {
+    if role != "user".to_string() ||
+        role != "admin".to_string() {
         let err = CustomError::new(
             406,
             "Not authorized".to_string(),
@@ -59,6 +60,7 @@ pub async fn create_document(
         let (template, sections) = Template::get_readable_by_id(template_id, &lang).expect("Unable to load template");
 
         ctx.insert("template", &template);
+        ctx.insert("sections", &sections);
 
         let rendered = data.tmpl.render("templates/documents/create_document_core.html", &ctx).unwrap();
         HttpResponse::Ok().body(rendered)
@@ -68,7 +70,7 @@ pub async fn create_document(
 #[put("/{lang}/save_document_core/{template_id}")]
 // Put and create core of document that we need and redirect to page where
 // user can create the document sections with the linkable id.
-pub async fn save_document(
+pub async fn save_document_core(
     _data: web::Data<AppData>,
     web::Path((lang, template_id)): web::Path<(String, Uuid)>,
     form: web::Form<DocumentForm>,
@@ -77,12 +79,12 @@ pub async fn save_document(
 
     let (_ctx, session_user, role, lang) = generate_basic_context(id, &lang, req.uri().path());
 
-    if role == "CHANGE TO NOT SIGNED IN".to_string() {
+    if role != "user".to_string() ||
+        role != "admin".to_string() {
         let err = CustomError::new(
             406,
             "Not authorized".to_string(),
         );
-        println!("{}", &err);
         return err.error_response()
     } else {
 
@@ -107,6 +109,36 @@ pub async fn save_document(
     }
 }
 
+#[get("/{lang}/create_document_sections/{document_id}")]
+pub async fn create_document_sections(
+    data: web::Data<AppData>,
+    web::Path((lang, document_id)): web::Path<(String, Uuid)>,
+    id: Identity,
+    req:HttpRequest) -> impl Responder {
+
+    let (mut ctx, _session_user, role, lang) = generate_basic_context(id, &lang, req.uri().path());
+
+    if role != "user".to_string() ||
+        role != "admin".to_string() {
+        let err = CustomError::new(
+            406,
+            "Not authorized".to_string(),
+        );
+        println!("{}", &err);
+        return err.error_response()
+    } else {
+
+        let (document, sections) = Document::get_readable_by_id(document_id, &lang)
+            .expect("Unable to load document");
+
+        ctx.insert("document", &document);
+        ctx.insert("sections", &sections);
+
+        let rendered = data.tmpl.render("templates/documents/create_document_core.html", &ctx).unwrap();
+        HttpResponse::Ok().body(rendered)
+    }
+}
+
 #[get("/{lang}/edit_text/{text_id}")]
 pub async fn edit_text(
     data: web::Data<AppData>,
@@ -117,12 +149,12 @@ pub async fn edit_text(
 
     let (mut ctx, _session_user, role, lang) = generate_basic_context(id, &lang, req.uri().path());
 
-    if role == "CHANGE TO NOT SIGNED IN".to_string() {
+    if role != "user".to_string() ||
+        role != "admin".to_string() {
         let err = CustomError::new(
             406,
             "Not authorized".to_string(),
         );
-        println!("{}", &err);
         return err.error_response()
     } else {
 
@@ -145,12 +177,12 @@ pub async fn post_text(
 
     let (mut ctx, session_user, role, lang) = generate_basic_context(id, &lang, req.uri().path());
 
-    if role == "CHANGE TO NOT SIGNED IN".to_string() {
+    if role != "user".to_string() ||
+        role != "admin".to_string() {
         let err = CustomError::new(
             406,
             "Not authorized".to_string(),
         );
-        println!("{}", &err);
         return err.error_response()
     } else {
 

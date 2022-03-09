@@ -10,7 +10,7 @@ use inflector::Inflector;
 use crate::errors::CustomError;
 use crate::database;
 use crate::schema::{templates, template_sections, texts};
-use crate::models::{Text, InsertableText, Document, Section};
+use crate::models::{Text, InsertableText, Document, ReadableSection};
 
 #[derive(Debug, Serialize, Deserialize, Insertable, AsChangeset, Queryable, Identifiable)]
 /// Core data structure which to build a Document
@@ -60,7 +60,7 @@ impl Template {
         Ok(v)
     }
 
-    pub fn get_readable_by_id(id: Uuid, lang: &str) -> Result<(ReadableTemplate, Vec<ReadableTemplateSection>), CustomError> {
+    pub fn get_readable_by_id(id: Uuid, lang: &str) -> Result<(ReadableTemplate, BTreeMap<Uuid, ReadableTemplateSection>), CustomError> {
         let conn = database::connection()?;
 
         let template = templates::table
@@ -93,7 +93,7 @@ impl Template {
             slug: template.slug.to_owned(),
         };
 
-        let mut readable_sections = Vec::new();
+        let mut readable_sections: BTreeMap<Uuid, ReadableTemplateSection> = BTreeMap::new();
 
         for section in sections.iter() {
 
@@ -113,7 +113,7 @@ impl Template {
                 template_id: section.template_id,
             };
 
-            readable_sections.push(readable_template_section);
+            readable_sections.insert(section.id, readable_template_section);
         }
 
         Ok((readable_template, readable_sections))
