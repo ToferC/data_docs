@@ -50,7 +50,10 @@ CREATE TABLE IF NOT EXISTS template_sections (
 );
 
 CREATE TABLE IF NOT EXISTS documents (
-    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY, 
+    template_id UUID NOT NULL,
+    FOREIGN KEY(template_id)
+        REFERENCES templates(id) ON DELETE CASCADE,
     title_text_id UUID NOT NULL,
     purpose_text_id UUID NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),

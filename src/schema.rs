@@ -1,6 +1,7 @@
 table! {
     documents (id) {
         id -> Uuid,
+        template_id -> Uuid,
         title_text_id -> Uuid,
         purpose_text_id -> Uuid,
         created_at -> Timestamp,
@@ -89,6 +90,7 @@ table! {
     }
 }
 
+joinable!(documents -> templates (template_id));
 joinable!(sections -> documents (document_id));
 joinable!(sections -> template_sections (template_section_id));
 joinable!(template_sections -> templates (template_id));

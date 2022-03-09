@@ -5,7 +5,7 @@ use serde::{Deserialize};
 use uuid::Uuid;
 
 use crate::{AppData, extract_identity_data, generate_basic_context};
-use crate::models::{Text, InsertableText, User, Document, InsertableDocument};
+use crate::models::{Text, InsertableText, User, Template, Document, InsertableDocument};
 use super::DocumentForm;
 use crate::errors::CustomError;
 
@@ -38,10 +38,10 @@ pub async fn get_document(
     }
 }
 
-#[get("/{lang}/create_document_core")]
+#[get("/{lang}/create_document_core/{template_id}")]
 pub async fn create_document(
     data: web::Data<AppData>,
-    web::Path(lang): web::Path<(String)>,
+    web::Path((lang, template_id)): web::Path<(String, Uuid)>,
     id: Identity,
     req:HttpRequest) -> impl Responder {
 
@@ -56,22 +56,26 @@ pub async fn create_document(
         return err.error_response()
     } else {
 
+        let (template, sections) = Template::get_readable_by_id(template_id, &lang).expect("Unable to load template");
+
+        ctx.insert("template", &template);
+
         let rendered = data.tmpl.render("templates/documents/create_document_core.html", &ctx).unwrap();
         HttpResponse::Ok().body(rendered)
     }
 }
 
-#[put("/{lang}/save_document_core/")]
+#[put("/{lang}/save_document_core/{template_id}")]
 // Put and create core of document that we need and redirect to page where
 // user can create the document sections with the linkable id.
 pub async fn save_document(
-    data: web::Data<AppData>,
-    web::Path((lang, section_id)): web::Path<(String, Uuid)>,
+    _data: web::Data<AppData>,
+    web::Path((lang, template_id)): web::Path<(String, Uuid)>,
     form: web::Form<DocumentForm>,
     id: Identity,
     req:HttpRequest) -> impl Responder {
 
-    let (mut ctx, session_user, role, lang) = generate_basic_context(id, &lang, req.uri().path());
+    let (_ctx, session_user, role, lang) = generate_basic_context(id, &lang, req.uri().path());
 
     if role == "CHANGE TO NOT SIGNED IN".to_string() {
         let err = CustomError::new(
@@ -89,6 +93,7 @@ pub async fn save_document(
         let user = User::find_from_slug(&session_user).expect("Unable to find user");
 
         let document = InsertableDocument::new(
+            template_id,
             raw_title,
             raw_purpose,
             &lang,

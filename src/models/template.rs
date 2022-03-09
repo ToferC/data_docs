@@ -60,11 +60,11 @@ impl Template {
         Ok(v)
     }
 
-    pub fn get_by_slug(slug: &str, lang: &str) -> Result<(ReadableTemplate, Vec<ReadableTemplateSection>), CustomError> {
+    pub fn get_readable_by_id(id: Uuid, lang: &str) -> Result<(ReadableTemplate, Vec<ReadableTemplateSection>), CustomError> {
         let conn = database::connection()?;
 
         let template = templates::table
-            .filter(templates::slug.eq(slug))
+            .filter(templates::id.eq(id))
             .first::<Self>(&conn)?;
 
         let sections = TemplateSection::belonging_to(&template)

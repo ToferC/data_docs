@@ -2,6 +2,7 @@ use actix_web::{HttpRequest, HttpResponse, Responder, get, post, web, ResponseEr
 use actix_identity::{Identity};
 use inflector::Inflector;
 use serde::{Deserialize};
+use uuid::Uuid;
 
 use crate::{AppData, extract_identity_data, generate_basic_context};
 use crate::models::{Template, TemplateSection};
@@ -36,10 +37,10 @@ pub async fn template_index(
     }
 }
 
-#[get("/{lang}/template/{slug}")]
+#[get("/{lang}/template/{template_id}")]
 pub async fn template(
     data: web::Data<AppData>,
-    web::Path((lang, slug)): web::Path<(String, String)>,
+    web::Path((lang, template_id)): web::Path<(String, Uuid)>,
     
     id: Identity,
     req:HttpRequest) -> impl Responder {
@@ -55,7 +56,7 @@ pub async fn template(
         return err.error_response()
     } else {
 
-        let (template, sections) = Template::get_by_slug(&slug, &lang)
+        let (template, sections) = Template::get_readable_by_id(template_id, &lang)
             .expect("Unable to load templates");
 
         ctx.insert("template", &template);

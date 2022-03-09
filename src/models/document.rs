@@ -15,6 +15,7 @@ use crate::models::{InsertableText, Text, ReadableTemplateSection, User, Section
 #[table_name = "documents"]
 pub struct Document {
     pub id: Uuid,
+    pub template_id: Uuid,
     pub title_text_id: Uuid,
     pub purpose_text_id: Uuid,
     // pub approvals: Option<Vec<Uuid>>, // Replace with Approvals
@@ -28,6 +29,7 @@ pub struct Document {
 // A human readable Document
 pub struct ReadableDocument {
     pub id: Uuid,
+    pub template_id: Uuid,
     pub title_text: String,
     pub purpose_text: String,
     pub created_at: NaiveDateTime,
@@ -39,6 +41,7 @@ pub struct ReadableDocument {
 #[derive(Debug, Serialize, Deserialize, Insertable)]
 #[table_name = "documents"]
 pub struct InsertableDocument {
+    pub template_id: Uuid,
     pub title_text_id: Uuid,
     pub purpose_text_id: Uuid,
     pub created_by_id: Uuid,
@@ -46,6 +49,7 @@ pub struct InsertableDocument {
 
 impl InsertableDocument {
     pub fn new(
+        template_id: Uuid,
         raw_title_text: String,
         raw_purpose_text: String,
         lang: &str,
@@ -69,6 +73,7 @@ impl InsertableDocument {
         let purpose_text = Text::create(&insertable_purpose_text)?;
 
         Ok(InsertableDocument {
+            template_id,
             title_text_id: title_text.id,
             purpose_text_id: purpose_text.id,
             created_by_id: created_by_id,
@@ -112,6 +117,7 @@ impl Document {
 
         let readable_document = ReadableDocument {
             id: document.id,
+            template_id: document.template_id,
             title_text: texts.get(&document.title_text_id).unwrap().to_string(),
             purpose_text: texts.get(&document.purpose_text_id).unwrap().to_string(),
             created_at: document.created_at,
@@ -156,6 +162,7 @@ impl Document {
         for document in documents.iter() {
             let readable_document = ReadableDocument {
                 id: document.id,
+                template_id: document.template_id,
                 title_text: texts.get(&document.title_text_id).unwrap().to_string(),
                 purpose_text: texts.get(&document.purpose_text_id).unwrap().to_string(),
                 created_at: document.created_at,
