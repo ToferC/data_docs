@@ -138,7 +138,7 @@ impl InsertableText {
         }
     }pub fn new(
         section_id: Option<Uuid>,
-        lang: String,
+        lang: &str,
         content: String,
         created_by_id: Uuid,
     ) -> Self {
@@ -149,7 +149,7 @@ impl InsertableText {
         let created_by_id = vec![created_by_id];
 
         InsertableText {
-            lang,
+            lang: lang.to_owned(),
             content,
             translated,
             machine_translation,

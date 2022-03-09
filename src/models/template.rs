@@ -223,7 +223,7 @@ impl InsertableTemplate {
 
         let insertable_name_text = InsertableText::new(
             None,
-            lang.to_owned(), 
+            &lang, 
             raw_name_text.to_owned(),
             created_by);
 
@@ -231,7 +231,7 @@ impl InsertableTemplate {
 
         let insertable_purpose_text = InsertableText::new(
             None,
-            lang.to_owned(), 
+            &lang, 
             raw_purpose_text,
             created_by);
 
@@ -361,7 +361,7 @@ impl InsertableTemplateSection {
 
         let insertable_header_text = InsertableText::new(
             None,
-            lang.to_owned(), 
+            &lang, 
             header_text,
             created_by_id);
 
@@ -369,7 +369,7 @@ impl InsertableTemplateSection {
 
         let insertable_instructions_text = InsertableText::new(
             None,
-            lang.to_owned(), 
+            &lang, 
             instructions_text,
             created_by_id);
 
@@ -377,7 +377,7 @@ impl InsertableTemplateSection {
 
         let insertable_help_text = InsertableText::new(
             None,
-            lang.to_owned(), 
+            &lang, 
             help_text,
             created_by_id);
 

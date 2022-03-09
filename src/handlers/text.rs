@@ -60,7 +60,7 @@ pub async fn create_text(
 
         let user = User::find_from_slug(&session_user).expect("Unable to find user");
 
-        let insertable_text = InsertableText::new(Some(section_id), content.to_string(), lang, user.id);
+        let insertable_text = InsertableText::new(Some(section_id), &lang, content.to_string(), user.id);
 
         let text = Text::create(&insertable_text).expect("Unable to create text");
 

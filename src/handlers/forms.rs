@@ -1,5 +1,15 @@
 use serde::{Deserialize};
 
+// Business Forms
+#[derive(Deserialize, Debug)]
+pub struct DocumentForm {
+    pub title: String,
+    pub purpose: String,
+}
+
+
+// Administrative Forms
+
 #[derive(Deserialize, Debug)]
 pub struct LoginForm {
     email: String,

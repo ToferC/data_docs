@@ -48,13 +48,13 @@ impl InsertableDocument {
     pub fn new(
         raw_title_text: String,
         raw_purpose_text: String,
-        lang: String,
+        lang: &str,
         created_by_id: Uuid,
     ) -> Result<Self, CustomError> {
 
         let insertable_name_text = InsertableText::new(
             None,
-            lang.to_owned(), 
+            &lang, 
             raw_title_text.to_owned(),
             created_by_id);
 
@@ -62,7 +62,7 @@ impl InsertableDocument {
 
         let insertable_purpose_text = InsertableText::new(
             None,
-            lang.to_owned(), 
+            &lang, 
             raw_purpose_text,
             created_by_id);
 
