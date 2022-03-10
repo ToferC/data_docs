@@ -22,7 +22,7 @@
                 <td style="text-align: center;">{{ template.name_text | title }}</td>
                 <td style="text-align: center;">{{ template.updated_at }}</td>
                 <td style="text-align: center;"><a href="/{{ lang }}/template/{{ template.slug }}">link</a></td>
-                <td style="text-align: center;"><button class="btn btn-primary" href="/{{ lang }}/template/{{ template.slug }}">{{ fluent(key="create", lang=lang )}}</button></td>
+                <td style="text-align: center;"><a class="btn btn-primary" href="/{{ lang }}/create_document_core/{{ template.id }}">{{ fluent(key="create", lang=lang )}}</a></td>
             </tr>
         {% endfor %}
         </table>

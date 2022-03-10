@@ -56,6 +56,13 @@ use crate::handlers::{
     template_index,
     template,
 
+    // documents
+    get_document,
+    create_document_core,
+    save_document_core,
+    create_document_sections,
+
+
 };
 
 pub fn configure_services(config: &mut web::ServiceConfig) {
@@ -107,4 +114,11 @@ pub fn configure_services(config: &mut web::ServiceConfig) {
      // templates
      config.service(template_index);
      config.service(template);
+
+     // documents
+     config.service(get_document);
+     config.service(create_document_core);
+     config.service(create_document_sections);
+     config.service(save_document_core);
+
 }

@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block title %}
-    <title>{{ document.title | title }}</title>
+    <title>{{ document.title_text | title }}</title>
 {% endblock title %}
 
 {% block content %}
@@ -10,7 +10,7 @@
 
 
 
-    <h1>{{ document.title | title }}</h1>
+    <h1>{{ document.title_text | title }}</h1>
     
     <ul>
         <li>Purpose: {{ document.purpose_text }}</li>
@@ -22,9 +22,16 @@
     
     <h2>{{ fluent(key="sections", lang=lang )}}</h2>
     
-    {% for section in sections | sort(attribute="order_number") %}
+    {% for key, section in sections %}
     
         <h3>{{ section.header_text | title }}</h3>
+        <form hx-put="/{{ lang }}/create_text/{{ section.id }}" hx-target="{{ section.id }}" hx-swap="outerHTML">
+            <div>
+              <label>Content</label>
+              <input type="text" name="{{ section.id }}-content" placeholder="Enter Markdown here...">
+            </div>
+            <button class="btn">Submit</button>
+        </form> 
         <ul>
             <li>{{ fluent(key="section-instructions", lang=lang )}} {{ section.instructions_text }}</li>
             <li>{{ fluent(key="section-help-text", lang=lang )}} {{ section.help_text }}</li>
