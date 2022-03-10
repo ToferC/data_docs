@@ -7,9 +7,10 @@ use std::collections::BTreeMap;
 
 
 use crate::database;
-use crate::schema::{documents, sections, texts};
+use crate::schema::{documents, template_sections, texts};
 use crate::errors::CustomError;
-use crate::models::{InsertableText, Text, ReadableTemplateSection, User, Section, ReadableSection};
+use crate::models::{InsertableText, Text, TemplateSection,
+    ReadableTemplateSection, User, Section, ReadableSection};
 
 #[derive(Debug, Serialize, Deserialize, AsChangeset, Queryable, Insertable, Identifiable, Associations, PartialEq, Clone)]
 #[table_name = "documents"]
@@ -132,6 +133,50 @@ impl Document {
 
         for section in sections.iter() {
             let rs = ReadableSection::get_by_id(section.id, lang)?;
+            readable_sections.insert(section.id, rs);
+        }
+
+        Ok((readable_document, readable_sections))
+    }
+
+    pub fn get_readable_plus_template_sections_by_id(id: Uuid, lang: &str) -> Result<(ReadableDocument, BTreeMap<Uuid, ReadableTemplateSection>), CustomError> {
+        let conn = database::connection()?;
+
+        let document = documents::table
+            .filter(documents::id.eq(id))
+            .first::<Self>(&conn)?;
+
+        let sections = template_sections::table
+            .filter(template_sections::template_id.eq(document.template_id))
+            .load::<TemplateSection>(&conn)?;
+
+        // Get texts for document
+        let mut text_ids = Vec::new();
+
+        text_ids.push(document.title_text_id);
+        text_ids.push(document.purpose_text_id);
+
+        let texts = Text::get_text_map(text_ids, lang)?;
+
+        let user_email = User::find_email_from_id(document.created_by_id)?;
+
+        let readable_document = ReadableDocument {
+            id: document.id,
+            template_id: document.template_id,
+            title_text: texts.get(&document.title_text_id).unwrap().to_string(),
+            purpose_text: texts.get(&document.purpose_text_id).unwrap().to_string(),
+            created_at: document.created_at,
+            updated_at: document.updated_at,
+            publishable: document.publishable,
+            created_by: user_email,
+        };
+
+        // Get the ReadableSections with the data that we need to render them
+
+        let mut readable_sections: BTreeMap<Uuid, ReadableTemplateSection> = BTreeMap::new();
+
+        for section in sections.iter() {
+            let rs = TemplateSection::get_readable_by_id(section.id, lang)?;
             readable_sections.insert(section.id, rs);
         }
 

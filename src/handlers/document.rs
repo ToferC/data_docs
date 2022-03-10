@@ -126,7 +126,7 @@ pub async fn create_document_sections(
         return err.error_response()
     } else {
 
-        let (document, sections) = Document::get_readable_by_id(document_id, &lang)
+        let (document, sections) = Document::get_readable_plus_template_sections_by_id(document_id, &lang)
             .expect("Unable to load document");
 
         ctx.insert("document", &document);
