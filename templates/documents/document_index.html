@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}
+    <title>{{ fluent(key="document-index", lang=lang )}}</title>
+{% endblock title %}
+
+{% block content %}
+
+<div class="col m-md-2 m-1">
+
+    <h1>{{ fluent(key="documents", lang=lang )}}</h1>
+    
+    <table>
+        <tr>
+            <th style="text-align: center;">{{ fluent(key="title", lang=lang )}}</th>
+            <th style="text-align: center;">{{ fluent(key="updated-on", lang=lang )}}</th>
+            <th style="text-align: center;">{{ fluent(key="link", lang=lang )}}</th>
+            <th style="text-align: center;">{{ fluent(key="edit-document", lang=lang )}}</th>
+        </tr>
+        {% for document in documents %}
+            <tr>
+                <td style="text-align: center;">{{ document.title_text | title }}</td>
+                <td style="text-align: center;">{{ document.updated_at }}</td>
+                <td style="text-align: center;"><a href="/{{ lang }}/document/{{ document.id }}">{{ fluent(key="link", lang=lang )}}</a></td>
+                <td style="text-align: center;"><a class="btn btn-primary" href="/{{ lang }}/edit_document/{{ document.id }}">{{ fluent(key="edit-document", lang=lang )}}</a></td>
+            </tr>
+        {% endfor %}
+        </table>
+
+</div>
+
+
+
+{% endblock content %}

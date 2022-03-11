@@ -36,8 +36,8 @@ pub async fn get_text(
     }
 }
 
-#[put("/{lang}/create_text/{section_id}")]
-pub async fn create_text(
+#[post("/{lang}/create_text/{section_id}")]
+pub async fn create_new_text(
     data: web::Data<AppData>,
     web::Path((lang, section_id)): web::Path<(String, Uuid)>,
     form_text: web::Form<String>,
@@ -62,7 +62,11 @@ pub async fn create_text(
 
         let insertable_text = InsertableText::new(Some(section_id), &lang, content.to_string(), user.id);
 
+        println!("Saving text: {:?}", &insertable_text.content);
+
         let text = Text::create(&insertable_text).expect("Unable to create text");
+
+        println!("Saved!");
 
         ctx.insert("text", &text);
 
@@ -72,7 +76,7 @@ pub async fn create_text(
 }
 
 #[get("/{lang}/edit_text/{text_id}")]
-pub async fn edit_text(
+pub async fn edit_text_form(
     data: web::Data<AppData>,
     web::Path((lang, text_id)): web::Path<(String, Uuid)>,
     
@@ -100,7 +104,7 @@ pub async fn edit_text(
 }
 
 #[put("/{lang}/text/{text_id}")]
-pub async fn post_text(
+pub async fn edit_text_put(
     data: web::Data<AppData>,
     web::Path((lang, text_id)): web::Path<(String, Uuid)>,
     form_text: web::Form<String>,
@@ -123,7 +127,11 @@ pub async fn post_text(
 
         let user = User::find_from_slug(&session_user).expect("Unable to find user");
 
+        println!("Updating text: {:?}", &content);
+
         let text = Text::update(text_id, content.to_string(), &lang, user.id).expect("Unable to update Text");
+
+        println!("Updated!");
 
         ctx.insert("text", &text);
 

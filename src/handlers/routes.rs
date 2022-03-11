@@ -57,10 +57,17 @@ use crate::handlers::{
     template,
 
     // documents
+    document_index,
     get_document,
     create_document_core,
     save_document_core,
     create_document_sections,
+
+    // text
+    get_text,
+    create_new_text,
+    edit_text_form,
+    edit_text_put,
 
 
 };
@@ -116,9 +123,17 @@ pub fn configure_services(config: &mut web::ServiceConfig) {
      config.service(template);
 
      // documents
+     config.service(document_index);
      config.service(get_document);
      config.service(create_document_core);
      config.service(create_document_sections);
      config.service(save_document_core);
+
+     // text
+     config.service(get_text);
+     config.service(create_new_text);
+     config.service(edit_text_form);
+     config.service(edit_text_put);
+
 
 }

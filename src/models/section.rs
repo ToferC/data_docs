@@ -108,7 +108,7 @@ impl ReadableSection {
             updated_at: section.updated_at,
         };
 
-        Ok((readable_section))
+        Ok(readable_section)
     }
 
 }

@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block title %}
-    <title>{{ document.title | title }}</title>
+    <title>{{ document.title_text | title }}</title>
 {% endblock title %}
 
 {% block content %}
@@ -10,19 +10,19 @@
 
 
 
-    <h1>{{ template.name_text | title }}</h1>
+    <h1>{{ document.title_text | title }}</h1>
     
     <ul>
-        <li>Purpose: {{ template.purpose_text }}</li>
-        <li>Created at:{{ template.created_at }}</li>
-        <li>Created at:{{ template.updated_at }}</li>
+        <li>Purpose: {{ document.purpose_text }}</li>
+        <li>Created at: {{ document.created_at }}</li>
+        <li>Created by: {{ document.created_by }}</li>
     </ul>
     
     <hr>
     
     <h2>{{ fluent(key="sections", lang=lang )}}</h2>
     
-    {% for section in sections | sort(attribute="order_number") %}
+    {% for key, section in sections %}
     
         <h3>{{ section.header_text | title }}</h3>
         <ul>

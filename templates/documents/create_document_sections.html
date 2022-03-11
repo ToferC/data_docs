@@ -14,8 +14,8 @@
     
     <ul>
         <li>Purpose: {{ document.purpose_text }}</li>
-        <li>Created at:{{ document.created_at }}</li>
-        <li>Created by:{{ document.created_by }}</li>
+        <li>Created at: {{ document.created_at }}</li>
+        <li>Created by: {{ document.created_by }}</li>
     </ul>
     
     <hr>
@@ -25,13 +25,19 @@
     {% for key, section in sections %}
     
         <h3>{{ section.header_text | title }}</h3>
-        <form hx-put="/{{ lang }}/create_text/{{ section.id }}" hx-target="{{ section.id }}" hx-swap="outerHTML">
-            <div>
-              <label>Content</label>
-              <input type="text" name="{{ section.id }}-content" placeholder="Enter Markdown here...">
-            </div>
-            <button class="btn">Submit</button>
-        </form> 
+        <section name="{{ section.id }}-content">
+            <form
+                action="/{{ lang }}/create_text/{{ section.id }}"
+                method="POST"
+                hx-post="/{{ lang }}/create_text/{{ section.id }}" 
+                hx-target="{{ section.id }}-content" 
+                hx-swap="outerHTML">
+                <div>
+                  <textarea rows="15" cols="66" name="{{ section.id }}-text" placeholder="Enter Markdown here..." required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </form> 
+        </section>
         <ul>
             <li>{{ fluent(key="section-instructions", lang=lang )}} {{ section.instructions_text }}</li>
             <li>{{ fluent(key="section-help-text", lang=lang )}} {{ section.help_text }}</li>

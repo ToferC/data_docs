@@ -43,6 +43,13 @@ section-character-limit = Character Limit: { $limit ->
 create-document = Create Document
 create = Create
 
+## Documents
+document-index = Document Index
+documents = Documents
+title = Title
+edit-document = Edit Document
+
+
 ## Login Page
 email-address = Email address
 email-address-helper = Enter the email address you used to register.
