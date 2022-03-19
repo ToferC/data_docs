@@ -22,7 +22,7 @@
                 <td style="text-align: center;">{{ document.title_text | title }}</td>
                 <td style="text-align: center;">{{ document.updated_at }}</td>
                 <td style="text-align: center;"><a href="/{{ lang }}/document/{{ document.id }}">{{ fluent(key="link", lang=lang )}}</a></td>
-                <td style="text-align: center;"><a class="btn btn-primary" href="/{{ lang }}/edit_document/{{ document.id }}">{{ fluent(key="edit-document", lang=lang )}}</a></td>
+                <td style="text-align: center;"><a class="btn btn-primary" href="/{{ lang }}/edit_document_sections/{{ document.id }}">{{ fluent(key="edit-document", lang=lang )}}</a></td>
             </tr>
         {% endfor %}
         </table>

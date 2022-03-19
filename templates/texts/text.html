@@ -1,10 +1,8 @@
-{% block text %}
-<div hx-target="{{section.text_id}}" hx-swap="outerHTML">
-
-    <div><label>{{ text.content }}</label></div>
-    <button hx-get="/{{ lang }}/edit_text/{{ text.id }}" class="btn btn primary">
-        Click to Edit
-    </button>
-
+<div id="{{text.id}}">
+    <div>
+        <p>{{ text.content }}</p>
+        <button hx-get="/{{ lang }}/edit_text/{{ text.id }}" class="btn btn-info">
+            Click to Edit
+        </button>
+    </div>
 </div>
-{% endblock text %}

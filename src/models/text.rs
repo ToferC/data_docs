@@ -24,6 +24,35 @@ pub struct Text {
     pub created_by_id: Vec<Uuid>,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct LatestText {
+    pub id: Uuid,
+    // section_id for the majority of user-entered texts. Exceptions are for texts about documents
+    // Might want to make this a different data type
+    pub section_id: Option<Uuid>,
+    pub lang: String,
+    pub content: String,
+    pub translated: bool,
+    pub machine_translation: bool,
+    pub created_at: NaiveDateTime,
+    pub created_by_id: Uuid,
+}
+
+impl From<Text> for LatestText {
+    fn from(text: Text) -> Self {
+        LatestText {
+            id: text.id,
+            section_id: text.section_id,
+            lang: text.lang,
+            content: text.content.last().unwrap().clone(),
+            translated: *text.translated.last().unwrap(),
+            machine_translation: *text.machine_translation.last().unwrap(),
+            created_at: *text.created_at.last().unwrap(),
+            created_by_id: *text.created_by_id.last().unwrap(),
+        }
+    }
+}
+
 impl Text {
     pub fn create(text: &InsertableText) -> Result<Self, CustomError> {
 

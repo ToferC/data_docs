@@ -1,11 +1,10 @@
 use actix_web::{HttpRequest, HttpResponse, Responder, get, post, put, web, ResponseError};
 use actix_identity::{Identity};
-use inflector::Inflector;
-use serde::{Deserialize};
 use uuid::Uuid;
 
-use crate::{AppData, extract_identity_data, generate_basic_context};
-use crate::models::{Text, InsertableText, User};
+use crate::{AppData, generate_basic_context};
+use crate::handlers::TextForm;
+use crate::models::{Text, LatestText, InsertableText, User};
 use crate::errors::CustomError;
 
 #[get("/{lang}/text/{text_id}")]
@@ -29,9 +28,11 @@ pub async fn get_text(
 
         let text = Text::get_text_by_id(text_id, &lang).expect("Unable to retrieve text");
 
+        let text = LatestText::from(text);
+
         ctx.insert("text", &text);
 
-        let rendered = data.tmpl.render("templates/texts/text.html", &ctx).unwrap();
+        let rendered = data.tmpl.render("texts/text.html", &ctx).unwrap();
         HttpResponse::Ok().body(rendered)
     }
 }
@@ -40,7 +41,7 @@ pub async fn get_text(
 pub async fn create_new_text(
     data: web::Data<AppData>,
     web::Path((lang, section_id)): web::Path<(String, Uuid)>,
-    form_text: web::Form<String>,
+    form: web::Form<TextForm>,
     id: Identity,
     req:HttpRequest) -> impl Responder {
 
@@ -56,7 +57,9 @@ pub async fn create_new_text(
     } else {
 
         // validate authorized to edit document
-        let content = form_text.trim();
+        let content = form.content.trim();
+
+        println!("Saving text: {}", content);
 
         let user = User::find_from_slug(&session_user).expect("Unable to find user");
 
@@ -70,7 +73,10 @@ pub async fn create_new_text(
 
         ctx.insert("text", &text);
 
-        let rendered = data.tmpl.render("templates/texts/text.html", &ctx).unwrap();
+        let rendered = data.tmpl.render("texts/text.html", &ctx).unwrap();
+
+        println!("Rendered: {:?}", &rendered);
+
         HttpResponse::Ok().body(rendered)
     }
 }
@@ -96,18 +102,20 @@ pub async fn edit_text_form(
 
         let text = Text::get_text_by_id(text_id, &lang).expect("Unable to retrieve text");
 
+        let text = LatestText::from(text);
+
         ctx.insert("text", &text);
 
-        let rendered = data.tmpl.render("templates/texts/edit_text.html", &ctx).unwrap();
+        let rendered = data.tmpl.render("texts/edit_text.html", &ctx).unwrap();
         HttpResponse::Ok().body(rendered)
     }
 }
 
-#[put("/{lang}/text/{text_id}")]
+#[post("/{lang}/edit_text/{text_id}")]
 pub async fn edit_text_put(
     data: web::Data<AppData>,
     web::Path((lang, text_id)): web::Path<(String, Uuid)>,
-    form_text: web::Form<String>,
+    form: web::Form<TextForm>,
     id: Identity,
     req:HttpRequest) -> impl Responder {
 
@@ -123,7 +131,7 @@ pub async fn edit_text_put(
     } else {
 
         // validate authorized to edit document
-        let content = form_text.trim();
+        let content = form.content.trim();
 
         let user = User::find_from_slug(&session_user).expect("Unable to find user");
 
@@ -131,11 +139,13 @@ pub async fn edit_text_put(
 
         let text = Text::update(text_id, content.to_string(), &lang, user.id).expect("Unable to update Text");
 
+        let text = LatestText::from(text);
+
         println!("Updated!");
 
         ctx.insert("text", &text);
 
-        let rendered = data.tmpl.render("templates/texts/text.html", &ctx).unwrap();
+        let rendered = data.tmpl.render("texts/text.html", &ctx).unwrap();
         HttpResponse::Ok().body(rendered)
     }
 }

@@ -25,27 +25,23 @@
     {% for key, section in sections %}
     
         <h3>{{ section.header_text | title }}</h3>
-        <section name="{{ section.id }}-content">
+        <section id="{{ section.text_id }}-content">
             <form
-                action="/{{ lang }}/create_text/{{ section.id }}"
-                method="POST"
-                hx-post="/{{ lang }}/create_text/{{ section.id }}" 
-                hx-target="{{ section.id }}-content" 
-                hx-swap="outerHTML">
+                hx-post="/{{ lang }}/edit_text/{{ section.text_id }}"> 
                 <div>
-                  <textarea rows="15" cols="66" name="{{ section.id }}-text" placeholder="Enter Markdown here..." required></textarea>
+                  <textarea rows="15" cols="66" name="content" placeholder="Enter Markdown here..." required>{{ section.content }}</textarea>
                 </div>
                 <button 
                     type="submit" 
                     class="btn btn-primary"
                     >Save</button>
+                <ul>
+                    <li>{{ fluent(key="section-instructions", lang=lang )}} {{ section.instructions_text }}</li>
+                    <li>{{ fluent(key="section-help-text", lang=lang )}} {{ section.help_text }}</li>
+                    <li>{{ fluent(key="section-character-limit", lang=lang, limit=section.character_limit )}}</li>
+                </ul>
             </form> 
         </section>
-        <ul>
-            <li>{{ fluent(key="section-instructions", lang=lang )}} {{ section.instructions_text }}</li>
-            <li>{{ fluent(key="section-help-text", lang=lang )}} {{ section.help_text }}</li>
-            <li>{{ fluent(key="section-character-limit", lang=lang, limit=section.character_limit )}}</li>
-        </ul>
         <hr>
     
     {% endfor %}

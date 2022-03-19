@@ -1,8 +1,11 @@
-<form hx-put="/{{ lang }}/text/{{ section.text_id }}" hx-target="{{ section.text_id }}" hx-swap="outerHTML">
-    <div>
-      <label>Content</label>
-      <input type="text" name="{{ section.text_id }}-content" value="{{ section.content }}">
-    </div>
-    <button class="btn">Submit</button>
-    <button class="btn" hx-get="/{{ lang }}/text/{{ section.text_id }}">Cancel</button>
-</form> 
+<div id="{{text.id}}-content">
+  <form 
+    hx-post="/{{ lang }}/edit_text/{{ text.id }}"> 
+      <div>
+        <label>Content</label>
+        <textarea rows="15" cols="66" name="content" placeholder="Enter Markdown here..." required>{{ text.content }}</textarea>
+      </div>
+      <button class="btn btn-primary">Submit</button>
+      <button class="btn" hx-get="/{{ lang }}/text/{{ text.id }}">Cancel</button>
+  </form> 
+</div>

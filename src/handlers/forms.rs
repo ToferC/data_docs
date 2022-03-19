@@ -7,6 +7,11 @@ pub struct DocumentForm {
     pub purpose: String,
 }
 
+#[derive(Debug, Deserialize)]
+pub struct TextForm {
+    pub content: String,
+}
+
 
 // Administrative Forms
 

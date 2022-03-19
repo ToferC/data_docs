@@ -25,19 +25,13 @@
     {% for key, section in sections %}
     
         <h3>{{ section.header_text | title }}</h3>
-        <ul>
-            <li>{{ fluent(key="section-instructions", lang=lang )}} {{ section.instructions_text }}</li>
-            <li>{{ fluent(key="section-help-text", lang=lang )}} {{ section.help_text }}</li>
-            <li>{{ fluent(key="section-character-limit", lang=lang, limit=section.character_limit )}}</li>
-        </ul>
-        <hr>
 
-        <form hx-post="/{{ lang }}/create_text/{{ section.id }}" hx-target="{{ section.id }}" hx-swap="outerHTML">
+        <form hx-get="/{{ lang }}/edit_text/{{ section.text_id }}" hx-target="this" hx-swap="outerHTML">
             <div>
               <label>Content</label>
-              <input type="text" name="{{ section.id }}-content" placeholder="Add Content Here...">
+              <p>{{ section.content }}</p>
             </div>
-            <button class="btn">Submit</button>
+            <button class="btn">Edit</button>
         </form> 
 
         <hr>

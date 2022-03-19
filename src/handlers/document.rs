@@ -1,9 +1,12 @@
-use actix_web::{HttpRequest, HttpResponse, Responder, get, post, put, web, ResponseError};
+use std::collections::BTreeMap;
+
+use actix_web::{HttpRequest, HttpResponse, Responder, get, post, web, ResponseError};
 use actix_identity::{Identity};
 use uuid::Uuid;
 
 use crate::{AppData, generate_basic_context};
-use crate::models::{Text, User, Template, Document, InsertableDocument};
+use crate::models::{Section, User, Template, Document, InsertableDocument, InsertableSection,
+    InsertableText, Text};
 use super::DocumentForm;
 use crate::errors::CustomError;
 
@@ -57,8 +60,14 @@ pub async fn get_document(
 
         let (document, sections) = Document::get_readable_by_id(document_id, &lang).expect("Unable to retrieve text");
 
+        let mut ordered_sections = BTreeMap::new();
+
+        for (_k, v) in sections {
+            ordered_sections.insert(v.order_number, v);
+        };
+
         ctx.insert("document", &document);
-        ctx.insert("sections", &sections);
+        ctx.insert("sections", &ordered_sections);
 
         let rendered = data.tmpl.render("documents/document.html", &ctx).unwrap();
         HttpResponse::Ok().body(rendered)
@@ -121,6 +130,7 @@ pub async fn save_document_core(
 
         let user = User::find_from_slug(&session_user).expect("Unable to find user");
 
+        // create document
         let document = InsertableDocument::new(
             template_id,
             raw_title,
@@ -132,12 +142,39 @@ pub async fn save_document_core(
         let document = Document::create(&document)
             .expect("Unable to create document");
 
-        return HttpResponse::Found().header("Location", format!("/{}/create_document_sections/{}", &lang, &document.id)).finish()
+        // get template sections to create document sections
+        let (_template, template_sections) = Template::get_readable_by_id(template_id, &lang)
+            .expect("Unable to load sections");
+
+        for (k, _v) in template_sections {
+            // create document section
+            let document_section = InsertableSection::new(
+                document.id,
+                k,
+                user.id,
+            ).expect("Unable to generate insertable_section");
+
+            let section = Section::create(&document_section)
+                .expect("Unable to create document section");
+
+            // create document section text
+            let default_text = InsertableText::new(
+                Some(section.id),
+                "en",
+                "".to_string(),
+                user.id,
+            );
+
+            let _text = Text::create(&default_text)
+                .expect("Unable to create text");
+        }
+
+        return HttpResponse::Found().header("Location", format!("/{}/edit_document_sections/{}", &lang, &document.id)).finish()
     }
 }
 
-#[get("/{lang}/create_document_sections/{document_id}")]
-pub async fn create_document_sections(
+#[get("/{lang}/edit_document_sections/{document_id}")]
+pub async fn edit_document_sections(
     data: web::Data<AppData>,
     web::Path((lang, document_id)): web::Path<(String, Uuid)>,
     id: Identity,
@@ -155,13 +192,19 @@ pub async fn create_document_sections(
         return err.error_response()
     } else {
 
-        let (document, sections) = Document::get_readable_plus_template_sections_by_id(document_id, &lang)
+        let (document, sections) = Document::get_readable_by_id(document_id, &lang)
             .expect("Unable to load document");
 
-        ctx.insert("document", &document);
-        ctx.insert("sections", &sections);
+        let mut ordered_sections = BTreeMap::new();
 
-        let rendered = data.tmpl.render("documents/create_document_sections.html", &ctx).unwrap();
+        for (k, v) in sections {
+            ordered_sections.insert(v.order_number, v);
+        }
+
+        ctx.insert("document", &document);
+        ctx.insert("sections", &ordered_sections);
+
+        let rendered = data.tmpl.render("documents/edit_document_sections.html", &ctx).unwrap();
         HttpResponse::Ok().body(rendered)
     }
 }
