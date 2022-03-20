@@ -3,7 +3,7 @@ use uuid::Uuid;
 use diesel::prelude::*;
 use diesel::{QueryDsl};
 use chrono::prelude::*;
-
+use pulldown_cmark::{html, Options, Parser};
 
 use crate::database;
 use crate::schema::{sections, texts};
@@ -80,7 +80,7 @@ pub struct ReadableSection {
 
 impl ReadableSection {
 
-    pub fn get_by_id(id: Uuid, lang: &str) -> Result<ReadableSection, CustomError> {
+    pub fn get_by_id(id: Uuid, lang: &str, markdown: bool) -> Result<ReadableSection, CustomError> {
         let conn = database::connection()?;
 
         let section: Section = sections::table
@@ -89,10 +89,23 @@ impl ReadableSection {
 
         let template_section = TemplateSection::get_readable_by_id(section.template_section_id, lang)?;
 
-        let text = texts::table
-            .filter(texts::section_id.eq(section.id)
-            .and(texts::lang.eq(lang)))
-            .first::<Text>(&conn)?;
+        let text = Text::get_text_by_section_id(section.id, lang)
+            .expect("Unable to retrieve text");
+
+        let content = if markdown {
+            let mut options = Options::empty();
+            options.insert(Options::ENABLE_TABLES);
+            let parser = Parser::new_ext(&text.content.last().unwrap(), options);
+
+            let mut html_content: String = String::new();
+
+            html::push_html(&mut html_content, parser);
+
+            html_content
+            
+        } else {
+            text.content.last().unwrap_or(&String::from("Unable to find content")).to_owned()
+        };
 
         let readable_section = ReadableSection {
             id: section.id,
@@ -101,7 +114,7 @@ impl ReadableSection {
             instructions_text: template_section.instructions_text,
             help_text: template_section.help_text,
             text_id: text.id,
-            content: text.content.last().unwrap_or(&String::from("Unable to find content")).to_owned(),
+            content: content,
             lang: lang.to_string(),
             character_limit: template_section.character_limit,
             created_at: section.created_at,

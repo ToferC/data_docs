@@ -96,7 +96,7 @@ impl Document {
         Ok(v)
     }
 
-    pub fn get_readable_by_id(id: Uuid, lang: &str) -> Result<(ReadableDocument, BTreeMap<Uuid, ReadableSection>), CustomError> {
+    pub fn get_readable_by_id(id: Uuid, lang: &str, markdown: bool) -> Result<(ReadableDocument, BTreeMap<Uuid, ReadableSection>), CustomError> {
         let conn = database::connection()?;
 
         let document = documents::table
@@ -132,7 +132,7 @@ impl Document {
         let mut readable_sections: BTreeMap<Uuid, ReadableSection> = BTreeMap::new();
 
         for section in sections.iter() {
-            let rs = ReadableSection::get_by_id(section.id, lang)?;
+            let rs = ReadableSection::get_by_id(section.id, lang, markdown)?;
             readable_sections.insert(section.id, rs);
         }
 
@@ -187,6 +187,46 @@ impl Document {
         let conn = database::connection()?;
 
         let documents = documents::table
+            .load::<Self>(&conn)?;
+
+        let mut text_ids = Vec::new();
+        let mut user_ids = Vec::new();
+
+        // Get texts for document
+        for document in documents.iter() {
+            text_ids.push(document.title_text_id);
+            text_ids.push(document.purpose_text_id);
+            user_ids.push(document.created_by_id);
+        };
+
+        let texts = Text::get_text_map(text_ids, lang)?;
+        let users = User::get_user_email_map(user_ids)?;
+
+        let mut readable_documents = Vec::new();
+
+        for document in documents.iter() {
+            let readable_document = ReadableDocument {
+                id: document.id,
+                template_id: document.template_id,
+                title_text: texts.get(&document.title_text_id).unwrap().to_string(),
+                purpose_text: texts.get(&document.purpose_text_id).unwrap().to_string(),
+                created_at: document.created_at,
+                updated_at: document.updated_at,
+                publishable: document.publishable,
+                created_by: users.get(&document.created_by_id).unwrap().to_string(),
+            };
+
+            readable_documents.push(readable_document);
+        };
+            
+        Ok(readable_documents)
+    }
+
+    pub fn get_readable_by_created_by(created_by: Uuid, lang: &str) -> Result<Vec<ReadableDocument>, CustomError> {
+        let conn = database::connection()?;
+
+        let documents = documents::table
+            .filter(documents::created_by_id.eq(created_by))
             .load::<Self>(&conn)?;
 
         let mut text_ids = Vec::new();

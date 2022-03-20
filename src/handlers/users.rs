@@ -6,7 +6,7 @@ use inflector::Inflector;
 use serde::{Deserialize};
 
 use crate::{AppData, extract_identity_data, generate_basic_context};
-use crate::models::{User};
+use crate::models::{User, Document};
 use crate::handlers::DeleteForm;
 use crate::errors::CustomError;
 
@@ -88,6 +88,10 @@ pub async fn user_page_handler(
                 ctx.insert("user", &user);
         
                 // Add Additional User Data Here
+                let documents = Document::get_readable_by_created_by(user.id, &lang)
+                    .expect("Unable to retrieve documents");
+
+                ctx.insert("documents", &documents);
             
                 let rendered = data.tmpl.render("users/user_page.html", &ctx).unwrap();
                 HttpResponse::Ok().body(rendered)

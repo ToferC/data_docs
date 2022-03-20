@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}
+    <title>{{ fluent(key="create-document", lang=lang )}}</title>
+{% endblock title %}
+
+{% block content %}
+
+<div class="col m-md-2 m-1">
+
+    <h1>{{ template.name_text | title }}</h1>
+    
+    <ul>
+        <li>Purpose: {{ template.purpose_text }}</li>
+        <li>Created at:{{ template.created_at }}</li>
+        <li>Created at:{{ template.updated_at }}</li>
+    </ul>
+    
+    <hr>
+    <form 
+        action="/{{ lang }}/save_document_core/{{ template.id }}"
+        method="POST"
+        hx-target="document-form" 
+        hx-swap="outerHTML">
+        <div>
+          <label>Title</label>
+          <input type="text" name="title" placeholder="Add title here..." value="{{ document.title }}" required>
+        </div>
+        <div>
+            <label>Purpose</label>
+            <textarea rows="5" cols="33" name="purpose" placeholder="Add purpose here..." value="{{ document.purpose }}" required></textarea>
+        </div>
+        <button class="btn" type="submit">Submit</button>
+        <a class="btn" hx-get="/{{ lang }}/template_index">Cancel</a>
+    </form>
+
+    <h2>{{ fluent(key="sections", lang=lang )}}</h2>
+    
+    {% for key, section in sections %}
+    
+        <h3>{{ section.header_text | title }}</h3>
+        <ul>
+            <li>{{ fluent(key="section-instructions", lang=lang )}} {{ section.instructions_text }}</li>
+            <li>{{ fluent(key="section-help-text", lang=lang )}} {{ section.help_text }}</li>
+            <li>{{ fluent(key="section-character-limit", lang=lang, limit=section.character_limit )}}</li>
+        </ul>
+        <hr>
+    
+    {% endfor %}
+    <hr>
+    
+</div>
+
+{% endblock content %}

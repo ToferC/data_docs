@@ -3,6 +3,7 @@ use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
 use diesel::prelude::*;
 use std::{collections::BTreeMap};
+use pulldown_cmark::{html, Options, Parser};
 
 use crate::database;
 use crate::schema::texts;
@@ -25,10 +26,9 @@ pub struct Text {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+/// A struct for the text that is returned to the user (latest element of vec of changes)
 pub struct LatestText {
     pub id: Uuid,
-    // section_id for the majority of user-entered texts. Exceptions are for texts about documents
-    // Might want to make this a different data type
     pub section_id: Option<Uuid>,
     pub lang: String,
     pub content: String,
@@ -38,13 +38,29 @@ pub struct LatestText {
     pub created_by_id: Uuid,
 }
 
-impl From<Text> for LatestText {
-    fn from(text: Text) -> Self {
+impl LatestText {
+    pub fn get_from(text: Text, markdown: bool) -> Self {
+
+        let content = if markdown {
+            let mut options = Options::empty();
+            options.insert(Options::ENABLE_TABLES);
+            let parser = Parser::new_ext(&text.content.last().unwrap(), options);
+
+            let mut html_content: String = String::new();
+
+            html::push_html(&mut html_content, parser);
+
+            html_content
+            
+        } else {
+            text.content.last().unwrap_or(&String::from("Unable to find content")).to_owned()
+        };
+
         LatestText {
             id: text.id,
             section_id: text.section_id,
             lang: text.lang,
-            content: text.content.last().unwrap().clone(),
+            content: content,
             translated: *text.translated.last().unwrap(),
             machine_translation: *text.machine_translation.last().unwrap(),
             created_at: *text.created_at.last().unwrap(),
@@ -69,6 +85,16 @@ impl Text {
         let conn = database::connection()?;
         let text = texts::table
             .filter(texts::id.eq(text_id)
+            .and(texts::lang.eq(lang)))
+            .get_result(&conn)?;
+
+        Ok(text)
+    }
+
+    pub fn get_text_by_section_id(section_id: Uuid, lang: &str) -> Result<Text, CustomError> {
+        let conn = database::connection()?;
+        let text = texts::table
+            .filter(texts::section_id.eq(section_id)
             .and(texts::lang.eq(lang)))
             .get_result(&conn)?;
 

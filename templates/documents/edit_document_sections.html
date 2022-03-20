@@ -14,34 +14,31 @@
     
     <ul>
         <li>Purpose: {{ document.purpose_text }}</li>
-        <li>Created at: {{ document.created_at }}</li>
+        <li>Created at: {{ document.created_at | date(format="%Y-%m-%d %H:%M") }}</li>
         <li>Created by: {{ document.created_by }}</li>
     </ul>
     
     <hr>
-    
-    <h2>{{ fluent(key="sections", lang=lang )}}</h2>
-    
+        
     {% for key, section in sections %}
     
         <h3>{{ section.header_text | title }}</h3>
-        <section id="{{ section.text_id }}-content">
-            <form
-                hx-post="/{{ lang }}/edit_text/{{ section.text_id }}"> 
-                <div>
-                  <textarea rows="15" cols="66" name="content" placeholder="Enter Markdown here..." required>{{ section.content }}</textarea>
-                </div>
+        <div
+            id="{{section.text_id}}-content"
+            hx-swap="outerHTML"
+            hx-target="this"
+        >
+            <form>
+                <textarea rows="15" cols="66" name="content" placeholder="Enter Markdown here..." required>{{ section.content }}</textarea>
                 <button 
-                    type="submit" 
                     class="btn btn-primary"
+                    hx-post="/{{ lang }}/edit_text/{{ section.text_id }}"
                     >Save</button>
-                <ul>
-                    <li>{{ fluent(key="section-instructions", lang=lang )}} {{ section.instructions_text }}</li>
-                    <li>{{ fluent(key="section-help-text", lang=lang )}} {{ section.help_text }}</li>
-                    <li>{{ fluent(key="section-character-limit", lang=lang, limit=section.character_limit )}}</li>
-                </ul>
+                    <button class="btn" hx-get="/{{ lang }}/text/{{ section.text_id }}">Cancel</button>
             </form> 
-        </section>
+        </div>
+
+
         <hr>
     
     {% endfor %}

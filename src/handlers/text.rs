@@ -28,7 +28,7 @@ pub async fn get_text(
 
         let text = Text::get_text_by_id(text_id, &lang).expect("Unable to retrieve text");
 
-        let text = LatestText::from(text);
+        let text = LatestText::get_from(text, true);
 
         ctx.insert("text", &text);
 
@@ -102,7 +102,7 @@ pub async fn edit_text_form(
 
         let text = Text::get_text_by_id(text_id, &lang).expect("Unable to retrieve text");
 
-        let text = LatestText::from(text);
+        let text = LatestText::get_from(text, false);
 
         ctx.insert("text", &text);
 
@@ -139,7 +139,7 @@ pub async fn edit_text_put(
 
         let text = Text::update(text_id, content.to_string(), &lang, user.id).expect("Unable to update Text");
 
-        let text = LatestText::from(text);
+        let text = LatestText::get_from(text, true);
 
         println!("Updated!");
 

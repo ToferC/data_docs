@@ -58,7 +58,7 @@ pub async fn get_document(
         return err.error_response()
     } else {
 
-        let (document, sections) = Document::get_readable_by_id(document_id, &lang).expect("Unable to retrieve text");
+        let (document, sections) = Document::get_readable_by_id(document_id, &lang, true).expect("Unable to retrieve text");
 
         let mut ordered_sections = BTreeMap::new();
 
@@ -192,7 +192,7 @@ pub async fn edit_document_sections(
         return err.error_response()
     } else {
 
-        let (document, sections) = Document::get_readable_by_id(document_id, &lang)
+        let (document, sections) = Document::get_readable_by_id(document_id, &lang, false)
             .expect("Unable to load document");
 
         let mut ordered_sections = BTreeMap::new();

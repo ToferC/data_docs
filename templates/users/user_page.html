@@ -29,8 +29,25 @@
         </div>
         <br>
 
-        <h2>Add Documents and Work here</h2>
-
+        <h1>{{ fluent(key="documents", lang=lang )}}</h1>
+    
+    <table>
+        <tr>
+            <th style="text-align: center;">{{ fluent(key="title", lang=lang )}}</th>
+            <th style="text-align: center;">{{ fluent(key="updated-on", lang=lang )}}</th>
+            <th style="text-align: center;">{{ fluent(key="link", lang=lang )}}</th>
+            <th style="text-align: center;">{{ fluent(key="edit-document", lang=lang )}}</th>
+        </tr>
+        {% for document in documents %}
+            <tr>
+                <td style="text-align: center;">{{ document.title_text | title }}</td>
+                <td style="text-align: center;">{{ document.updated_at | date(format="%Y-%m-%d %H:%M") }}</td>
+                <td style="text-align: center;"><a href="/{{ lang }}/document/{{ document.id }}">{{ fluent(key="link", lang=lang )}}</a></td>
+                <td style="text-align: center;"><a class="btn btn-primary" href="/{{ lang }}/edit_document_sections/{{ document.id }}">{{ fluent(key="edit-document", lang=lang )}}</a></td>
+            </tr>
+        {% endfor %}
+        </table>
+        
         <br>
         {% if user.validated %}
             <p>VALIDATED - Add Document Button</p>
