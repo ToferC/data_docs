@@ -104,6 +104,33 @@ impl Template {
         Ok(v)
     }
 
+    pub fn get_readable_core_by_id(id: Uuid, lang: &str) -> Result<ReadableTemplate, CustomError> {
+        let conn = database::connection()?;
+
+        let template = templates::table
+            .filter(templates::id.eq(id))
+            .first::<Self>(&conn)?;
+
+        // Get texts for template and each section
+        let mut text_ids = Vec::new();
+
+        text_ids.push(template.name_text_id);
+        text_ids.push(template.purpose_text_id);
+
+        let texts = Text::get_text_map(text_ids, lang)?;
+
+        let readable_template = ReadableTemplate {
+            id: template.id,
+            name_text: texts.get(&template.name_text_id).unwrap().to_string(),
+            purpose_text: texts.get(&template.purpose_text_id).unwrap().to_string(),
+            created_at: template.created_at,
+            updated_at: template.updated_at,
+            slug: template.slug.to_owned(),
+        };
+
+        Ok(readable_template)
+    }
+
     pub fn get_readable_by_id(id: Uuid, lang: &str) -> Result<(ReadableTemplate, BTreeMap<Uuid, ReadableTemplateSection>), CustomError> {
         let conn = database::connection()?;
 

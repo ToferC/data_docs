@@ -192,3 +192,61 @@ pub async fn save_template_section(
         HttpResponse::Ok().body(rendered)
     }
 }
+
+#[get("/{lang}/get_template_core/{template_id}")]
+pub async fn get_template_core(
+    data: web::Data<AppData>,
+    web::Path((lang, template_id)): web::Path<(String, Uuid)>,
+    
+    id: Identity,
+    req:HttpRequest) -> impl Responder {
+
+    let (mut ctx, _session_user, role, lang) = generate_basic_context(id, &lang, req.uri().path());
+
+    if role == "CHANGE TO NOT SIGNED IN".to_string() {
+        let err = CustomError::new(
+            406,
+            "Not authorized".to_string(),
+        );
+        println!("{}", &err);
+        return err.error_response()
+    } else {
+
+        let template_core = Template::get_readable_core_by_id(template_id, &lang)
+            .expect("Unable to load template core");
+
+        ctx.insert("template", &template_core);
+
+        let rendered = data.tmpl.render("templates/template_core.html", &ctx).unwrap();
+        HttpResponse::Ok().body(rendered)
+    }
+}
+
+#[get("/{lang}/get_template_core/{template_section_id}")]
+pub async fn get_template_section(
+    data: web::Data<AppData>,
+    web::Path((lang, template_section_id)): web::Path<(String, Uuid)>,
+    
+    id: Identity,
+    req:HttpRequest) -> impl Responder {
+
+    let (mut ctx, _session_user, role, lang) = generate_basic_context(id, &lang, req.uri().path());
+
+    if role == "CHANGE TO NOT SIGNED IN".to_string() {
+        let err = CustomError::new(
+            406,
+            "Not authorized".to_string(),
+        );
+        println!("{}", &err);
+        return err.error_response()
+    } else {
+
+        let template_section = TemplateSection::get_readable_by_id(template_section_id, &lang)
+            .expect("Unable to load template core");
+
+        ctx.insert("template", &template_section);
+
+        let rendered = data.tmpl.render("templates/template_core.html", &ctx).unwrap();
+        HttpResponse::Ok().body(rendered)
+    }
+}
