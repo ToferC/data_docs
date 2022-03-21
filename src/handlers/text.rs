@@ -111,7 +111,7 @@ pub async fn edit_text_form(
     }
 }
 
-#[post("/{lang}/edit_text/{text_id}")]
+#[put("/{lang}/edit_text/{text_id}")]
 pub async fn edit_text_put(
     data: web::Data<AppData>,
     web::Path((lang, text_id)): web::Path<(String, Uuid)>,

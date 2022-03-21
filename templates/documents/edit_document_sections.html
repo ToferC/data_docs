@@ -32,7 +32,7 @@
                 <textarea rows="15" cols="66" name="content" placeholder="Enter Markdown here..." required>{{ section.content }}</textarea>
                 <button 
                     class="btn btn-primary"
-                    hx-post="/{{ lang }}/edit_text/{{ section.text_id }}"
+                    hx-put="/{{ lang }}/edit_text/{{ section.text_id }}"
                     >Save</button>
                     <button class="btn" hx-get="/{{ lang }}/text/{{ section.text_id }}">Cancel</button>
             </form> 

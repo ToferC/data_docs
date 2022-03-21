@@ -47,6 +47,50 @@ pub struct ReadableTemplate {
 }
 
 impl Template {
+    pub fn create_with_id(
+        id: Uuid,
+        raw_name_text: String,
+        raw_purpose_text: String,
+        lang: String,
+        created_by: Uuid,
+    ) -> Result<Self, CustomError> {
+
+        let insertable_name_text = InsertableText::new(
+            None,
+            &lang, 
+            raw_name_text.to_owned(),
+            created_by);
+
+        let name_text = Text::create(&insertable_name_text)?;
+
+        let insertable_purpose_text = InsertableText::new(
+            None,
+            &lang, 
+            raw_purpose_text,
+            created_by);
+
+        let slug = raw_name_text.to_snake_case();
+
+        let purpose_text = Text::create(&insertable_purpose_text)?;
+
+        let template = Template {
+            id: id,
+            name_text_id: name_text.id,
+            purpose_text_id: purpose_text.id,
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
+            slug: slug,
+        };
+
+        let conn = database::connection()?;
+
+        let v = diesel::insert_into(templates::table)
+            .values(template)
+            .get_result(&conn)?;
+
+        Ok(v)
+    }
+
     pub fn create(
         template: &InsertableTemplate,
     ) -> Result<Self, CustomError> {
