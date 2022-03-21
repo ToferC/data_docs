@@ -1,0 +1,12 @@
+<div 
+    id="{{text.id}}-content"
+    hx-swap="outerHTML"
+    hx-target="this"
+>
+<button
+    hx-get="/{{ lang }}/edit_text/{{ text.id }}" 
+    class="btn">
+            Edit
+    </button>
+        <div>{{ text.content | safe }}</div>
+</div>

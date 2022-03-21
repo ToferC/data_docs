@@ -1,0 +1,15 @@
+<div 
+id="{{text.id}}-content"
+hx-target="this"
+hx-swap="outerHTML"
+>
+<form
+>
+<textarea rows="15" cols="66" name="content" placeholder="Enter Markdown here..." required>{{ text.content }}</textarea>
+<button 
+      hx-put="/{{ lang }}/edit_text/{{ text.id }}"
+      class="btn btn-primary"
+      >Save</button>
+    <button class="btn" hx-get="/{{ lang }}/text/{{ text.id }}">Cancel</button>
+</form> 
+</div>
