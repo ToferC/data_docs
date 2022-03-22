@@ -37,7 +37,7 @@ pub async fn template_index(
 }
 
 #[get("/{lang}/template/{template_id}")]
-pub async fn template(
+pub async fn get_template(
     data: web::Data<AppData>,
     web::Path((lang, template_id)): web::Path<(String, Uuid)>,
     
@@ -66,7 +66,7 @@ pub async fn template(
     }
 }
 
-#[get("/{lang}/create_template}")]
+#[get("/{lang}/create_template")]
 pub async fn create_template(
     data: web::Data<AppData>,
     web::Path(lang): web::Path<String>,

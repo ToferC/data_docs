@@ -54,7 +54,15 @@ use crate::handlers::{
 
     // templates
     template_index,
-    template,
+    get_template,
+    get_template_core,
+    save_template_core,
+    create_template,
+
+    // template_sections
+    get_template_section,
+    edit_template_section,
+    save_template_section,
 
     // documents
     document_index,
@@ -120,7 +128,15 @@ pub fn configure_services(config: &mut web::ServiceConfig) {
 
      // templates
      config.service(template_index);
-     config.service(template);
+     config.service(get_template);
+     config.service(create_template);
+     config.service(save_template_core);
+     config.service(get_template_core);
+
+     // template_sections
+     config.service(get_template_section);
+     config.service(save_template_section);
+     config.service(edit_template_section);
 
      // documents
      config.service(document_index);

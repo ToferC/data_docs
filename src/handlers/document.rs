@@ -197,7 +197,7 @@ pub async fn edit_document_sections(
 
         let mut ordered_sections = BTreeMap::new();
 
-        for (k, v) in sections {
+        for (_k, v) in sections {
             ordered_sections.insert(v.order_number, v);
         }
 

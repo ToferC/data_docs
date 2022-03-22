@@ -31,7 +31,36 @@ pub async fn get_template_section(
 
         ctx.insert("template", &template_section);
 
-        let rendered = data.tmpl.render("templates/template_core.html", &ctx).unwrap();
+        let rendered = data.tmpl.render("templates/template_section.html", &ctx).unwrap();
+        HttpResponse::Ok().body(rendered)
+    }
+}
+
+#[get("/{lang}/edit_template_section/{template_section_id}")]
+pub async fn edit_template_section(
+    data: web::Data<AppData>,
+    web::Path((lang, template_section_id)): web::Path<(String, Uuid)>,
+    
+    id: Identity,
+    req:HttpRequest) -> impl Responder {
+
+    let (mut ctx, _session_user, role, lang) = generate_basic_context(id, &lang, req.uri().path());
+
+    if role == "CHANGE TO NOT SIGNED IN".to_string() {
+        let err = CustomError::new(
+            406,
+            "Not authorized".to_string(),
+        );
+        println!("{}", &err);
+        return err.error_response()
+    } else {
+
+        let template_section = TemplateSection::get_readable_by_id(template_section_id, &lang)
+            .expect("Unable to load template section");
+
+        ctx.insert("template_section", &template_section);
+
+        let rendered = data.tmpl.render("templates/edit_template_section.html", &ctx).unwrap();
         HttpResponse::Ok().body(rendered)
     }
 }
