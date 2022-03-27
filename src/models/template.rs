@@ -104,6 +104,19 @@ impl Template {
         Ok(v)
     }
 
+    pub fn update(
+        template: &InsertableTemplate,
+    ) -> Result<Self, CustomError> {
+
+        let conn = database::connection()?;
+
+        let v = diesel::insert_into(templates::table)
+            .values(template)
+            .get_result(&conn)?;
+
+        Ok(v)
+    }
+
     pub fn get_readable_core_by_id(id: Uuid, lang: &str) -> Result<ReadableTemplate, CustomError> {
         let conn = database::connection()?;
 

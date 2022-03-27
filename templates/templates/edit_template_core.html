@@ -1,0 +1,22 @@
+<div
+    hx-target="this" 
+    hx-swap="outerHTML"
+>
+    <form> 
+        <div>
+        <label>Name</label>
+        <input type="text" name="name" value="{{ template_core.name }}" required>
+        </div>
+        <div>
+            <label>Purpose</label>
+            <textarea rows="5" cols="33" name="purpose" value="{{ template_core.purpose }}" required></textarea>
+        </div>
+        
+        <button 
+            class="btn btn-primary" type="submit"
+            hx-put="/{{ lang }}/update_template_core/{{ template_core.id }}"
+            >Submit
+        </button>
+        <a class="btn" hx-get="/{{ lang }}/get_template_core/{{ template_core.id }}">Cancel</a>
+    </form>
+</div>

@@ -143,6 +143,48 @@ pub async fn save_template_core(
     }
 }
 
+#[post("/{lang}/update_template_core/{template_id}")]
+// Post and create template
+pub async fn update_template_core(
+    data: web::Data<AppData>,
+    web::Path((lang, template_id)): web::Path<(String, Uuid)>,
+    form: web::Form<TemplateCoreForm>,
+    id: Identity,
+    req:HttpRequest) -> impl Responder {
+
+    let (mut ctx, session_user, role, lang) = generate_basic_context(id, &lang, req.uri().path());
+
+    if role != "user".to_string() &&
+        role != "admin".to_string() {
+        let err = CustomError::new(
+            406,
+            "Not authorized".to_string(),
+        );
+        return err.error_response()
+    } else {
+
+        // validate authorized to edit document
+        let raw_name_text = form.name_text.trim().to_string();
+        let raw_purpose_text = form.purpose_text.trim().to_string();
+
+        let user = User::find_from_slug(&session_user).expect("Unable to find user");
+
+        // create document
+        let docs_template = crate::models::Template::create_with_id(
+            template_id,
+            raw_name_text,
+            raw_purpose_text,
+            lang,
+            user.id,
+        ).expect("Unable to create template");
+
+        ctx.insert("template", &docs_template);
+
+        let rendered = data.tmpl.render("templates/create_template_sections.html", &ctx).unwrap();
+        HttpResponse::Ok().body(rendered)
+    }
+}
+
 #[get("/{lang}/get_template_core/{template_id}")]
 pub async fn get_template_core(
     data: web::Data<AppData>,
