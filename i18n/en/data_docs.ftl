@@ -34,6 +34,7 @@ template-index = Template Index
 template-name = Template Name
 updated-on = Updated On
 sections = Sections
+section-order-number = Order Number
 section-instructions = Instructions: 
 section-help-text = Help Text:
 section-character-limit = Character Limit: { $limit -> 

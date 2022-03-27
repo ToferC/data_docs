@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}
+    <title>{{ document.title_text | title }}</title>
+{% endblock title %}
+
+{% block content %}
+
+<div class="col m-md-2 m-1">
+
+
+
+    <h1>{{ document.title_text | title }}</h1>
+    
+    <ul>
+        <li>Purpose: {{ document.purpose_text }}</li>
+        <li>Created at: {{ document.created_at | date(format="%Y-%m-%d %H:%M") }}</li>
+        <li>Created by: {{ document.created_by }}</li>
+    </ul>
+    
+    <hr>
+        
+    
+    <div
+    id="{{template_core.id}}-section"
+    hx-swap="outerHTML"
+    hx-target="this"
+    >
+    <h3>Add Section</h3>
+        <form>
+            <div>
+                <label>Header Text</label>
+                <input type="text" name="header_text" placeholder="Add header text here..." required>
+              </div>
+              <div>
+                  <label>Instructions</label>
+                  <textarea rows="5" cols="33" name="instructions_text" placeholder="Add instructions to complete the section here..." required></textarea>
+              </div>
+              <div>
+                <label>Help Text</label>
+                <textarea rows="5" cols="33" name="help_text" placeholder="Add any help text for the form here..." required></textarea>
+            </div>
+            <div>
+                <label>Order Number</label>
+                <input type="number" name="order_number" default="1" required>
+            </div>
+            <div>
+                <label>Character Limit (Optional)</label>
+                <input type="number" name="character_limit" default="0">
+            </div>
+                <button 
+                    class="btn btn-primary"
+                    hx-put="/{{ lang }}/edit_text/{{ section.text_id }}"
+                    >Save
+                </button>
+                <button class="btn" hx-post="/{{ lang }}/save_template_section/{{ section_core.id }}">Cancel</button>
+        </form> 
+    </div>
+
+
+    <hr>
+    
+
+</div>
+
+{% endblock content %}

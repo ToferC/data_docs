@@ -131,7 +131,7 @@ pub async fn save_template_core(
 
         ctx.insert("template", &docs_template);
 
-        let rendered = data.tmpl.render("templates/template_core.html", &ctx).unwrap();
+        let rendered = data.tmpl.render("templates/create_template_sections.html", &ctx).unwrap();
         HttpResponse::Ok().body(rendered)
     }
 }

@@ -1,12 +1,18 @@
 <div 
-    id="{{text.id}}-content"
+    id="{{template_section.id}}-content"
     hx-swap="outerHTML"
     hx-target="this"
 >
 <button
-    hx-get="/{{ lang }}/edit_text/{{ text.id }}" 
+    hx-get="/{{ lang }}/edit_template_section/{{ template_section.id }}" 
     class="btn">
             Edit
     </button>
-        <div>{{ text.content | safe }}</div>
+    <h3>{{ template_section.header_text | title }}</h3>
+    <ul>
+        <li>{{ fluent(key="section-order-number", lang=lang, limit=template_section.order_number )}}</li>
+        <li>{{ fluent(key="section-instructions", lang=lang )}} {{ template_section.instructions_text }}</li>
+        <li>{{ fluent(key="section-help-text", lang=lang )}} {{ template_section.help_text }}</li>
+        <li>{{ fluent(key="section-character-limit", lang=lang, limit=template_section.character_limit )}}</li>
+    </ul>
 </div>

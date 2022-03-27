@@ -1,15 +1,35 @@
-<div 
-id="{{text.id}}-content"
-hx-target="this"
-hx-swap="outerHTML"
->
-<form
->
-<textarea rows="15" cols="66" name="content" placeholder="Enter Markdown here..." required>{{ text.content }}</textarea>
-<button 
-      hx-put="/{{ lang }}/edit_text/{{ text.id }}"
-      class="btn btn-primary"
-      >Save</button>
-    <button class="btn" hx-get="/{{ lang }}/text/{{ text.id }}">Cancel</button>
-</form> 
-</div>
+<div
+    id="{{template_core.id}}-section-{{ template_section.id }}"
+    hx-swap="outerHTML"
+    hx-target="this"
+    >
+    <h3>Add Section</h3>
+        <form>
+            <div>
+                <label>Header Text</label>
+                <input type="text" name="header_text" value="{{template_section.header_text}}" required>
+              </div>
+              <div>
+                  <label>Instructions</label>
+                  <textarea rows="5" cols="33" name="instructions_text" value="{{template_section.instructions_text}}" required></textarea>
+              </div>
+              <div>
+                <label>Help Text</label>
+                <textarea rows="5" cols="33" name="help_text" value="{{template_section.help_text}}" required></textarea>
+            </div>
+            <div>
+                <label>Order Number</label>
+                <input type="number" name="order_number" value="{{template_section.order_number}}" required>
+            </div>
+            <div>
+                <label>Character Limit (Optional)</label>
+                <input type="number" name="character_limit" value="{{template_section.character_limit}}">
+            </div>
+                <button 
+                    class="btn btn-primary"
+                    hx-put="/{{ lang }}/edit_text/{{ section.text_id }}"
+                    >Save
+                </button>
+                <button class="btn" hx-post="/{{ lang }}/save_template_section/{{ section_core.id }}">Cancel</button>
+        </form> 
+    </div>
