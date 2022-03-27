@@ -34,13 +34,13 @@ template-index = Template Index
 template-name = Template Name
 updated-on = Updated On
 sections = Sections
-section-order-number = Order Number
 section-instructions = Instructions: 
 section-help-text = Help Text:
 section-character-limit = Character Limit: { $limit -> 
     [0] No limit.
     *[other] Limit of { $limit } characters.
 }
+section-order-number = Order Number: { $number }
 create-document = Create Document
 create = Create
 

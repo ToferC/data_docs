@@ -1,6 +1,7 @@
 use actix_web::{HttpRequest, HttpResponse, Responder, get, post, web, ResponseError};
 use actix_identity::{Identity};
 use uuid::Uuid;
+use std::collections::BTreeMap;
 
 use crate::{AppData, generate_basic_context};
 use crate::handlers::{TemplateCoreForm};
@@ -55,11 +56,17 @@ pub async fn get_template(
         return err.error_response()
     } else {
 
-        let (template, sections) = Template::get_readable_by_id(template_id, &lang)
+        let (template_core, template_sections) = Template::get_readable_by_id(template_id, &lang)
             .expect("Unable to load templates");
 
-        ctx.insert("template", &template);
-        ctx.insert("sections", &sections);
+        let mut ordered_template_sections = BTreeMap::new();
+
+        for (_k, v) in template_sections {
+            ordered_template_sections.insert(v.order_number, v);
+        }
+
+        ctx.insert("template_core", &template_core);
+        ctx.insert("template_sections", &ordered_template_sections);
 
         let rendered = data.tmpl.render("templates/template.html", &ctx).unwrap();
         HttpResponse::Ok().body(rendered)
@@ -158,7 +165,7 @@ pub async fn get_template_core(
         let template_core = Template::get_readable_core_by_id(template_id, &lang)
             .expect("Unable to load template core");
 
-        ctx.insert("template", &template_core);
+        ctx.insert("template_core", &template_core);
 
         let rendered = data.tmpl.render("templates/template_core.html", &ctx).unwrap();
         HttpResponse::Ok().body(rendered)

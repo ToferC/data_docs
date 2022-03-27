@@ -1,35 +1,26 @@
 {% extends "base.html" %}
 
 {% block title %}
-    <title>{{ template.name_text | title }}</title>
+    <title>{{ template_core.name_text | title }}</title>
 {% endblock title %}
 
 {% block content %}
 
 <div class="col m-md-2 m-1">
 
-
-
-    <h1>{{ template.name_text | title }}</h1>
-    
-    <ul>
-        <li>Purpose: {{ template.purpose_text }}</li>
-        <li>Created at:{{ template.created_at }}</li>
-        <li>Created at:{{ template.updated_at }}</li>
-    </ul>
+    <div hx-get="/{{lang}}/get_template_core/{{template_core.id}}" hx-trigger="load">
+        <img alt="Result loading..." class="htmx-indicator" width="150"/>
+    </div>
     
     <hr>
     
     <h2>{{ fluent(key="sections", lang=lang )}}</h2>
     
-    {% for key, section in sections | sort(attribute="order_number") %}
+    {% for key, template_section in template_sections %}
     
-        <h3>{{ section.header_text | title }}</h3>
-        <ul>
-            <li>{{ fluent(key="section-instructions", lang=lang )}} {{ section.instructions_text }}</li>
-            <li>{{ fluent(key="section-help-text", lang=lang )}} {{ section.help_text }}</li>
-            <li>{{ fluent(key="section-character-limit", lang=lang, limit=section.character_limit )}}</li>
-        </ul>
+        <div hx-get="/{{lang}}/get_template_section/{{template_section.id}}" hx-trigger="load">
+            <img alt="Result loading..." class="htmx-indicator" width="150"/>
+        </div>
         <hr>
     
     {% endfor %}

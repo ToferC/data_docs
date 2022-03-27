@@ -29,9 +29,9 @@ pub async fn get_template_section(
         let template_section = TemplateSection::get_readable_by_id(template_section_id, &lang)
             .expect("Unable to load template core");
 
-        ctx.insert("template", &template_section);
+        ctx.insert("template_section", &template_section);
 
-        let rendered = data.tmpl.render("templates/template_section.html", &ctx).unwrap();
+        let rendered = data.tmpl.render("template_sections/template_section.html", &ctx).unwrap();
         HttpResponse::Ok().body(rendered)
     }
 }
@@ -60,7 +60,7 @@ pub async fn create_template_sections(
 
         ctx.insert("template_core", &template_core);
 
-        let rendered = data.tmpl.render("templates/create_template_sections.html", &ctx).unwrap();
+        let rendered = data.tmpl.render("template_sections/create_template_sections.html", &ctx).unwrap();
         HttpResponse::Ok().body(rendered)
     }
 }
@@ -89,7 +89,7 @@ pub async fn edit_template_section(
 
         ctx.insert("template_section", &template_section);
 
-        let rendered = data.tmpl.render("templates/edit_template_section.html", &ctx).unwrap();
+        let rendered = data.tmpl.render("template_sections/edit_template_section.html", &ctx).unwrap();
         HttpResponse::Ok().body(rendered)
     }
 }
@@ -144,7 +144,7 @@ pub async fn save_template_section(
 
         ctx.insert("template_section", &template_section);
 
-        let rendered = data.tmpl.render("templates/template_section.html", &ctx).unwrap();
+        let rendered = data.tmpl.render("template_sections/template_section.html", &ctx).unwrap();
         HttpResponse::Ok().body(rendered)
     }
 }

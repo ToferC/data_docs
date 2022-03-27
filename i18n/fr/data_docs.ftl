@@ -40,6 +40,7 @@ section-character-limit = Character Limit: { $limit ->
     [0] No limit.
     *[other] Limit of { $limit } characters.
 }
+section-order-number = Order Number: { $number }
 create-document = Create Document
 create = Create
 
