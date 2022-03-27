@@ -89,7 +89,7 @@ pub async fn create_template(
 
         ctx.insert("template_id", &template_id);
 
-        let rendered = data.tmpl.render("documents/create_document_core.html", &ctx).unwrap();
+        let rendered = data.tmpl.render("templates/create_template_core.html", &ctx).unwrap();
         HttpResponse::Ok().body(rendered)
     }
 }

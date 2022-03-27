@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}
+    <title>{{ fluent(key="create-template", lang=lang )}}</title>
+{% endblock title %}
+
+{% block content %}
+
+<div class="col m-md-2 m-1">
+
+    <h1>{{ fluent(key="create-template", lang=lang )}}</h1>
+    
+    <p>{{ fluent(key="create-template-instructions", lang=lang )}}</p>
+    
+    <hr>
+    <form 
+        action="/{{ lang }}/save_template_core/{{ template_id }}"
+        method="POST"
+        hx-target="document-form" 
+        hx-swap="outerHTML">
+        <div>
+          <label>Name</label>
+          <input type="text" name="name" placeholder="Add template name here..." required>
+        </div>
+        <div>
+            <label>Purpose</label>
+            <textarea rows="5" cols="33" name="purpose" placeholder="Add purpose here..." required></textarea>
+        </div>
+        <button class="btn" type="submit">Submit</button>
+        <a class="btn" hx-get="/{{ lang }}/template_index">Cancel</a>
+    </form>
+
+    <h2>{{ fluent(key="sections", lang=lang )}}</h2>
+    
+    <hr>
+    
+</div>
+
+{% endblock content %}

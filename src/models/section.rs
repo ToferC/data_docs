@@ -8,7 +8,7 @@ use pulldown_cmark::{html, Options, Parser};
 use crate::database;
 use crate::schema::{sections, texts};
 use crate::errors::CustomError;
-use crate::models::{Text, TemplateSection, Document};
+use crate::models::{Text, Document, TemplateSection};
 
 #[derive(Debug, Serialize, Deserialize, AsChangeset, Insertable, Queryable, Associations, Identifiable, Clone)]
 #[table_name = "sections"]

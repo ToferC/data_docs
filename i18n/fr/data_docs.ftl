@@ -49,6 +49,10 @@ documents = Documents
 title = Title
 edit-document = Edit Document
 
+## Templates
+create-template = Create Template
+create-template-instructions = A template is the base structure that you can use to create documents in a standard format. Every template has a name, a purpose and a number of template sections.
+
 
 ## Login Page
 email-address = Email address
