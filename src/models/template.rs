@@ -189,25 +189,28 @@ impl Template {
 
         let mut readable_sections: BTreeMap<Uuid, ReadableTemplateSection> = BTreeMap::new();
 
-        for section in sections.iter() {
+        for template_section in sections.iter() {
 
-            let limit = if let Some(i) = section.character_limit {
+            let limit = if let Some(i) = template_section.character_limit {
                 i
             } else {
                 0
             };
 
             let readable_template_section = ReadableTemplateSection {
-                header_text: texts.get(&section.header_text_id).unwrap().to_string(),
-                instructions_text: texts.get(&section.instructions_text_id).unwrap().to_string(),
-                help_text: texts.get(&section.help_text_id).unwrap().to_string(),
-                order_number: section.order_number,
+                header_text: texts.get(&template_section.header_text_id).unwrap().to_string(),
+                header_text_id: template_section.header_text_id,
+                instructions_text: texts.get(&template_section.instructions_text_id).unwrap().to_string(),
+                instructions_text_id: template_section.instructions_text_id,
+                help_text: texts.get(&template_section.help_text_id).unwrap().to_string(),
+                help_text_id: template_section.help_text_id,
+                order_number: template_section.order_number,
                 character_limit: limit,
-                id: section.id,
-                template_id: section.template_id,
+                id: template_section.id,
+                template_id: template_section.template_id,
             };
 
-            readable_sections.insert(section.id, readable_template_section);
+            readable_sections.insert(template_section.id, readable_template_section);
         }
 
         Ok((readable_template, readable_sections))

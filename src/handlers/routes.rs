@@ -65,6 +65,7 @@ use crate::handlers::{
 
     // template_sections
     get_template_section,
+    edit_template_section_form,
     edit_template_section,
     save_template_section,
 
@@ -144,7 +145,9 @@ pub fn configure_services(config: &mut web::ServiceConfig) {
      // template_sections
      config.service(get_template_section);
      config.service(save_template_section);
+     config.service(edit_template_section_form);
      config.service(edit_template_section);
+
 
      // documents
      config.service(document_index);

@@ -130,7 +130,7 @@ pub async fn save_template_core(
             user.id,
         ).expect("Unable to create template");
 
-        ctx.insert("template", &template_core);
+        ctx.insert("template_core", &template_core);
 
         let rendered = data.tmpl.render("template_core/create_template_sections.html", &ctx).unwrap();
         HttpResponse::Ok().body(rendered)
@@ -184,9 +184,9 @@ pub async fn edit_template_core(
         let readable_template_core = Template::get_readable_by_id(template_id, &lang)
             .expect("Unable to get readable template");
 
-        ctx.insert("template", &readable_template_core);
+        ctx.insert("template_core", &readable_template_core);
 
-        let rendered = data.tmpl.render("templates/template_core.html", &ctx).unwrap();
+        let rendered = data.tmpl.render("template_core/template_core.html", &ctx).unwrap();
         HttpResponse::Ok().body(rendered)
     }
 }

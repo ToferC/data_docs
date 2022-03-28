@@ -1,9 +1,9 @@
 <div
-    id="{{template_core.id}}-section-{{ template_section.id }}"
+    id="{{template_section.template_id}}-section-{{ template_section.id }}"
     hx-swap="outerHTML"
     hx-target="this"
     >
-    <h3>Add Section</h3>
+    <h3>Edit Section</h3>
         <form>
             <div>
                 <label>Header Text</label>
@@ -11,11 +11,11 @@
               </div>
               <div>
                   <label>Instructions</label>
-                  <textarea rows="5" cols="33" name="instructions_text" value="{{template_section.instructions_text}}" required></textarea>
+                  <textarea rows="5" cols="33" name="instructions_text" required>{{template_section.instructions_text}}</textarea>
               </div>
               <div>
                 <label>Help Text</label>
-                <textarea rows="5" cols="33" name="help_text" value="{{template_section.help_text}}" required></textarea>
+                <textarea rows="5" cols="33" name="help_text" required>{{template_section.help_text}}</textarea>
             </div>
             <div>
                 <label>Order Number</label>
@@ -27,9 +27,9 @@
             </div>
                 <button 
                     class="btn btn-primary"
-                    hx-put="/{{ lang }}/edit_text/{{ section.text_id }}"
+                    hx-put="/{{ lang }}/edit_template_section/{{ template_section.id }}"
                     >Save
                 </button>
-                <button class="btn" hx-post="/{{ lang }}/save_template_section/{{ section_core.id }}">Cancel</button>
+                <button class="btn" hx-get="/{{ lang }}/get_template_section/{{ template_section.id }}">Cancel</button>
         </form> 
     </div>

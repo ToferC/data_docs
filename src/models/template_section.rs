@@ -29,9 +29,12 @@ pub struct ReadableTemplateSection {
     pub id: Uuid,
     pub template_id: Uuid,
     pub header_text: String,
+    pub header_text_id: Uuid,
     pub order_number: i32,
     pub instructions_text: String,
+    pub instructions_text_id: Uuid,
     pub help_text: String,
+    pub help_text_id: Uuid,
     pub character_limit: i32,
 }
 
@@ -42,6 +45,17 @@ impl TemplateSection {
 
         let v = diesel::insert_into(template_sections::table)
             .values(template_section)
+            .get_result(&conn)?;
+
+        Ok(v)
+    }
+
+    pub fn update(template_section: &TemplateSection) -> Result<Self, CustomError> {
+
+        let conn = database::connection()?;
+
+        let v = diesel::update(template_sections::table)
+            .set(template_section)
             .get_result(&conn)?;
 
         Ok(v)
@@ -62,6 +76,16 @@ impl TemplateSection {
             .unwrap();
 
         texts
+    }
+
+    pub fn get_by_id(id: Uuid) -> Result<TemplateSection, CustomError> {
+        let conn = database::connection()?;
+
+        let template_section: TemplateSection = template_sections::table
+            .filter(template_sections::id.eq(id))
+            .get_result(&conn)?;
+
+        Ok(template_section)
     }
 
     pub fn get_readable_by_id(id: Uuid, lang: &str) -> Result<ReadableTemplateSection, CustomError> {
@@ -88,8 +112,11 @@ impl TemplateSection {
 
         let readable_template_section = ReadableTemplateSection {
             header_text: texts.get(&template_section.header_text_id).unwrap().to_string(),
+            header_text_id: template_section.header_text_id,
             instructions_text: texts.get(&template_section.instructions_text_id).unwrap().to_string(),
+            instructions_text_id: template_section.instructions_text_id,
             help_text: texts.get(&template_section.help_text_id).unwrap().to_string(),
+            help_text_id: template_section.help_text_id,
             order_number: template_section.order_number,
             character_limit: limit,
             id: template_section.id,
