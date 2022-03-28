@@ -144,6 +144,16 @@ impl Template {
         Ok(readable_template)
     }
 
+    pub fn get_core_by_id(id: Uuid) -> Result<Template, CustomError> {
+        let conn = database::connection()?;
+
+        let template = templates::table
+            .filter(templates::id.eq(id))
+            .first::<Self>(&conn)?;
+
+        Ok(template)
+    }
+
     pub fn get_readable_by_id(id: Uuid, lang: &str) -> Result<(ReadableTemplate, BTreeMap<Uuid, ReadableTemplateSection>), CustomError> {
         let conn = database::connection()?;
 

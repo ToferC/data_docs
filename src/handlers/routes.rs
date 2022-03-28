@@ -52,12 +52,16 @@ use crate::handlers::{
     delete_user,
     delete_user_handler,
 
-    // templates
+    // template pages
     template_index,
-    get_template,
-    get_template_core,
+    get_template_page,
+
+    // template cores
+    create_template_core_form,
     save_template_core,
-    create_template,
+    edit_template_core_form,
+    edit_template_core,
+    get_template_core,
 
     // template_sections
     get_template_section,
@@ -126,12 +130,16 @@ pub fn configure_services(config: &mut web::ServiceConfig) {
      config.service(delete_user);
      config.service(delete_user_handler);
 
-     // templates
+     // template page
      config.service(template_index);
-     config.service(get_template);
-     config.service(create_template);
-     config.service(save_template_core);
+     config.service(get_template_page);
+     
+     // template_core
      config.service(get_template_core);
+     config.service(create_template_core_form);
+     config.service(save_template_core);
+     config.service(edit_template_core);
+     config.service(edit_template_core_form);
 
      // template_sections
      config.service(get_template_section);

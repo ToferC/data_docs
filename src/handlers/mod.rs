@@ -11,6 +11,7 @@ pub mod template;
 pub mod text;
 pub mod document;
 pub mod template_section;
+pub mod template_core;
 
 pub use base::{index, raw_index};
 pub use routes::configure_services;
@@ -25,3 +26,4 @@ pub use template::*;
 pub use text::*;
 pub use document::*;
 pub use template_section::*;
+pub use template_core::*;
