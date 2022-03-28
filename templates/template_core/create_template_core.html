@@ -26,7 +26,10 @@
             <textarea rows="5" cols="33" name="purpose" placeholder="Add purpose here..." required></textarea>
         </div>
         
-        <button class="btn" type="submit">Submit</button>
+        <button 
+            class="btn btn-primary"
+            hx-post="/{{ lang }}/save_template_core/{{ template_id }}"
+        >Submit</button>
         <a class="btn" hx-get="/{{ lang }}/template_index">Cancel</a>
     </form>
 

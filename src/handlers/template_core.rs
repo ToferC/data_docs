@@ -37,6 +37,7 @@ pub async fn get_template_core(
 }
 
 #[get("/{lang}/create_template_core")]
+/// Form for creating a template_core
 pub async fn create_template_core_form(
     data: web::Data<AppData>,
     web::Path(lang): web::Path<String>,
@@ -64,8 +65,9 @@ pub async fn create_template_core_form(
     }
 }
 
-#[get("/{lang}/edit_template_core/{template_id}")]
-pub async fn edit_template_core(
+#[get("/{lang}/edit_template_core_form/{template_id}")]
+/// Form to edit an existing template_core
+pub async fn edit_template_core_form(
     data: web::Data<AppData>,
     web::Path((lang, template_id)): web::Path<(String, Uuid)>,
     
@@ -88,13 +90,13 @@ pub async fn edit_template_core(
 
         ctx.insert("template_core", &template_core);
 
-        let rendered = data.tmpl.render("template_core/template_core.html", &ctx).unwrap();
+        let rendered = data.tmpl.render("template_core/edit_template_core.html", &ctx).unwrap();
         HttpResponse::Ok().body(rendered)
     }
 }
 
 #[post("/{lang}/save_template_core/{template_id}")]
-// Post and create template
+// Post and create new template_core and forward to create_template_sections
 pub async fn save_template_core(
     data: web::Data<AppData>,
     web::Path((lang, template_id)): web::Path<(String, Uuid)>,
@@ -120,7 +122,7 @@ pub async fn save_template_core(
         let user = User::find_from_slug(&session_user).expect("Unable to find user");
 
         // create document
-        let docs_template = crate::models::Template::create_with_id(
+        let template_core = crate::models::Template::create_with_id(
             template_id,
             raw_name_text,
             raw_purpose_text,
@@ -128,16 +130,16 @@ pub async fn save_template_core(
             user.id,
         ).expect("Unable to create template");
 
-        ctx.insert("template", &docs_template);
+        ctx.insert("template", &template_core);
 
         let rendered = data.tmpl.render("template_core/create_template_sections.html", &ctx).unwrap();
         HttpResponse::Ok().body(rendered)
     }
 }
 
-#[put("/{lang}/edit_template_core_form/{template_id}")]
+#[put("/{lang}/edit_template_core/{template_id}")]
 // Put and update an existing template
-pub async fn edit_template_core_form(
+pub async fn edit_template_core(
     data: web::Data<AppData>,
     web::Path((lang, template_id)): web::Path<(String, Uuid)>,
     form: web::Form<TemplateCoreForm>,
@@ -165,14 +167,14 @@ pub async fn edit_template_core_form(
         let template_core = crate::models::Template::get_core_by_id(template_id)
             .expect("Unable to load template");
 
-        let name_text = Text::update(
+        let _name_text = Text::update(
             template_core.name_text_id,
             raw_name_text,
             &lang,
             user.id,
         ).expect("Unable to update text");
 
-        let purpose_text = Text::update(
+        let _purpose_text = Text::update(
             template_core.name_text_id,
             raw_purpose_text,
             &lang,
@@ -184,7 +186,7 @@ pub async fn edit_template_core_form(
 
         ctx.insert("template", &readable_template_core);
 
-        let rendered = data.tmpl.render("templates/create_template_sections.html", &ctx).unwrap();
+        let rendered = data.tmpl.render("templates/template_core.html", &ctx).unwrap();
         HttpResponse::Ok().body(rendered)
     }
 }
