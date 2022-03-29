@@ -7,12 +7,13 @@
     <form> 
         <div>
         <label>Name</label>
-        <input type="text" name="name" value="{{ template_core.name }}" required>
+        <input type="text" name="name_text" value="{{ template_core.name_text }}" required>
         </div>
         <div>
             <label>Purpose</label>
-            <textarea rows="5" cols="33" name="purpose" value="{{ template_core.purpose }}" required></textarea>
+            <textarea rows="5" cols="33" name="purpose_text" required>{{ template_core.purpose_text }}</textarea>
         </div>
+        <p>Last Updated: {{ template_core.updated_at }}</p>
         
         <button 
             class="btn btn-primary"

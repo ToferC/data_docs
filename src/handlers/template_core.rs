@@ -164,22 +164,26 @@ pub async fn edit_template_core(
         let user = User::find_from_slug(&session_user).expect("Unable to find user");
 
         // update template_core
-        let template_core = crate::models::Template::get_core_by_id(template_id)
+        let template_core = crate::models::Template::get_readable_core_by_id(template_id, &lang)
             .expect("Unable to load template");
 
-        let _name_text = Text::update(
-            template_core.name_text_id,
-            raw_name_text,
-            &lang,
-            user.id,
-        ).expect("Unable to update text");
+        if template_core.name_text != raw_name_text {
+            let _name_text = Text::update(
+                template_core.name_text_id,
+                raw_name_text,
+                &lang,
+                user.id,
+            ).expect("Unable to update text");
+        };
 
-        let _purpose_text = Text::update(
-            template_core.name_text_id,
-            raw_purpose_text,
-            &lang,
-            user.id,
-        ).expect("Unable to update text");
+        if template_core.purpose_text != raw_purpose_text {
+            let _purpose_text = Text::update(
+                template_core.purpose_text_id,
+                raw_purpose_text,
+                &lang,
+                user.id,
+            ).expect("Unable to update text");
+        };
 
         let readable_template_core = Template::get_readable_by_id(template_id, &lang)
             .expect("Unable to get readable template");

@@ -55,6 +55,7 @@ impl TemplateSection {
         let conn = database::connection()?;
 
         let v = diesel::update(template_sections::table)
+            .filter(template_sections::id.eq(template_section.id))
             .set(template_section)
             .get_result(&conn)?;
 

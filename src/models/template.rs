@@ -40,7 +40,9 @@ pub struct Template {
 pub struct ReadableTemplate {
     pub id: Uuid,
     pub name_text: String,
+    pub name_text_id: Uuid,
     pub purpose_text: String,
+    pub purpose_text_id: Uuid,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
     pub slug: String,
@@ -135,7 +137,9 @@ impl Template {
         let readable_template = ReadableTemplate {
             id: template.id,
             name_text: texts.get(&template.name_text_id).unwrap().to_string(),
+            name_text_id: template.name_text_id,
             purpose_text: texts.get(&template.purpose_text_id).unwrap().to_string(),
+            purpose_text_id: template.purpose_text_id,
             created_at: template.created_at,
             updated_at: template.updated_at,
             slug: template.slug.to_owned(),
@@ -181,7 +185,9 @@ impl Template {
         let readable_template = ReadableTemplate {
             id: template.id,
             name_text: texts.get(&template.name_text_id).unwrap().to_string(),
+            name_text_id: template.name_text_id,
             purpose_text: texts.get(&template.purpose_text_id).unwrap().to_string(),
+            purpose_text_id: template.purpose_text_id,
             created_at: template.created_at,
             updated_at: template.updated_at,
             slug: template.slug.to_owned(),
@@ -238,7 +244,9 @@ impl Template {
             let readable_template = ReadableTemplate {
                 id: template.id,
                 name_text: texts.get(&template.name_text_id).unwrap().to_string(),
+                name_text_id: template.name_text_id,
                 purpose_text: texts.get(&template.purpose_text_id).unwrap().to_string(),
+                purpose_text_id: template.purpose_text_id,
                 created_at: template.created_at,
                 updated_at: template.updated_at,
                 slug: template.slug.to_owned(),
