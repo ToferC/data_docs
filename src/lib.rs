@@ -8,6 +8,7 @@ use tera::{Tera, Context};
 use actix_identity::Identity;
 use actix_session::Session;
 use std::env;
+use rake::*;
 
 use rand::{thread_rng, Rng};
 use rand::distributions::Alphanumeric;
@@ -217,4 +218,15 @@ pub fn generate_unique_code(mut characters: usize, dashes: bool) -> String {
     };
 
     rand_string
+}
+
+// Run Rake on Text and return JSON struct of keywords
+pub fn run_rake(content: &str) -> Result<serde_json::Value, CustomError> {
+    let sw = StopWords::from_file("stop_word_list.txt")
+        .expect("Unable to load stopwords");
+
+    let r = Rake::new(sw);
+    let keywords = r.run(&content);
+
+    Ok(serde_json::to_value(&keywords).unwrap())
 }

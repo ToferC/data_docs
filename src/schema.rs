@@ -70,6 +70,7 @@ table! {
         lang -> Varchar,
         content -> Array<Text>,
         translated -> Array<Bool>,
+        keywords -> Jsonb,
         machine_translation -> Array<Bool>,
         created_at -> Array<Timestamp>,
         created_by_id -> Array<Uuid>,

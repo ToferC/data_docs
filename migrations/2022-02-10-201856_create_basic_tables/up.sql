@@ -83,6 +83,7 @@ CREATE TABLE IF NOT EXISTS texts (
     lang VARCHAR(2) NOT NULL default 'en',
     content TEXT[] NOT NULL,
     translated bool[] NOT NULL DEFAULT '{false}',
+    keywords JSONB NOT NULL,
     machine_translation bool[] NOT NULL default '{false}',
     created_at TIMESTAMP[] NOT NULL DEFAULT '{NOW()}',
     created_by_id UUID[] NOT NULL,

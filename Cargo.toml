@@ -34,8 +34,11 @@ uuid = { version = "0.8.2", features = ["serde", "v4"] }
 rust-argon2 = "1.0.0"
 rand = "0.8.4"
 regex = "1.5.4"
-pulldown-cmark = { version = "0.9.1", default-features = false, features = ["simd"] }
 env_logger = "0.9.0"
+
+# Text and Markdown
+pulldown-cmark = { version = "0.9.1", default-features = false, features = ["simd"] }
+rake = "0.3.3"
 
 # templating
 tera = "1.15.0"

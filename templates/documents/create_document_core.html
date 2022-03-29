@@ -27,14 +27,15 @@
           <input type="text" name="title" placeholder="Add title here..." required>
         </div>
         <div>
-            <label>Purpose</label>
+            <label>Purpose</label><br>
             <textarea rows="5" cols="33" name="purpose" placeholder="Add purpose here..." required></textarea>
         </div>
-        <button class="btn" type="submit">Submit</button>
+        <button class="btn btn-primary" type="submit">Save</button>
         <a class="btn" hx-get="/{{ lang }}/template_index">Cancel</a>
     </form>
 
     <h2>{{ fluent(key="sections", lang=lang )}}</h2>
+    <p>Your document will have the following sections:</p>
     
     {% for key, section in sections %}
     

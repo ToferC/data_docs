@@ -1080,6 +1080,7 @@ dependencies = [
  "lazy_static",
  "pulldown-cmark",
  "r2d2",
+ "rake",
  "rand 0.8.4",
  "regex",
  "rust-argon2",
@@ -2680,6 +2681,17 @@ dependencies = [
  "log",
  "parking_lot",
  "scheduled-thread-pool",
+]
+
+[[package]]
+name = "rake"
+version = "0.3.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9435093db080604b8ddcac1e2bbbd2988cd44123fea414bdd9af09cda796c5b5"
+dependencies = [
+ "lazy_static",
+ "regex",
+ "serde",
 ]
 
 [[package]]
