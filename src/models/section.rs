@@ -19,6 +19,7 @@ pub struct Section {
     pub template_section_id: Uuid, // References the document section so we don't duplicate the data
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
+    pub keywords: Option<serde_json::Value>,
     pub created_by_id: Uuid,
 }
 
@@ -72,6 +73,7 @@ pub struct ReadableSection {
     pub help_text: String,
     pub text_id: Uuid,
     pub content: String,
+    pub keywords: rake::KeywordScore,
     pub lang: String,
     pub character_limit: i32,
     pub created_at: NaiveDateTime,
@@ -107,6 +109,11 @@ impl ReadableSection {
             text.content.last().unwrap_or(&String::from("Unable to find content")).to_owned()
         };
 
+        let keywords = match section.keywords {
+            Some(k) => serde_json::from_value(k).unwrap(),
+            None => rake::KeywordScore { keyword: "".to_string(), score: 0.00, }
+        };
+
         let readable_section = ReadableSection {
             id: section.id,
             header_text: template_section.header_text,
@@ -114,7 +121,8 @@ impl ReadableSection {
             instructions_text: template_section.instructions_text,
             help_text: template_section.help_text,
             text_id: text.id,
-            content: content,
+            content,
+            keywords,
             lang: lang.to_string(),
             character_limit: template_section.character_limit,
             created_at: section.created_at,

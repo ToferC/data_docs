@@ -4,7 +4,6 @@ use serde::{Deserialize, Serialize};
 use diesel::prelude::*;
 use std::{collections::BTreeMap};
 use pulldown_cmark::{html, Options, Parser};
-use rake::*;
 
 use crate::{database, run_rake};
 use crate::schema::texts;
@@ -21,7 +20,6 @@ pub struct Text {
     pub lang: String,
     pub content: Vec<String>,
     pub translated: Vec<bool>,
-    pub keywords: serde_json::Value,
     pub machine_translation: Vec<bool>,
     pub created_at: Vec<NaiveDateTime>,
     pub created_by_id: Vec<Uuid>,
@@ -35,7 +33,6 @@ pub struct LatestText {
     pub lang: String,
     pub content: String,
     pub translated: bool,
-    pub keywords: serde_json::Value,
     pub machine_translation: bool,
     pub created_at: NaiveDateTime,
     pub created_by_id: Uuid,
@@ -67,7 +64,6 @@ impl LatestText {
             lang: text.lang,
             content: content,
             translated: *text.translated.last().unwrap(),
-            keywords: keywords,
             machine_translation: *text.machine_translation.last().unwrap(),
             created_at: *text.created_at.last().unwrap(),
             created_by_id: *text.created_by_id.last().unwrap(),
@@ -151,16 +147,12 @@ impl Text {
 impl From<InsertableText> for Text {
     fn from(text: InsertableText) -> Self {
 
-        let keywords = run_rake(&text.content.last().unwrap())
-            .expect("Unable to run RAKE");
-
         Text {
             id: Uuid::new_v4(),
             section_id: text.section_id,
             lang: text.lang,
             content: text.content,
             translated: text.translated,
-            keywords: keywords,
             machine_translation: text.machine_translation,
             created_at: vec![chrono::Utc::now().naive_utc()],
             created_by_id: text.created_by_id,
