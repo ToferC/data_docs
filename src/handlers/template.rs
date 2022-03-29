@@ -1,11 +1,10 @@
-use actix_web::{HttpRequest, HttpResponse, Responder, get, post, web, ResponseError};
+use actix_web::{HttpRequest, HttpResponse, Responder, get, web, ResponseError};
 use actix_identity::{Identity};
 use uuid::Uuid;
 use std::collections::BTreeMap;
 
 use crate::{AppData, generate_basic_context};
-use crate::handlers::{TemplateCoreForm};
-use crate::models::{Template, User};
+use crate::models::{Template};
 use crate::errors::CustomError;
 
 #[get("/{lang}/template_index")]

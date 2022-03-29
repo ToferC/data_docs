@@ -1,5 +1,4 @@
-use actix_web::{HttpServer, App, web, guard, middleware};
-use data_docs::construct_demo_template;
+use actix_web::{HttpServer, App, middleware};
 use dotenv::dotenv;
 use std::env;
 use tera::{Tera};

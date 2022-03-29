@@ -1,5 +1,5 @@
 <div class="col m-md-2 m-1"
-    id="{{template_core.id}}-content"
+    id="{{ template_core.id }}-content"
     hx-swap="outerHTML"
     hx-target="this"
 >
@@ -7,12 +7,12 @@
     
     <ul>
         <li>Purpose: {{ template_core.purpose_text }}</li>
-        <li>Created at:{{ template_core.created_at }}</li>
-        <li>Updated at:{{ template_core.updated_at }}</li>
+        <li>Created at:{{ template_core.created_at | date(format="%Y-%m-%d %H:%M") }}</li>
+        <li>Updated at:{{ template_core.updated_at | date(format="%Y-%m-%d %H:%M") }}</li>
     </ul>
     <button 
-        class="btn btn-a11y"
-        hx-get="/{{ lang }}/edit_template_core/{{ template_core.id }}" 
+        class="btn btn-ally"
+        hx-get="/{{ lang }}/edit_template_core_form/{{ template_core.id }}" 
         >
             Edit
     </button>

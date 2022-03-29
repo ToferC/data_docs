@@ -53,7 +53,7 @@ impl Template {
         id: Uuid,
         raw_name_text: String,
         raw_purpose_text: String,
-        lang: String,
+        lang: &str,
         created_by: Uuid,
     ) -> Result<Self, CustomError> {
 

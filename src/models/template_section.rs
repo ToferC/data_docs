@@ -1,15 +1,12 @@
-use std::collections::BTreeMap;
-
 use serde::{Deserialize, Serialize};
 use diesel::prelude::*;
-use diesel::{BelongingToDsl, QueryDsl};
-use chrono::NaiveDateTime;
+use diesel::{QueryDsl};
 use uuid::Uuid;
 
 use crate::errors::CustomError;
 use crate::database;
 use crate::schema::{template_sections, texts};
-use crate::models::{Text, InsertableText, Template, ReadableSection};
+use crate::models::{Text, InsertableText, Template};
 
 #[derive(Debug, Serialize, Deserialize, AsChangeset, Insertable, Queryable, Associations, Identifiable, Clone)]
 #[table_name = "template_sections"]
@@ -42,6 +39,28 @@ impl TemplateSection {
     pub fn create(template_section: &InsertableTemplateSection) -> Result<Self, CustomError> {
 
         let conn = database::connection()?;
+
+        let v = diesel::insert_into(template_sections::table)
+            .values(template_section)
+            .get_result(&conn)?;
+
+        Ok(v)
+    }
+
+    pub fn create_default(template_id: Uuid, section_number: i32, lang: &str, created_by_id: Uuid) -> Result<Self, CustomError> {
+
+        let conn = database::connection()?;
+
+        let template_section = InsertableTemplateSection::new(
+            template_id,
+            format!("Header for item {}", section_number + 1),
+            section_number,
+            format!("Instructions text for item {}", section_number + 1),
+            format!("Help text for item {}", section_number + 1),
+            None,
+            lang.to_string(),
+            created_by_id,
+        ).unwrap();
 
         let v = diesel::insert_into(template_sections::table)
             .values(template_section)

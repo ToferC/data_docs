@@ -6,7 +6,7 @@ use chrono::prelude::*;
 use pulldown_cmark::{html, Options, Parser};
 
 use crate::database;
-use crate::schema::{sections, texts};
+use crate::schema::{sections};
 use crate::errors::CustomError;
 use crate::models::{Text, Document, TemplateSection};
 

@@ -57,11 +57,11 @@ use crate::handlers::{
     get_template_page,
 
     // template cores
-    create_template_core_form,
-    save_template_core,
-    edit_template_core_form,
-    edit_template_core,
     get_template_core,
+    create_template_core_form,
+    edit_template_core_form,
+    save_template_core,
+    edit_template_core,
 
     // template_sections
     get_template_section,

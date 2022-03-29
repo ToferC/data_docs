@@ -19,6 +19,13 @@ pub struct TemplateCoreForm {
 }
 
 #[derive(Debug, Deserialize)]
+pub struct NewTemplateCoreForm {
+    pub name_text: String,
+    pub purpose_text: String,
+    pub number_of_sections: i32,
+}
+
+#[derive(Debug, Deserialize)]
 pub struct TemplateSectionForm {
     pub header_text: String,
     pub order_number: i32,

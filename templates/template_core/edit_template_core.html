@@ -1,6 +1,6 @@
 <div
     class="col m-md-2 m-1"
-    id="{{template_core.id}}-content"
+    id="{{ template_core.id }}-content"
     hx-swap="outerHTML"
     hx-target="this"
 >
@@ -21,6 +21,6 @@
         >
             Submit
         </button>
-        <a class="btn" hx-get="/{{ lang }}/get_template_core/{{ template_core.id }}">Cancel</a>
+        <a class="btn" hx-get="/{{ lang }}/template_core/{{ template_core.id }}">Cancel</a>
     </form>
 </div>
