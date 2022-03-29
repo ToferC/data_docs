@@ -19,23 +19,25 @@
     <form>
         <div>
           <label>Name</label>
-          <input type="text" name="name" placeholder="Add template name here..." required>
+          <input type="text" name="name_text" placeholder="Add template name here..." required>
         </div>
         <div>
             <label>Purpose</label>
-            <textarea rows="5" cols="33" name="purpose" placeholder="Add purpose here..." required></textarea>
+            <textarea rows="5" cols="33" name="purpose_text" placeholder="Add purpose here..." required></textarea>
         </div>
 
         <div>
             <label>Number of Sections</label>
             <input type="number" name="number_of_sections" default="4" required>
-            <small>How many different sections (major blocks) should be in your document?</small>
+            <br><small>How many different sections (major blocks) should be in your document?</small>
         </div>
         
         <button 
             class="btn btn-primary"
             hx-post="/{{ lang }}/save_template_core/{{ template_id }}"
-        >Submit</button>
+        >
+            Submit
+        </button>
         <a class="btn" hx-get="/{{ lang }}/template_index">Cancel</a>
     </form>
 

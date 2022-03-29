@@ -55,6 +55,7 @@ use crate::handlers::{
     // template pages
     template_index,
     get_template_page,
+    edit_template_page,
 
     // template cores
     get_template_core,
@@ -134,6 +135,7 @@ pub fn configure_services(config: &mut web::ServiceConfig) {
      // template page
      config.service(template_index);
      config.service(get_template_page);
+     config.service(edit_template_page);
      
      // template_core
      config.service(get_template_core);

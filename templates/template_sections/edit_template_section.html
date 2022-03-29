@@ -4,32 +4,32 @@
     hx-target="this"
     >
     <h3>Edit Section</h3>
-        <form>
-            <div>
-                <label>Header Text</label>
-                <input type="text" name="header_text" value="{{template_section.header_text}}" required>
-              </div>
-              <div>
-                  <label>Instructions</label>
-                  <textarea rows="5" cols="33" name="instructions_text" required>{{template_section.instructions_text}}</textarea>
-              </div>
-              <div>
-                <label>Help Text</label>
-                <textarea rows="5" cols="33" name="help_text" required>{{template_section.help_text}}</textarea>
+    <form>
+        <div>
+            <label>Header Text</label>
+            <input type="text" name="header_text" value="{{template_section.header_text}}" required>
             </div>
             <div>
-                <label>Order Number</label>
-                <input type="number" name="order_number" value="{{template_section.order_number}}" required>
+                <label>Instructions</label>
+                <textarea rows="5" cols="33" name="instructions_text" required>{{template_section.instructions_text}}</textarea>
             </div>
             <div>
-                <label>Character Limit (Optional)</label>
-                <input type="number" name="character_limit" value="{{template_section.character_limit}}">
-            </div>
-                <button 
-                    class="btn btn-primary"
-                    hx-put="/{{ lang }}/edit_template_section/{{ template_section.id }}"
-                    >Save
-                </button>
-                <button class="btn" hx-get="/{{ lang }}/get_template_section/{{ template_section.id }}">Cancel</button>
-        </form> 
-    </div>
+            <label>Help Text</label>
+            <textarea rows="5" cols="33" name="help_text" required>{{template_section.help_text}}</textarea>
+        </div>
+        <div>
+            <label>Order Number</label>
+            <input type="number" name="order_number" value="{{template_section.order_number + 1}}" required>
+        </div>
+        <div>
+            <label>Character Limit (Optional)</label>
+            <input type="number" name="character_limit" value="{{template_section.character_limit}}">
+        </div>
+            <button 
+                class="btn btn-primary"
+                hx-put="/{{ lang }}/edit_template_section/{{ template_section.id }}"
+                >Save
+            </button>
+            <button class="btn" hx-get="/{{ lang }}/get_template_section/{{ template_section.id }}">Cancel</button>
+    </form> 
+</div>

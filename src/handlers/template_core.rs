@@ -1,3 +1,5 @@
+use std::collections::BTreeMap;
+
 use actix_web::{HttpRequest, HttpResponse, Responder, get, post, put, web, ResponseError};
 use actix_identity::{Identity};
 use uuid::Uuid;
@@ -101,7 +103,7 @@ pub async fn save_template_core(
         ).expect("Unable to create template");
 
         for i in 0..form.number_of_sections {
-            TemplateSection::create_default(
+            let ts = TemplateSection::create_default(
                 template_core.id,
                 i,
                 &lang,
@@ -109,10 +111,7 @@ pub async fn save_template_core(
             ).expect("Unable to create default section");
         };
 
-        ctx.insert("template_core", &template_core);
-
-        let rendered = data.tmpl.render("template_core/create_template_sections.html", &ctx).unwrap();
-        HttpResponse::Ok().body(rendered)
+        return HttpResponse::Found().header("Location", format!("/{}/edit_template_sections/{}", &lang, &template_core.id)).finish()
     }
 }
 
