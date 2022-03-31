@@ -5,7 +5,7 @@ use diesel::{QueryDsl};
 use chrono::prelude::*;
 use pulldown_cmark::{html, Options, Parser};
 
-use crate::database;
+use crate::{database, get_keyword_html};
 use crate::schema::{sections};
 use crate::errors::CustomError;
 use crate::models::{Text, Document, TemplateSection};
@@ -85,6 +85,7 @@ pub struct ReadableSection {
     pub help_text: String,
     pub text_id: Uuid,
     pub content: String,
+    pub keywords: String,
     pub lang: String,
     pub character_limit: i32,
     pub created_at: NaiveDateTime,
@@ -120,6 +121,9 @@ impl ReadableSection {
             text.content.last().unwrap_or(&String::from("Unable to find content")).to_owned()
         };
 
+        // get keywords from text
+        let keywords = get_keyword_html(text.keywords);
+
         let readable_section = ReadableSection {
             id: section.id,
             header_text: template_section.header_text,
@@ -128,6 +132,7 @@ impl ReadableSection {
             help_text: template_section.help_text,
             text_id: text.id,
             content,
+            keywords,
             lang: lang.to_string(),
             character_limit: template_section.character_limit,
             created_at: section.created_at,

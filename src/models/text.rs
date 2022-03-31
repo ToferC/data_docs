@@ -5,10 +5,9 @@ use diesel::prelude::*;
 use std::{collections::BTreeMap};
 use pulldown_cmark::{html, Options, Parser};
 
-use crate::{database, run_rake};
+use crate::{database, run_rake, get_keyword_html};
 use crate::schema::texts;
 use crate::errors::CustomError;
-use crate::models::Section;
 
 
 #[derive(Debug, Serialize, Deserialize, AsChangeset, Queryable, Insertable)]
@@ -34,7 +33,7 @@ pub struct LatestText {
     pub section_id: Option<Uuid>,
     pub lang: String,
     pub content: String,
-    pub keywords: Option<rake::KeywordScore>,
+    pub keywords: String,
     pub translated: bool,
     pub machine_translation: bool,
     pub created_at: NaiveDateTime,
@@ -59,13 +58,8 @@ impl LatestText {
             text.content.last().unwrap_or(&String::from("Unable to find content")).to_owned()
         };
 
-        let keywords: Option<rake::KeywordScore> = match text.keywords {
-            Some(kw) => {
-                let v: rake::KeywordScore = serde_json::from_value(kw).unwrap();
-                Some(v)
-            },
-            None => None,
-        };
+        // get keywords from text
+        let keywords = get_keyword_html(text.keywords);
         
         LatestText {
             id: text.id,

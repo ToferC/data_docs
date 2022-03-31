@@ -5,7 +5,7 @@ use lazy_static::lazy_static;
 use r2d2;
 use std::env;
 use crate::models::{User, UserData};
-use crate::construct_demo_template;
+use crate::{construct_demo_template, construct_demo_document};
 
 
 type Pool = r2d2::Pool<ConnectionManager<PgConnection>>;
@@ -55,7 +55,12 @@ pub fn init() {
             let r = construct_demo_template();
 
             match r {
-                Ok(t) => println!("Template successful: {:?}", t),
+                Ok(t) => {
+                    println!("Template successful: {:?}", &t);
+                    let d = construct_demo_document(t.id, "en").unwrap();
+                    println!("Document successful: {:?}", &d);
+
+                },
                 Err(e) => println!("Error: {}", e),
             };
         }
