@@ -72,7 +72,6 @@ CREATE TABLE IF NOT EXISTS sections (
         REFERENCES template_sections(id),
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    keywords JSONB,
     created_by_id UUID NOT NULL
 );
 
@@ -83,6 +82,7 @@ CREATE TABLE IF NOT EXISTS texts (
         REFERENCES sections(id) ON DELETE CASCADE,
     lang VARCHAR(2) NOT NULL default 'en',
     content TEXT[] NOT NULL,
+    keywords JSONB,
     translated bool[] NOT NULL DEFAULT '{false}',
     machine_translation bool[] NOT NULL default '{false}',
     created_at TIMESTAMP[] NOT NULL DEFAULT '{NOW()}',

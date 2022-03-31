@@ -8,6 +8,7 @@ use pulldown_cmark::{html, Options, Parser};
 use crate::{database, run_rake};
 use crate::schema::texts;
 use crate::errors::CustomError;
+use crate::models::Section;
 
 
 #[derive(Debug, Serialize, Deserialize, AsChangeset, Queryable, Insertable)]
@@ -19,6 +20,7 @@ pub struct Text {
     pub section_id: Option<Uuid>,
     pub lang: String,
     pub content: Vec<String>,
+    pub keywords: Option<serde_json::Value>,
     pub translated: Vec<bool>,
     pub machine_translation: Vec<bool>,
     pub created_at: Vec<NaiveDateTime>,
@@ -32,6 +34,7 @@ pub struct LatestText {
     pub section_id: Option<Uuid>,
     pub lang: String,
     pub content: String,
+    pub keywords: Option<rake::KeywordScore>,
     pub translated: bool,
     pub machine_translation: bool,
     pub created_at: NaiveDateTime,
@@ -56,13 +59,20 @@ impl LatestText {
             text.content.last().unwrap_or(&String::from("Unable to find content")).to_owned()
         };
 
-        let keywords = run_rake(&content).expect("Unable to run RAKE");
-
+        let keywords: Option<rake::KeywordScore> = match text.keywords {
+            Some(kw) => {
+                let v: rake::KeywordScore = serde_json::from_value(kw).unwrap();
+                Some(v)
+            },
+            None => None,
+        };
+        
         LatestText {
             id: text.id,
             section_id: text.section_id,
             lang: text.lang,
             content: content,
+            keywords,
             translated: *text.translated.last().unwrap(),
             machine_translation: *text.machine_translation.last().unwrap(),
             created_at: *text.created_at.last().unwrap(),
@@ -76,7 +86,7 @@ impl Text {
 
         let conn = database::connection()?;
 
-        let v = diesel::insert_into(texts::table)
+        let v: Text = diesel::insert_into(texts::table)
             .values(text)
             .get_result(&conn)?;
 
@@ -136,6 +146,10 @@ impl Text {
         text.created_by_id.push(created_by_id);
         text.created_at.push(chrono::Utc::now().naive_utc());
 
+        if text.section_id != None {
+            text.keywords = Some(run_rake(&text.content.last().unwrap()).unwrap());
+        };
+
         let v = diesel::update(texts::table)
             .filter(texts::id.eq(text_id))
             .set(text)
@@ -147,11 +161,17 @@ impl Text {
 impl From<InsertableText> for Text {
     fn from(text: InsertableText) -> Self {
 
+        let keywords: Option<serde_json::Value> = match text.section_id {
+            Some(_c) => Some(run_rake(&text.content.last().unwrap()).expect("Unable to get keywords")),
+            None => None,
+        };
+
         Text {
             id: Uuid::new_v4(),
             section_id: text.section_id,
             lang: text.lang,
             content: text.content,
+            keywords,
             translated: text.translated,
             machine_translation: text.machine_translation,
             created_at: vec![chrono::Utc::now().naive_utc()],
@@ -165,6 +185,7 @@ impl From<InsertableText> for Text {
 pub struct InsertableText {
     pub lang: String,
     pub content: Vec<String>,
+    pub keywords: serde_json::Value,
     pub translated: Vec<bool>,
     pub machine_translation: Vec<bool>,
     pub section_id: Option<Uuid>,
@@ -186,14 +207,19 @@ impl InsertableText {
         let machine_translation = vec![machine_translation];
         let created_by_id = vec![created_by_id];
 
+        let keywords = run_rake(content.last().unwrap())
+            .expect("Unable to get keywords");
+
         InsertableText {
             lang,
             content,
+            keywords,
             translated,
             machine_translation,
             section_id,
             created_by_id,
-        }
+    }
+
     }pub fn new(
         section_id: Option<Uuid>,
         lang: &str,
@@ -206,9 +232,13 @@ impl InsertableText {
         let machine_translation = vec![false];
         let created_by_id = vec![created_by_id];
 
+        let keywords = run_rake(content.last().unwrap())
+            .expect("Unable to get keywords");
+
         InsertableText {
             lang: lang.to_owned(),
             content,
+            keywords,
             translated,
             machine_translation,
             section_id,

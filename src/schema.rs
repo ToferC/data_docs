@@ -36,7 +36,6 @@ table! {
         template_section_id -> Uuid,
         created_at -> Timestamp,
         updated_at -> Timestamp,
-        keywords -> Nullable<Jsonb>,
         created_by_id -> Uuid,
     }
 }
@@ -70,6 +69,7 @@ table! {
         section_id -> Nullable<Uuid>,
         lang -> Varchar,
         content -> Array<Text>,
+        keywords -> Nullable<Jsonb>,
         translated -> Array<Bool>,
         machine_translation -> Array<Bool>,
         created_at -> Array<Timestamp>,
