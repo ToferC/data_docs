@@ -34,7 +34,8 @@ CREATE TABLE IF NOT EXISTS templates (
     purpose_text_id UUID NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    slug VARCHAR(64) NOT NULL UNIQUE
+    slug VARCHAR(64) NOT NULL UNIQUE,
+    active BOOL NOT NULL DEFAULT true
 );
 
 CREATE TABLE IF NOT EXISTS template_sections (

@@ -33,6 +33,7 @@ pub struct Template {
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
     pub slug: String,
+    pub active: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -82,6 +83,7 @@ impl Template {
             created_at: chrono::Utc::now().naive_utc(),
             updated_at: chrono::Utc::now().naive_utc(),
             slug: slug,
+            active: true,
         };
 
         let conn = database::connection()?;

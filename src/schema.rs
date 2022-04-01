@@ -60,6 +60,7 @@ table! {
         created_at -> Timestamp,
         updated_at -> Timestamp,
         slug -> Varchar,
+        active -> Bool,
     }
 }
 
