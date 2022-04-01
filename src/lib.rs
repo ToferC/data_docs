@@ -11,6 +11,7 @@ use std::env;
 use rake::*;
 use uuid::Uuid;
 use core::iter::zip;
+use pulldown_cmark::{Event, Tag, CowStr};
 
 use rand::{thread_rng, Rng};
 use rand::distributions::Alphanumeric;
@@ -346,4 +347,14 @@ pub fn get_keyword_html(json: Option<serde_json::Value>) -> String {
         None => "None".to_string(),
     };
     keywords
+}
+
+enum ExtendedEvent {
+    Base(Event<'static>),
+    Redacted,
+}
+
+enum ExtendedTag {
+    Base(Tag<'static>),
+    Redacted(CowStr<'static>),
 }
