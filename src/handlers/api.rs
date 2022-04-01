@@ -1,11 +1,8 @@
 use actix_web::{web, get, HttpResponse, HttpRequest, Responder};
 use actix_identity::Identity;
 use crate::{AppData, generate_basic_context};
-use diesel::prelude::*;
-use diesel::{QueryDsl, BelongingToDsl};
 
 use crate::models::{Template};
-use crate::database;
 
 #[get("/{lang}/api/templates")]
 pub async fn template_api(

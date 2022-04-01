@@ -1,5 +1,3 @@
-use std::collections::BTreeMap;
-
 use actix_web::{HttpRequest, HttpResponse, Responder, get, post, put, web, ResponseError};
 use actix_identity::{Identity};
 use uuid::Uuid;
@@ -70,13 +68,13 @@ pub async fn create_template_core_form(
 #[post("/{lang}/save_template_core/{template_id}")]
 // Post and create new template_core and forward to create_template_sections
 pub async fn save_template_core(
-    data: web::Data<AppData>,
+    _data: web::Data<AppData>,
     web::Path((lang, template_id)): web::Path<(String, Uuid)>,
     form: web::Form<NewTemplateCoreForm>,
     id: Identity,
     req:HttpRequest) -> impl Responder {
 
-    let (mut ctx, session_user, role, lang) = generate_basic_context(id, &lang, req.uri().path());
+    let (_ctx, session_user, role, lang) = generate_basic_context(id, &lang, req.uri().path());
 
     if role != "user".to_string() &&
         role != "admin".to_string() {
@@ -103,7 +101,7 @@ pub async fn save_template_core(
         ).expect("Unable to create template");
 
         for i in 0..form.number_of_sections {
-            let ts = TemplateSection::create_default(
+            let _ts = TemplateSection::create_default(
                 template_core.id,
                 i,
                 &lang,

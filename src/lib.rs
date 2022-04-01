@@ -115,7 +115,7 @@ pub fn construct_demo_document(template_id: Uuid, lang: &str) -> Result<Document
     // load user
     let user = User::find_from_email(&user_email)?;
 
-    let (template, template_sections) = Template::get_readable_by_id(template_id, lang)?;
+    let (_template, template_sections) = Template::get_readable_by_id(template_id, lang)?;
 
     let insertable_document = InsertableDocument::new(
         template_id, 
