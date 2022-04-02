@@ -95,8 +95,14 @@ pub async fn create_document_core(
 
         let (template, sections) = Template::get_readable_by_id(template_id, &lang).expect("Unable to load template");
 
+        let mut ordered_sections = BTreeMap::new();
+
+        for (_k, v) in sections {
+            ordered_sections.insert(v.order_number, v);
+        }
+
         ctx.insert("template", &template);
-        ctx.insert("sections", &sections);
+        ctx.insert("sections", &ordered_sections);
 
         let rendered = data.tmpl.render("documents/create_document_core.html", &ctx).unwrap();
         HttpResponse::Ok().body(rendered)

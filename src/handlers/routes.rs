@@ -150,7 +150,6 @@ pub fn configure_services(config: &mut web::ServiceConfig) {
      config.service(edit_template_section_form);
      config.service(edit_template_section);
 
-
      // documents
      config.service(document_index);
      config.service(get_document);
