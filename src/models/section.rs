@@ -3,9 +3,9 @@ use uuid::Uuid;
 use diesel::prelude::*;
 use diesel::{QueryDsl};
 use chrono::prelude::*;
-use pulldown_cmark::{html, Options, Parser};
+use pulldown_cmark::{html, Options, Parser, Event, Tag};
 
-use crate::{database, get_keyword_html};
+use crate::{database, get_keyword_html, ExtendedEvent, ExtendedTag};
 use crate::schema::{sections};
 use crate::errors::CustomError;
 use crate::models::{Text, Document, TemplateSection};
@@ -109,11 +109,25 @@ impl ReadableSection {
         let content = if markdown {
             let mut options = Options::empty();
             options.insert(Options::ENABLE_TABLES);
-            let parser = Parser::new_ext(&text.content.last().unwrap(), options);
-
-            let mut html_content: String = String::new();
-
+            
+            let parser = Parser::new(&text.content.last().unwrap())
+            .map(|event| {
+                match &event {
+                    Event::Start(tag) => {
+                        match tag {
+                            Tag::Strikethrough => println!("Strikethrough (this is a span tag)"),
+                            Tag::Link(link_type, url, title) => println!("Link link_type: {:?} url: {} title: {}", link_type, url, title),
+                           _ => (),
+                        }
+                    },
+                    _ => ()
+                };
+                event
+            });
+        
+            let mut html_content = String::new();
             html::push_html(&mut html_content, parser);
+            println!("\nHTML output:\n{}\n", &html_content);
 
             html_content
             
