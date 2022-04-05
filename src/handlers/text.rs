@@ -146,7 +146,13 @@ pub async fn edit_text_put(
 
         let text = Text::update(text_id, content.to_string(), &lang, user.id).expect("Unable to update Text");
 
-        let text = LatestText::get_from(text, true, false);
+        // Determine view of text to render
+        let redact = match document_view.as_str() {
+            "internal" => false,
+            _ => true,
+        };
+
+        let text = LatestText::get_from(text, true, redact);
 
         println!("Updated!");
 
