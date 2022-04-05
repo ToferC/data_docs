@@ -160,7 +160,7 @@ pub async fn save_document_core(
         let (_template, template_sections) = Template::get_readable_by_id(template_id, &lang)
             .expect("Unable to load sections");
 
-        for (k, _v) in template_sections {
+        for (k, v) in template_sections {
             // create document section
             let document_section = InsertableSection::new(
                 document.id,
@@ -175,7 +175,7 @@ pub async fn save_document_core(
             let default_text = InsertableText::new(
                 Some(section.id),
                 "en",
-                "".to_string(),
+                v.help_text.clone(),
                 user.id,
             );
 
