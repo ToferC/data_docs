@@ -5,7 +5,7 @@
   >
     <form
     >
-    <textarea rows="15" cols="66" name="content" placeholder="Enter Markdown here..." required>{{ text.content }}</textarea>
+    <textarea rows="15" cols="60" name="content" placeholder="Enter Markdown here..." required>{{ text.content }}</textarea>
     <button 
           hx-put="/{{ lang }}/edit_text/{{ text.id }}/{{ document_view }}"
           class="btn btn-primary"
