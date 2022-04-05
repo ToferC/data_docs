@@ -5,7 +5,7 @@ use diesel::prelude::*;
 use std::{collections::BTreeMap};
 use pulldown_cmark::{html, Options, Parser};
 
-use crate::{database, run_rake, get_keyword_html};
+use crate::{database, run_rake, get_keyword_html, process_text_redactions};
 use crate::schema::texts;
 use crate::errors::CustomError;
 
@@ -41,12 +41,14 @@ pub struct LatestText {
 }
 
 impl LatestText {
-    pub fn get_from(text: Text, markdown: bool) -> Self {
+    pub fn get_from(text: Text, markdown: bool, redact: bool) -> Self {
+
+        let processed_text = process_text_redactions(text.content.last().unwrap().clone(), redact);
 
         let content = if markdown {
             let mut options = Options::empty();
             options.insert(Options::ENABLE_TABLES);
-            let parser = Parser::new_ext(&text.content.last().unwrap(), options);
+            let parser = Parser::new_ext(&processed_text, options);
 
             let mut html_content: String = String::new();
 

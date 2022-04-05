@@ -96,7 +96,7 @@ impl Document {
         Ok(v)
     }
 
-    pub fn get_readable_by_id(id: Uuid, lang: &str, markdown: bool) -> Result<(ReadableDocument, BTreeMap<Uuid, ReadableSection>), CustomError> {
+    pub fn get_readable_by_id(id: Uuid, lang: &str, markdown: bool, redact: bool) -> Result<(ReadableDocument, BTreeMap<Uuid, ReadableSection>), CustomError> {
         let conn = database::connection()?;
 
         let document = documents::table
@@ -132,7 +132,7 @@ impl Document {
         let mut readable_sections: BTreeMap<Uuid, ReadableSection> = BTreeMap::new();
 
         for section in sections.iter() {
-            let rs = ReadableSection::get_by_id(section.id, lang, markdown)?;
+            let rs = ReadableSection::get_by_id(section.id, lang, markdown, redact)?;
             readable_sections.insert(section.id, rs);
         }
 

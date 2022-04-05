@@ -5,7 +5,7 @@ use diesel::{QueryDsl};
 use chrono::prelude::*;
 use pulldown_cmark::{html, Options, Parser, Event, Tag};
 
-use crate::{database, get_keyword_html, ExtendedEvent, ExtendedTag};
+use crate::{database, get_keyword_html, process_text_redactions};
 use crate::schema::{sections};
 use crate::errors::CustomError;
 use crate::models::{Text, Document, TemplateSection};
@@ -94,7 +94,7 @@ pub struct ReadableSection {
 
 impl ReadableSection {
 
-    pub fn get_by_id(id: Uuid, lang: &str, markdown: bool) -> Result<ReadableSection, CustomError> {
+    pub fn get_by_id(id: Uuid, lang: &str, markdown: bool, redact: bool) -> Result<ReadableSection, CustomError> {
         let conn = database::connection()?;
 
         let section: Section = sections::table
@@ -106,24 +106,13 @@ impl ReadableSection {
         let text = Text::get_text_by_section_id(section.id, lang)
             .expect("Unable to retrieve text");
 
+        let processed_text = process_text_redactions(text.content.last().unwrap().clone(), redact);
+
         let content = if markdown {
             let mut options = Options::empty();
             options.insert(Options::ENABLE_TABLES);
             
-            let parser = Parser::new(&text.content.last().unwrap())
-            .map(|event| {
-                match &event {
-                    Event::Start(tag) => {
-                        match tag {
-                            Tag::Strikethrough => println!("Strikethrough (this is a span tag)"),
-                            Tag::Link(link_type, url, title) => println!("Link link_type: {:?} url: {} title: {}", link_type, url, title),
-                           _ => (),
-                        }
-                    },
-                    _ => ()
-                };
-                event
-            });
+            let parser = Parser::new(&processed_text);
         
             let mut html_content = String::new();
             html::push_html(&mut html_content, parser);

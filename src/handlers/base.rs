@@ -18,7 +18,8 @@ pub async fn index(
 ) -> impl Responder {
 
     let lang = params.into_inner();
-    let (ctx, _, _, _) = generate_basic_context(id, &lang, req.uri().path());
+    let (mut ctx, _, _, _) = generate_basic_context(id, &lang, req.uri().path());
+    ctx.insert("document_view", "open");
 
     let rendered = data.tmpl.render("index.html", &ctx).unwrap();
     HttpResponse::Ok().body(rendered)

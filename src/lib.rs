@@ -11,7 +11,7 @@ use std::env;
 use rake::*;
 use uuid::Uuid;
 use core::iter::zip;
-use pulldown_cmark::{Event, Tag, CowStr};
+use regex::Regex;
 
 use rand::{thread_rng, Rng};
 use rand::distributions::Alphanumeric;
@@ -27,6 +27,9 @@ extern crate diesel;
 
 #[macro_use]
 extern crate diesel_migrations;
+
+#[macro_use]
+extern crate lazy_static;
 
 const APP_NAME: &str = "Data Docs";
 
@@ -131,7 +134,7 @@ pub fn construct_demo_document(template_id: Uuid, lang: &str) -> Result<Document
     let mut document_texts = Vec::new();
 
     document_texts.push(r#"Overview of wastewater surveillance data interpretation and use
-    Appropriate public health interpretation of wastewater surveillance data depends on understanding the surveillance sampling strategy and testing limitations, as well as valid data processing and analysis. Wastewater surveillance data are primarily used in three ways:
+    Appropriate public health interpretation of wastewater surveillance data ~~depends on understanding the surveillance~~[12.1] sampling strategy and testing limitations, as well as valid data processing and analysis. Wastewater surveillance data are primarily used in three ways:
     
     Monitoring for presence of infection within a community.
     Tracking trends in infection within a community.
@@ -140,7 +143,7 @@ pub fn construct_demo_document(template_id: Uuid, lang: &str) -> Result<Document
 
     document_texts.push(r#"Interpretation of wastewater surveillance data
     Scientific analysis of wastewater sample in laboratory
-    Wastewater surveillance data collected at the municipal level, when analyzed appropriately, can provide information on:
+    Wastewater surveillance data ~~collected at the municipal level~~[17], when analyzed appropriately, can provide information on:
     
     Presence of infected individuals contributing to a wastewater system.
     Infection trends within the community contributing to a wastewater treatment plant (known as a “sewershed”). Sewersheds with largely transient populations, such as areas with high tourism, may provide less stable signals, which should be considered when designing the wastewater surveillance plan for public health action."#
@@ -151,7 +154,7 @@ pub fn construct_demo_document(template_id: Uuid, lang: &str) -> Result<Document
     
     A benefit of trend analysis is that:
     
-    Data from wastewater treatment plants can be compared, despite differences in population size and wastewater volume.
+    ~~Data from wastewater treatment plants can be compared, despite differences in population size and wastewater volume.~~[13.1]
     Trends in wastewater may be known prior to COVID-19 reported case trends, given that normalized concentration of SARS-CoV-2 in wastewater has been shown to coincide with or lead new reported cases within a sewershed by days."#
         .to_string());
 
@@ -349,12 +352,22 @@ pub fn get_keyword_html(json: Option<serde_json::Value>) -> String {
     keywords
 }
 
-enum ExtendedEvent {
-    Base(Event<'static>),
-    Redacted,
-}
+pub fn process_text_redactions(html_string: String, redact: bool) -> String {
 
-enum ExtendedTag {
-    Base(Tag<'static>),
-    Redacted(CowStr<'static>),
+    lazy_static! {
+        static ref RE: Regex = Regex::new(r"~~(?P<text>.*?|\n)~~\[(?P<act>.*?)\]").unwrap();
+    }
+
+    let response_string = match redact {
+        true => {
+            let final_string = RE.replace_all(&html_string, format!("{}[{}]", &"\u{25A0}".repeat(12), "$act"));
+            final_string.to_string()
+        },
+        false => {
+            let final_string = RE.replace_all(&html_string, "$text");
+            final_string.to_string()
+        }
+    };
+    
+    response_string
 }

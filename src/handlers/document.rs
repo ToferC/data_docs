@@ -10,10 +10,10 @@ use crate::models::{Section, User, Template, Document, InsertableDocument, Inser
 use super::DocumentForm;
 use crate::errors::CustomError;
 
-#[get("/{lang}/document_index")]
+#[get("/{lang}/document_index/{document_view}")]
 pub async fn document_index(
     data: web::Data<AppData>,
-    web::Path(lang): web::Path<String>,
+    web::Path((lang, document_view)): web::Path<(String, String)>,
     
     id: Identity,
     req:HttpRequest) -> impl Responder {
@@ -33,16 +33,17 @@ pub async fn document_index(
             .expect("Unable to load templates");
 
         ctx.insert("documents", &documents_data);
+        ctx.insert("document_view", &document_view);
 
         let rendered = data.tmpl.render("documents/document_index.html", &ctx).unwrap();
         HttpResponse::Ok().body(rendered)
     }
 }
 
-#[get("/{lang}/document/{document_id}")]
+#[get("/{lang}/document/{document_id}/{document_view}")]
 pub async fn get_document(
     data: web::Data<AppData>,
-    web::Path((lang, document_id)): web::Path<(String, Uuid)>,
+    web::Path((lang, document_id, document_view)): web::Path<(String, Uuid, String)>,
     
     id: Identity,
     req:HttpRequest) -> impl Responder {
@@ -58,7 +59,13 @@ pub async fn get_document(
         return err.error_response()
     } else {
 
-        let (document, sections) = Document::get_readable_by_id(document_id, &lang, true).expect("Unable to retrieve text");
+        let redact = match document_view.as_str() {
+            "internal" => false,
+            _ => true,
+        };
+
+        let (document, sections) = Document::get_readable_by_id(
+            document_id, &lang, true, redact).expect("Unable to retrieve text");
 
         let mut ordered_sections = BTreeMap::new();
 
@@ -68,6 +75,7 @@ pub async fn get_document(
 
         ctx.insert("document", &document);
         ctx.insert("sections", &ordered_sections);
+        ctx.insert("document_view", &document_view);
 
         let rendered = data.tmpl.render("documents/document.html", &ctx).unwrap();
         HttpResponse::Ok().body(rendered)
@@ -198,7 +206,7 @@ pub async fn edit_document_sections(
         return err.error_response()
     } else {
 
-        let (document, sections) = Document::get_readable_by_id(document_id, &lang, false)
+        let (document, sections) = Document::get_readable_by_id(document_id, &lang, false, false)
             .expect("Unable to load document");
 
         let mut ordered_sections = BTreeMap::new();
