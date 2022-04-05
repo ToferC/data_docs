@@ -362,7 +362,9 @@ pub fn get_keyword_html(json: Option<serde_json::Value>) -> String {
 pub fn process_text_redactions(html_string: String, redact: bool) -> String {
 
     lazy_static! {
-        static ref RE: Regex = Regex::new(r"~~(?P<text>.*?|\n)~~\[(?P<act>.*?|\n)\]").unwrap();
+        // get text or characters between ~~ tags followed by square brackets
+        // Includes newlines and characters
+        static ref RE: Regex = Regex::new(r"~~(?P<text>(.*?|\n)*)~~\[(?P<act>.*?|\n)\]").unwrap();
     }
 
     let response_string = match redact {
