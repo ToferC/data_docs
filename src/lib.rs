@@ -362,7 +362,7 @@ pub fn get_keyword_html(json: Option<serde_json::Value>) -> String {
 pub fn process_text_redactions(html_string: String, redact: bool) -> String {
 
     lazy_static! {
-        static ref RE: Regex = Regex::new(r"~~(?P<text>.*?|\n)~~\[(?P<act>.*?)\]").unwrap();
+        static ref RE: Regex = Regex::new(r"~~(?P<text>.*?|\n)~~\[(?P<act>.*?|\n)\]").unwrap();
     }
 
     let response_string = match redact {
