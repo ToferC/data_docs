@@ -127,6 +127,7 @@ pub async fn edit_text_put(
 
     let (mut ctx, session_user, role, lang) = generate_basic_context(id, &lang, req.uri().path());
 
+    // validate authorized to edit document
     if role == "CHANGE TO NOT SIGNED IN".to_string() {
         let err = CustomError::new(
             406,
@@ -136,7 +137,6 @@ pub async fn edit_text_put(
         return err.error_response()
     } else {
 
-        // validate authorized to edit document
         
         let content = form.content.trim();
 

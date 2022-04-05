@@ -4,6 +4,7 @@ pub mod database;
 pub mod errors;
 pub mod schema;
 
+use std::collections::BTreeMap;
 use tera::{Tera, Context};
 use actix_identity::Identity;
 use actix_session::Session;
@@ -121,6 +122,12 @@ pub fn construct_demo_document(template_id: Uuid, lang: &str) -> Result<Document
 
     let (_template, template_sections) = Template::get_readable_by_id(template_id, lang)?;
 
+    let mut ordered_template_sections = BTreeMap::new();
+
+    for (_k, v) in template_sections {
+        ordered_template_sections.insert(v.order_number, v);
+    }
+
     let insertable_document = InsertableDocument::new(
         template_id, 
         "Why Wastewater Data is Worthwhile".to_string(),
@@ -134,55 +141,55 @@ pub fn construct_demo_document(template_id: Uuid, lang: &str) -> Result<Document
     let mut document_texts = Vec::new();
 
     document_texts.push(r#"Overview of wastewater surveillance data interpretation and use
-    Appropriate public health interpretation of wastewater surveillance data ~~depends on understanding the surveillance~~[12.1] sampling strategy and testing limitations, as well as valid data processing and analysis. Wastewater surveillance data are primarily used in three ways:
-    
-    Monitoring for presence of infection within a community.
-    Tracking trends in infection within a community.
-    Screening for infections at a targeted site (e.g., building or facility) to trigger additional individual-based testing and mitigation measures. Review CDC’s guidance on targeted wastewater surveillance to use wastewater surveillance data for screening."#
+Appropriate public health interpretation of wastewater surveillance data ~~depends on understanding the surveillance~~[12.1] sampling strategy and testing limitations, as well as valid data processing and analysis. Wastewater surveillance data are primarily used in three ways:
+
+Monitoring for presence of infection within a community.
+Tracking trends in infection within a community.
+Screening for infections at a targeted site (e.g., building or facility) to trigger additional individual-based testing and mitigation measures. Review CDC’s guidance on targeted wastewater surveillance to use wastewater surveillance data for screening."#
         .to_string());
 
     document_texts.push(r#"Interpretation of wastewater surveillance data
-    Scientific analysis of wastewater sample in laboratory
-    Wastewater surveillance data ~~collected at the municipal level~~[17], when analyzed appropriately, can provide information on:
-    
-    Presence of infected individuals contributing to a wastewater system.
-    Infection trends within the community contributing to a wastewater treatment plant (known as a “sewershed”). Sewersheds with largely transient populations, such as areas with high tourism, may provide less stable signals, which should be considered when designing the wastewater surveillance plan for public health action."#
+Scientific analysis of wastewater sample in laboratory
+Wastewater surveillance data ~~collected at the municipal level~~[17], when analyzed appropriately, can provide information on:
+
+Presence of infected individuals contributing to a wastewater system.
+Infection trends within the community contributing to a wastewater treatment plant (known as a “sewershed”). Sewersheds with largely transient populations, such as areas with high tourism, may provide less stable signals, which should be considered when designing the wastewater surveillance plan for public health action."#
         .to_string());
 
     document_texts.push(r#"Trends
-    Wastewater trend classification is the statistical analysis of changes in the normalized concentration of SARS-CoV-2 in wastewater (i.e., not by qualitative visual assessment). Trends in these wastewater data can be used to assess COVID-19 trends (reported and unreported) within the community contributing to the sewer system. Trends can be classified into categories based on the duration and direction of change in viral quantities. The frequency of wastewater sampling will dictate the time period for which trends can be assigned.
-    
-    A benefit of trend analysis is that:
-    
-    ~~Data from wastewater treatment plants can be compared, despite differences in population size and wastewater volume.~~[13.1]
-    Trends in wastewater may be known prior to COVID-19 reported case trends, given that normalized concentration of SARS-CoV-2 in wastewater has been shown to coincide with or lead new reported cases within a sewershed by days."#
+Wastewater trend classification is the statistical analysis of changes in the normalized concentration of SARS-CoV-2 in wastewater (i.e., not by qualitative visual assessment). Trends in these wastewater data can be used to assess COVID-19 trends (reported and unreported) within the community contributing to the sewer system. Trends can be classified into categories based on the duration and direction of change in viral quantities. The frequency of wastewater sampling will dictate the time period for which trends can be assigned.
+
+A benefit of trend analysis is that:
+
+~~Data from wastewater treatment plants can be compared, despite differences in population size and wastewater volume.~~[13.1]
+Trends in wastewater may be known prior to COVID-19 reported case trends, given that normalized concentration of SARS-CoV-2 in wastewater has been shown to coincide with or lead new reported cases within a sewershed by days."#
         .to_string());
 
     document_texts.push(r#"Using wastewater surveillance to support the COVID-19 response
     SARS-CoV-2 wastewater surveillance data can help state, tribal, local, and territorial (STLT) health departments detect, understand, and respond to the COVID-19 pandemic. Wastewater surveillance can provide an early indicator of the presence of, or trends in, COVID-19 cases in a community.
     
-    Wastewater surveillance complements existing COVID-19 surveillance systems and should not be interpreted alone to inform public health action. Wastewater surveillance does not provide insights into the social and behavioral factors underlying changes in transmission.
-    
-    Wastewater surveillance provides:
-    
-    * A pooled community sample
-    * Data for communities where timely COVID-19 clinical testing is underutilized or unavailable
-    * Data at the sewershed level, which often is smaller than a county
-    * Information on emergence or reemergence of infections within a community prior to case reporting
-    * Additional information that is not affected by certain limitations of clinical indicators, such as variability in healthcare-seeking behaviors
-    * SARS-CoV-2 wastewater surveillance data can be used to inform clinical testing and community mitigation strategies, such as:
-    
-    * Increased testing of individuals in the affected community
-    * Increased public health communication about how individuals can protect themselves from COVID-19 and outreach in the affected community
-    * Monitoring and impact evaluation of community mitigation strategies
-    * When evaluating wastewater-based signals for changes in SARS-CoV-2 infection levels within a community, consider the following:
-    
-    Other epidemiologic knowledge is needed, such as locations of populations at higher risk of COVID-19, to determine where to deploy clinical testing resources in sub-sewershed areas.
-    Lack of SARS-CoV-2 detection in wastewater alone should not be used to justify relaxing community mitigation measures.
-    Using sampling points upstream from wastewater treatment plants to monitor sub-sewershed infection trends requires additional work to understand the boundaries and unique characteristics of that area before it can be used for wastewater surveillance."#
+Wastewater surveillance complements existing COVID-19 surveillance systems and should not be interpreted alone to inform public health action. Wastewater surveillance does not provide insights into the social and behavioral factors underlying changes in transmission.
+
+Wastewater surveillance provides:
+
+* A pooled community sample
+* Data for communities where timely COVID-19 clinical testing is underutilized or unavailable
+* Data at the sewershed level, which often is smaller than a county
+* Information on emergence or reemergence of infections within a community prior to case reporting
+* Additional information that is not affected by certain limitations of clinical indicators, such as variability in healthcare-seeking behaviors
+* SARS-CoV-2 wastewater surveillance data can be used to inform clinical testing and community mitigation strategies, such as:
+
+* Increased testing of individuals in the affected community
+* Increased public health communication about how individuals can protect themselves from COVID-19 and outreach in the affected community
+* Monitoring and impact evaluation of community mitigation strategies
+* When evaluating wastewater-based signals for changes in SARS-CoV-2 infection levels within a community, consider the following:
+
+Other epidemiologic knowledge is needed, such as locations of populations at higher risk of COVID-19, to determine where to deploy clinical testing resources in sub-sewershed areas.
+Lack of SARS-CoV-2 detection in wastewater alone should not be used to justify relaxing community mitigation measures.
+Using sampling points upstream from wastewater treatment plants to monitor sub-sewershed infection trends requires additional work to understand the boundaries and unique characteristics of that area before it can be used for wastewater surveillance."#
         .to_string());
 
-    for ((_key, template_section), doc_content) in zip(template_sections, document_texts) {
+    for ((_key, template_section), doc_content) in zip(ordered_template_sections, document_texts) {
 
         let insertable_section = InsertableSection::new(
             document.id,
