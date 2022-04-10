@@ -13,7 +13,7 @@ use crate::errors::CustomError;
 #[get("/{lang}/document_index/{document_view}")]
 pub async fn document_index(
     data: web::Data<AppData>,
-    web::Path((lang, mut document_view)): web::Path<(String, String)>,
+    web::Path((lang, document_view)): web::Path<(String, String)>,
     
     id: Identity,
     req:HttpRequest) -> impl Responder {
@@ -229,9 +229,8 @@ pub async fn switch_document_published(
 
     let (_ctx, _session_user, role, lang) = generate_basic_context(id, &lang, req.uri().path());
 
-    if role != "user".to_string() ||
-        role != "admin".to_string() &&
-        document_view == "internal" {
+    if role != "user".to_string() &&
+        role != "admin".to_string() {
             // send to external view
             return HttpResponse::Found().header("Location", format!("/{}/document/{}/open", lang, document_id)).finish()
     };
@@ -244,15 +243,15 @@ pub async fn switch_document_published(
     let mut document = Document::get_by_id(
         document_id, &lang, true, redact).expect("Unable to retrieve text");
 
-    match document.published {
-        false => document.published = true,
-        true => document.published = false,
+    document.published = match document.published {
+        false => true,
+        true => false,
     };
 
-    Document::update(&document)
+    let d = Document::update(&document)
         .expect("Unable to update document");
 
     HttpResponse::Found().header(
         "Location",
-        format!("/{}/document/{}/{}", lang, document_id, &document_view)).finish()
+        format!("/{}/document/{}/{}", lang, d.id, &document_view)).finish()
 }

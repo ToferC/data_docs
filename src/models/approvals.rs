@@ -7,3 +7,10 @@ pub struct Decision {
     decision: String,
     date_time: NaiveDateTime,
 }
+
+pub struct Authorization {
+    id: Uuid,
+    user_id: Uuid,
+    action: String,
+    document: NaiveDateTime,
+}
