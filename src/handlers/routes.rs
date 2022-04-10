@@ -76,6 +76,7 @@ use crate::handlers::{
     create_document_core,
     save_document_core,
     edit_document_sections,
+    switch_document_published,
 
     // text
     get_text,
@@ -156,6 +157,7 @@ pub fn configure_services(config: &mut web::ServiceConfig) {
      config.service(create_document_core);
      config.service(edit_document_sections);
      config.service(save_document_core);
+     config.service(switch_document_published);
 
      // text
      config.service(get_text);

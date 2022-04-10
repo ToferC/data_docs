@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS documents (
     purpose_text_id UUID NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    publishable bool NOT NULL DEFAULT false,
+    published bool NOT NULL DEFAULT false,
     created_by_id UUID NOT NULL
 );
 

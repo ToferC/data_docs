@@ -13,31 +13,30 @@ use crate::errors::CustomError;
 #[get("/{lang}/document_index/{document_view}")]
 pub async fn document_index(
     data: web::Data<AppData>,
-    web::Path((lang, document_view)): web::Path<(String, String)>,
+    web::Path((lang, mut document_view)): web::Path<(String, String)>,
     
     id: Identity,
     req:HttpRequest) -> impl Responder {
 
     let (mut ctx, _session_user, role, lang) = generate_basic_context(id, &lang, req.uri().path());
 
-    if role == "CHANGE TO NOT SIGNED IN".to_string() {
-        let err = CustomError::new(
-            406,
-            "Not authorized".to_string(),
-        );
-        println!("{}", &err);
-        return err.error_response()
-    } else {
+    if role != "user".to_string() &&
+        role != "admin".to_string() &&
+        document_view == "internal" {
+            // send to external view
+            return HttpResponse::Found().header(
+                "Location", 
+                format!("/{}/document_index/open", lang)).finish()
+    };
 
-        let documents_data = Document::get_all_readable(&lang)
-            .expect("Unable to load templates");
+    let documents_data = Document::get_all_readable(&lang, &document_view)
+        .expect("Unable to load templates");
 
-        ctx.insert("documents", &documents_data);
-        ctx.insert("document_view", &document_view);
+    ctx.insert("documents", &documents_data);
+    ctx.insert("document_view", &document_view);
 
-        let rendered = data.tmpl.render("documents/document_index.html", &ctx).unwrap();
-        HttpResponse::Ok().body(rendered)
-    }
+    let rendered = data.tmpl.render("documents/document_index.html", &ctx).unwrap();
+    HttpResponse::Ok().body(rendered)
 }
 
 #[get("/{lang}/document/{document_id}/{document_view}")]
@@ -51,35 +50,32 @@ pub async fn get_document(
     let (mut ctx, _session_user, role, lang) = generate_basic_context(id, &lang, req.uri().path());
 
     if role != "user".to_string() &&
-        role != "admin".to_string() {
-        let err = CustomError::new(
-            406,
-            "Not authorized".to_string(),
-        );
-        return err.error_response()
-    } else {
+        role != "admin".to_string() &&
+        document_view == "internal" {
+            // send to external view
+            return HttpResponse::Found().header("Location", format!("/{}/document/{}/open", lang, document_id)).finish()
+    };
 
-        let redact = match document_view.as_str() {
-            "internal" => false,
-            _ => true,
-        };
+    let redact = match document_view.as_str() {
+        "internal" => false,
+        _ => true,
+    };
 
-        let (document, sections) = Document::get_readable_by_id(
-            document_id, &lang, true, redact).expect("Unable to retrieve text");
+    let (document, sections) = Document::get_readable_by_id(
+        document_id, &lang, true, redact).expect("Unable to retrieve text");
 
-        let mut ordered_sections = BTreeMap::new();
+    let mut ordered_sections = BTreeMap::new();
 
-        for (_k, v) in sections {
-            ordered_sections.insert(v.order_number, v);
-        };
+    for (_k, v) in sections {
+        ordered_sections.insert(v.order_number, v);
+    };
 
-        ctx.insert("document", &document);
-        ctx.insert("sections", &ordered_sections);
-        ctx.insert("document_view", &document_view);
+    ctx.insert("document", &document);
+    ctx.insert("sections", &ordered_sections);
+    ctx.insert("document_view", &document_view);
 
-        let rendered = data.tmpl.render("documents/document.html", &ctx).unwrap();
-        HttpResponse::Ok().body(rendered)
-    }
+    let rendered = data.tmpl.render("documents/document.html", &ctx).unwrap();
+    HttpResponse::Ok().body(rendered)
 }
 
 #[get("/{lang}/create_document_core/{template_id}")]
@@ -221,4 +217,42 @@ pub async fn edit_document_sections(
         let rendered = data.tmpl.render("documents/edit_document_sections.html", &ctx).unwrap();
         HttpResponse::Ok().body(rendered)
     }
+}
+
+#[get("/{lang}/switch_document_published/{document_id}/{document_view}")]
+pub async fn switch_document_published(
+    _data: web::Data<AppData>,
+    web::Path((lang, document_id, document_view)): web::Path<(String, Uuid, String)>,
+    
+    id: Identity,
+    req:HttpRequest) -> impl Responder {
+
+    let (_ctx, _session_user, role, lang) = generate_basic_context(id, &lang, req.uri().path());
+
+    if role != "user".to_string() ||
+        role != "admin".to_string() &&
+        document_view == "internal" {
+            // send to external view
+            return HttpResponse::Found().header("Location", format!("/{}/document/{}/open", lang, document_id)).finish()
+    };
+
+    let redact = match document_view.as_str() {
+        "internal" => false,
+        _ => true,
+    };
+
+    let mut document = Document::get_by_id(
+        document_id, &lang, true, redact).expect("Unable to retrieve text");
+
+    match document.published {
+        false => document.published = true,
+        true => document.published = false,
+    };
+
+    Document::update(&document)
+        .expect("Unable to update document");
+
+    HttpResponse::Found().header(
+        "Location",
+        format!("/{}/document/{}/{}", lang, document_id, &document_view)).finish()
 }

@@ -6,7 +6,7 @@ table! {
         purpose_text_id -> Uuid,
         created_at -> Timestamp,
         updated_at -> Timestamp,
-        publishable -> Bool,
+        published -> Bool,
         created_by_id -> Uuid,
     }
 }

@@ -34,12 +34,14 @@
         hx-target="this">
         <form 
         >
+        {% if document_view == "internal" %}
             <button 
             class="btn"
             hx-get="/{{ lang }}/edit_text/{{ section.text_id }}/{{ document_view }}" 
             >
                 Edit
             </button>
+        {% endif %}
                 <div>{{ section.content | safe }}</div>
                 <div>Keywords: {{ section.keywords | safe }}</div>
         </form>

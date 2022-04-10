@@ -16,6 +16,7 @@
             <th style="text-align: center;">{{ fluent(key="updated-on", lang=lang )}}</th>
             <th style="text-align: center;">{{ fluent(key="link", lang=lang )}}</th>
             <th style="text-align: center;">{{ fluent(key="edit-document", lang=lang )}}</th>
+            <th style="text-align: center;">Published?</th>
         </tr>
         {% for document in documents %}
             <tr>
@@ -23,6 +24,7 @@
                 <td style="text-align: center;">{{ document.updated_at | date(format="%Y-%m-%d %H:%M") }}</td>
                 <td style="text-align: center;"><a href="/{{ lang }}/document/{{ document.id }}/{{ document_view }}">{{ fluent(key="link", lang=lang )}}</a></td>
                 <td style="text-align: center;"><a class="btn btn-primary" href="/{{ lang }}/edit_document_sections/{{ document.id }}">{{ fluent(key="edit-document", lang=lang )}}</a></td>
+                <td style="text-align: center;"><a class="btn btn-secondary" href="/{{ lang }}/switch_document_published/{{ document.id }}/{{ document_view }}">{% if document.published == true %}Unpublish{% else %}Publish{% endif %}</a></td>
             </tr>
         {% endfor %}
         </table>

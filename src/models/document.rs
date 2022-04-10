@@ -22,7 +22,7 @@ pub struct Document {
     // pub approvals: Option<Vec<Uuid>>, // Replace with Approvals
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
-    pub publishable: bool,
+    pub published: bool,
     pub created_by_id: Uuid,
 }
 
@@ -35,7 +35,7 @@ pub struct ReadableDocument {
     pub purpose_text: String,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
-    pub publishable: bool,
+    pub published: bool,
     pub created_by: String,
 }
 
@@ -96,6 +96,16 @@ impl Document {
         Ok(v)
     }
 
+    pub fn get_by_id(id: Uuid, lang: &str, markdown: bool, redact: bool) -> Result<Document, CustomError> {
+        let conn = database::connection()?;
+
+        let document = documents::table
+            .filter(documents::id.eq(id))
+            .first::<Self>(&conn)?;
+
+        Ok(document)
+    }
+
     pub fn get_readable_by_id(id: Uuid, lang: &str, markdown: bool, redact: bool) -> Result<(ReadableDocument, BTreeMap<Uuid, ReadableSection>), CustomError> {
         let conn = database::connection()?;
 
@@ -123,7 +133,7 @@ impl Document {
             purpose_text: texts.get(&document.purpose_text_id).unwrap().to_string(),
             created_at: document.created_at,
             updated_at: document.updated_at,
-            publishable: document.publishable,
+            published: document.published,
             created_by: user_email,
         };
 
@@ -167,7 +177,7 @@ impl Document {
             purpose_text: texts.get(&document.purpose_text_id).unwrap().to_string(),
             created_at: document.created_at,
             updated_at: document.updated_at,
-            publishable: document.publishable,
+            published: document.published,
             created_by: user_email,
         };
 
@@ -183,11 +193,17 @@ impl Document {
         Ok((readable_document, readable_sections))
     }
 
-    pub fn get_all_readable(lang: &str) -> Result<Vec<ReadableDocument>, CustomError> {
+    pub fn get_all_readable(lang: &str, document_view: &str) -> Result<Vec<ReadableDocument>, CustomError> {
         let conn = database::connection()?;
 
-        let documents = documents::table
-            .load::<Self>(&conn)?;
+        // External view only gets published documents
+        let documents = match document_view {
+            "internal" => documents::table
+                .load::<Self>(&conn)?,
+            _ => documents::table
+                .filter(documents::published.eq(true))
+                .load::<Self>(&conn)?,
+        };
 
         let mut text_ids = Vec::new();
         let mut user_ids = Vec::new();
@@ -212,7 +228,7 @@ impl Document {
                 purpose_text: texts.get(&document.purpose_text_id).unwrap().to_string(),
                 created_at: document.created_at,
                 updated_at: document.updated_at,
-                publishable: document.publishable,
+                published: document.published,
                 created_by: users.get(&document.created_by_id).unwrap().to_string(),
             };
 
@@ -252,7 +268,7 @@ impl Document {
                 purpose_text: texts.get(&document.purpose_text_id).unwrap().to_string(),
                 created_at: document.created_at,
                 updated_at: document.updated_at,
-                publishable: document.publishable,
+                published: document.published,
                 created_by: users.get(&document.created_by_id).unwrap().to_string(),
             };
 
@@ -276,5 +292,14 @@ impl Document {
             .unwrap();
 
         texts
+    }
+
+    pub fn update(document: &Document) -> Result<Self, CustomError> {
+        let conn = database::connection()?;
+        let v = diesel::update(documents::table)
+            .filter(documents::id.eq(document.id))
+            .set(document)
+            .get_result(&conn)?;
+        Ok(v)
     }
 }
