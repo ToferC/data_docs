@@ -359,6 +359,7 @@ pub fn get_keyword_html(json: Option<serde_json::Value>) -> String {
     keywords
 }
 
+/// Find text redactions in document and format for either open (redacted) or normal reading (internal)
 pub fn process_text_redactions(html_string: String, redact: bool) -> String {
 
     lazy_static! {

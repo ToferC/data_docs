@@ -82,7 +82,7 @@ CREATE TABLE IF NOT EXISTS texts (
     FOREIGN KEY(section_id)
         REFERENCES sections(id) ON DELETE CASCADE,
     lang VARCHAR(2) NOT NULL default 'en',
-    content TEXT[] NOT NULL,
+    content BYTEA[] NOT NULL,
     keywords JSONB,
     translated bool[] NOT NULL DEFAULT '{false}',
     machine_translation bool[] NOT NULL default '{false}',

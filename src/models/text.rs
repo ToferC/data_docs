@@ -3,6 +3,8 @@ use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
 use diesel::prelude::*;
 use std::{collections::BTreeMap};
+use std::io::{Read, Write};
+use std::str;
 use pulldown_cmark::{html, Options, Parser};
 
 use crate::{database, run_rake, get_keyword_html, process_text_redactions};
@@ -18,7 +20,7 @@ pub struct Text {
     // Might want to make this a different data type
     pub section_id: Option<Uuid>,
     pub lang: String,
-    pub content: Vec<String>,
+    pub content: Vec<Vec<u8>>,
     pub keywords: Option<serde_json::Value>,
     pub translated: Vec<bool>,
     pub machine_translation: Vec<bool>,
@@ -43,7 +45,25 @@ pub struct LatestText {
 impl LatestText {
     pub fn get_from(text: Text, markdown: bool, redact: bool) -> Self {
 
-        let processed_text = process_text_redactions(text.content.last().unwrap().clone(), redact);
+        let decrypted_content = {
+            let encrypted_content = &text.content.last().unwrap().clone()[..];
+            
+            let decryptor = match age::Decryptor::new(encrypted_content)
+                .expect("Unable to create decryptor") {
+                    age::Decryptor::Passphrase(d) => d,
+                    _ => unreachable!(),
+            };
+
+            let mut decrypted = Vec::new();
+            let mut reader = decryptor.decrypt(&age::secrecy::Secret::new(std::env::var("SECRET_KEY").unwrap()), None)
+                .expect("Unable to create reader");
+            
+            reader.read_to_end(&mut decrypted).expect("Unable to read and decrypt");
+
+            str::from_utf8(&decrypted).unwrap().to_string()
+        };
+
+        let processed_text = process_text_redactions(decrypted_content, redact);
 
         let content = if markdown {
             let mut options = Options::empty();
@@ -57,7 +77,7 @@ impl LatestText {
             html_content
             
         } else {
-            text.content.last().unwrap_or(&String::from("Unable to find content")).to_owned()
+            processed_text
         };
 
         // get keywords from text
@@ -119,8 +139,27 @@ impl Text {
         let mut treemap = BTreeMap::new();
 
         for t in texts {
+
+            let decrypted_content = {
+                let encrypted_content = &t.content.last().unwrap().clone()[..];
+            
+                let decryptor = match age::Decryptor::new(encrypted_content)
+                    .expect("Unable to create decryptor") {
+                        age::Decryptor::Passphrase(d) => d,
+                        _ => unreachable!(),
+                };
+    
+                let mut decrypted = Vec::new();
+                let mut reader = decryptor.decrypt(&age::secrecy::Secret::new(std::env::var("SECRET_KEY").unwrap()), None)
+                    .expect("Unable to create reader");
+                
+                reader.read_to_end(&mut decrypted).expect("Unable to read and decrypt");
+    
+                str::from_utf8(&decrypted).unwrap().to_string()
+            };
+
             // get the latest version of the text
-            treemap.insert(t.id, t.content.last().unwrap().to_owned());
+            treemap.insert(t.id, decrypted_content);
         };
 
         Ok(treemap)
@@ -136,15 +175,28 @@ impl Text {
 
         let mut text = Text::get_text_by_id(text_id, lang).expect("Unable to retrieve text");
 
-        text.content.push(content);
+        let encrypted_content = {
+            let encryptor = age::Encryptor::with_user_passphrase(age::secrecy::Secret::new(std::env::var("SECRET_KEY").unwrap()));
+            let mut encrypted = Vec::new();
+            let mut writer = encryptor.wrap_output(&mut encrypted)
+                .expect("Unable to create writer");
+
+            writer.write_all(content.as_ref()).expect("Unable to encrypt content");
+            writer.finish().unwrap();
+
+            encrypted
+        };
+
+        if text.section_id != None {
+            text.keywords = Some(run_rake(&content).unwrap());
+        };
+
+        text.content.push(encrypted_content);
         text.translated.push(false);
         text.machine_translation.push(false);
         text.created_by_id.push(created_by_id);
         text.created_at.push(chrono::Utc::now().naive_utc());
 
-        if text.section_id != None {
-            text.keywords = Some(run_rake(&text.content.last().unwrap()).unwrap());
-        };
 
         let v = diesel::update(texts::table)
             .filter(texts::id.eq(text_id))
@@ -158,7 +210,7 @@ impl From<InsertableText> for Text {
     fn from(text: InsertableText) -> Self {
 
         let keywords: Option<serde_json::Value> = match text.section_id {
-            Some(_c) => Some(run_rake(&text.content.last().unwrap()).expect("Unable to get keywords")),
+            Some(_c) => Some(text.keywords),
             None => None,
         };
 
@@ -180,7 +232,7 @@ impl From<InsertableText> for Text {
 #[table_name = "texts"]
 pub struct InsertableText {
     pub lang: String,
-    pub content: Vec<String>,
+    pub content: Vec<Vec<u8>>,
     pub keywords: serde_json::Value,
     pub translated: Vec<bool>,
     pub machine_translation: Vec<bool>,
@@ -197,14 +249,27 @@ impl InsertableText {
         section_id: Option<Uuid>,
         created_by_id: Uuid
     ) -> Self {
+        
+        let keywords = run_rake(&content)
+            .expect("Unable to get keywords");
 
-        let content = vec![content];
+        let encrypted_content = {
+            let encryptor = age::Encryptor::with_user_passphrase(age::secrecy::Secret::new(std::env::var("SECRET_KEY").unwrap()));
+            let mut encrypted = Vec::new();
+            let mut writer = encryptor.wrap_output(&mut encrypted)
+                .expect("Unable to create writer");
+
+            writer.write_all(content.as_ref()).expect("Unable to encrypt content");
+            writer.finish().unwrap();
+
+            encrypted
+        };
+
+        let content = vec![encrypted_content];
         let translated = vec![translated];
         let machine_translation = vec![machine_translation];
         let created_by_id = vec![created_by_id];
 
-        let keywords = run_rake(content.last().unwrap())
-            .expect("Unable to get keywords");
 
         InsertableText {
             lang,
@@ -223,13 +288,25 @@ impl InsertableText {
         created_by_id: Uuid,
     ) -> Self {
 
-        let content = vec![content];
+        let keywords = run_rake(&content)
+            .expect("Unable to get keywords");
+            
+        let encrypted_content = {
+            let encryptor = age::Encryptor::with_user_passphrase(age::secrecy::Secret::new(std::env::var("SECRET_KEY").unwrap()));
+            let mut encrypted = Vec::new();
+            let mut writer = encryptor.wrap_output(&mut encrypted)
+                .expect("Unable to create writer");
+
+            writer.write_all(content.as_ref()).expect("Unable to encrypt content");
+            writer.finish().unwrap();
+
+            encrypted
+        };
+
+        let content = vec![encrypted_content];
         let translated = vec![false];
         let machine_translation = vec![false];
         let created_by_id = vec![created_by_id];
-
-        let keywords = run_rake(content.last().unwrap())
-            .expect("Unable to get keywords");
 
         InsertableText {
             lang: lang.to_owned(),

@@ -69,7 +69,7 @@ table! {
         id -> Uuid,
         section_id -> Nullable<Uuid>,
         lang -> Varchar,
-        content -> Array<Text>,
+        content -> Array<Bytea>,
         keywords -> Nullable<Jsonb>,
         translated -> Array<Bool>,
         machine_translation -> Array<Bool>,

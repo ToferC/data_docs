@@ -1,9 +1,11 @@
 use serde::{Serialize, Deserialize};
+use std::str;
 use uuid::Uuid;
 use diesel::prelude::*;
 use diesel::{QueryDsl};
 use chrono::prelude::*;
-use pulldown_cmark::{html, Options, Parser, Event, Tag};
+use pulldown_cmark::{html, Options, Parser};
+use std::io::{Read};
 
 use crate::{database, get_keyword_html, process_text_redactions};
 use crate::schema::{sections};
@@ -106,7 +108,26 @@ impl ReadableSection {
         let text = Text::get_text_by_section_id(section.id, lang)
             .expect("Unable to retrieve text");
 
-        let processed_text = process_text_redactions(text.content.last().unwrap().clone(), redact);
+        let decrypted_content = {
+
+            let encrypted_content = &text.content.last().unwrap().clone()[..];
+
+            let decryptor = match age::Decryptor::new(encrypted_content)
+                .expect("Unable to create decryptor") {
+                    age::Decryptor::Passphrase(d) => d,
+                    _ => unreachable!(),
+            };
+
+            let mut decrypted = Vec::new();
+            let mut reader = decryptor.decrypt(&age::secrecy::Secret::new(std::env::var("SECRET_KEY").unwrap()), None)
+                .expect("Unable to create reader");
+            
+            reader.read_to_end(&mut decrypted).expect("Unable to read and decrypt");
+
+            str::from_utf8(&decrypted).unwrap().to_string()
+        };
+
+        let processed_text = process_text_redactions(decrypted_content, redact);
 
         let content = if markdown {
             let mut options = Options::empty();
@@ -121,7 +142,7 @@ impl ReadableSection {
             html_content
             
         } else {
-            text.content.last().unwrap_or(&String::from("Unable to find content")).to_owned()
+            processed_text
         };
 
         // get keywords from text
