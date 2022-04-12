@@ -36,7 +36,8 @@ extern crate lazy_static;
 const APP_NAME: &str = "Data Docs";
 
 lazy_static! {
-    // Set up MagicCrypt
+    // Set up MagicCrypt for encryption and decryption
+    // We would want to rotate our secret key in production
     static ref MAGIC_CRYPT: magic_crypt::MagicCrypt256 = magic_crypt::new_magic_crypt!(env::var("SECRET_KEY").expect("Unable to find secret key"), 256);
 }
 
@@ -44,7 +45,6 @@ lazy_static! {
 pub struct AppData {
     pub tmpl: Tera,
     pub mail_client: SGClient,
-    pub encryptor: magic_crypt::MagicCrypt256,
 }
 
 // Test in constucting template and simple document
