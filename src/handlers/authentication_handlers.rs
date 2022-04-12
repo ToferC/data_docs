@@ -5,37 +5,13 @@ use std::env;
 use actix_web::{HttpRequest, HttpResponse, Responder, get, post, web};
 use actix_session::{Session, UserSession};
 use actix_identity::{Identity};
-use serde::{Deserialize};
 
 use crate::{AppData, generate_basic_context, generate_email_context, extract_identity_data, APP_NAME};
 use crate::models::{User, verify, UserData, EmailVerification, 
     InsertableVerification, Email, PasswordResetToken, 
     InsertablePasswordResetToken};
 
-use super::EmailForm;
-
-#[derive(Deserialize, Debug)]
-pub struct LoginForm {
-    email: String,
-    password: String,
-}
-
-#[derive(Deserialize, Debug)]
-pub struct RegisterForm {
-    user_name: String,
-    email: String,
-    password: String,
-}
-
-#[derive(Deserialize, Debug)]
-pub struct VerifyForm {
-    code: String,
-}
-
-#[derive(Deserialize, Debug)]
-pub struct PasswordForm {
-    password: String,
-}
+use super::{EmailForm, LoginForm, RegisterForm, VerifyForm, PasswordForm};
 
 #[get("/{lang}/log_in")]
 pub async fn login_handler(

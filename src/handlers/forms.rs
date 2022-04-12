@@ -39,25 +39,25 @@ pub struct TemplateSectionForm {
 
 #[derive(Deserialize, Debug)]
 pub struct LoginForm {
-    email: String,
-    password: String,
+    pub email: String,
+    pub password: String,
 }
 
 #[derive(Deserialize, Debug)]
 pub struct RegisterForm {
-    user_name: String,
-    email: String,
-    password: String,
+    pub user_name: String,
+    pub email: String,
+    pub password: String,
 }
 
 #[derive(Deserialize, Debug)]
 pub struct VerifyForm {
-    code: String,
+    pub code: String,
 }
 
 #[derive(Deserialize, Debug)]
 pub struct PasswordForm {
-    password: String,
+    pub password: String,
 }
 
 #[derive(Deserialize, Debug)]

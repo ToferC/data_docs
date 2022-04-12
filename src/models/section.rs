@@ -6,7 +6,6 @@ use diesel::prelude::*;
 use diesel::{QueryDsl};
 use chrono::prelude::*;
 use pulldown_cmark::{html, Options, Parser};
-use std::io::{Read};
 
 use crate::{database, get_keyword_html, process_text_redactions, MAGIC_CRYPT};
 use crate::schema::{sections};

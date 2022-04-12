@@ -96,7 +96,7 @@ impl Document {
         Ok(v)
     }
 
-    pub fn get_by_id(id: Uuid, lang: &str, markdown: bool, redact: bool) -> Result<Document, CustomError> {
+    pub fn get_by_id(id: Uuid) -> Result<Document, CustomError> {
         let conn = database::connection()?;
 
         let document = documents::table

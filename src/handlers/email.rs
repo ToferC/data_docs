@@ -1,13 +1,4 @@
-
-use std::env;
-
-use actix_web::{HttpRequest, HttpResponse, Responder, post, web};
-use actix_identity::{Identity};
 use serde::{Deserialize};
-use regex::Regex;
-
-use crate::{AppData, generate_email_context};
-use crate::models::{Email};
 
 // for for single email address
 #[derive(Debug, Deserialize)]

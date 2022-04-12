@@ -13,7 +13,6 @@ use rake::*;
 use uuid::Uuid;
 use core::iter::zip;
 use regex::Regex;
-use magic_crypt::{new_magic_crypt, MagicCryptTrait};
 
 use rand::{thread_rng, Rng};
 use rand::distributions::Alphanumeric;

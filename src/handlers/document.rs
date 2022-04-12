@@ -235,13 +235,7 @@ pub async fn switch_document_published(
             return HttpResponse::Found().header("Location", format!("/{}/document/{}/open", lang, document_id)).finish()
     };
 
-    let redact = match document_view.as_str() {
-        "internal" => false,
-        _ => true,
-    };
-
-    let mut document = Document::get_by_id(
-        document_id, &lang, true, redact).expect("Unable to retrieve text");
+    let mut document = Document::get_by_id(document_id).expect("Unable to retrieve text");
 
     document.published = match document.published {
         false => true,
