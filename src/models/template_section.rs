@@ -168,13 +168,15 @@ impl InsertableTemplateSection {
         character_limit: Option<i32>,
         lang: String,
         created_by_id: Uuid,
+        
     ) -> Result<Self, CustomError> {
 
         let insertable_header_text = InsertableText::new(
             None,
             &lang, 
             header_text,
-            created_by_id);
+            created_by_id,
+        );
 
         let header_text = Text::create(&insertable_header_text)?;
 
@@ -182,7 +184,8 @@ impl InsertableTemplateSection {
             None,
             &lang, 
             instructions_text,
-            created_by_id);
+            created_by_id,
+        );
 
         let instructions_text = Text::create(&insertable_instructions_text)?;
 
@@ -190,7 +193,8 @@ impl InsertableTemplateSection {
             None,
             &lang, 
             help_text,
-            created_by_id);
+            created_by_id,
+        );
 
         let help_text = Text::create(&insertable_help_text)?;
 

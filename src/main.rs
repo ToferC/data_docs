@@ -69,9 +69,14 @@ async fn main() -> std::io::Result<()> {
         // mail client
         let sg = SGClient::new(sendgrid_key.clone());
 
+        // encryptor
+        let mc = magic_crypt::new_magic_crypt!(env::var("SECRET_KEY").expect("Unable to find secret key"), 256);
+        
+        // Define AppData
         let data = AppData {
             tmpl: tera,
             mail_client: sg,
+            encryptor: mc,
         };
 
         let generated = generate();

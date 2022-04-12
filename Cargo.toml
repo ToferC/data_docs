@@ -37,7 +37,7 @@ regex = "1.5.4"
 env_logger = "0.9.0"
 
 # Encryption
-age = { version = "0.7.1", features = ["armor", "async"] }
+magic-crypt = "3.1.10"
 
 # Access Control
 casbin = "2.0.9"

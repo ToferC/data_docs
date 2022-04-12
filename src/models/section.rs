@@ -1,3 +1,4 @@
+use magic_crypt::MagicCryptTrait;
 use serde::{Serialize, Deserialize};
 use std::str;
 use uuid::Uuid;
@@ -7,7 +8,7 @@ use chrono::prelude::*;
 use pulldown_cmark::{html, Options, Parser};
 use std::io::{Read};
 
-use crate::{database, get_keyword_html, process_text_redactions};
+use crate::{database, get_keyword_html, process_text_redactions, MAGIC_CRYPT};
 use crate::schema::{sections};
 use crate::errors::CustomError;
 use crate::models::{Text, Document, TemplateSection};
@@ -110,24 +111,12 @@ impl ReadableSection {
 
         let decrypted_content = {
 
-            let encrypted_content = &text.content.last().unwrap().clone()[..];
+            let encrypted_content = &text.content.last().unwrap().clone();
 
-            let decryptor = match age::Decryptor::new(encrypted_content)
-                .expect("Unable to create decryptor") {
-                    age::Decryptor::Passphrase(d) => d,
-                    _ => unreachable!(),
-            };
-
-            let mut decrypted = Vec::new();
-            let mut reader = decryptor.decrypt(&age::secrecy::Secret::new(std::env::var("SECRET_KEY").unwrap()), None)
-                .expect("Unable to create reader");
-            
-            reader.read_to_end(&mut decrypted).expect("Unable to read and decrypt");
-
-            str::from_utf8(&decrypted).unwrap().to_string()
+            MAGIC_CRYPT.decrypt_base64_to_string(encrypted_content).expect("Unable to decrypt")
         };
 
-        let processed_text = process_text_redactions(decrypted_content, redact);
+        let processed_text = process_text_redactions(decrypted_content.clone(), redact);
 
         let content = if markdown {
             let mut options = Options::empty();
@@ -142,7 +131,7 @@ impl ReadableSection {
             html_content
             
         } else {
-            processed_text
+            decrypted_content
         };
 
         // get keywords from text

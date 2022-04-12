@@ -62,7 +62,8 @@ impl Template {
             None,
             &lang, 
             raw_name_text.to_owned(),
-            created_by);
+            created_by,
+        );
 
         let name_text = Text::create(&insertable_name_text)?;
 
@@ -70,7 +71,8 @@ impl Template {
             None,
             &lang, 
             raw_purpose_text,
-            created_by);
+            created_by,
+        );
 
         let slug = raw_name_text.to_snake_case();
 
@@ -326,13 +328,15 @@ impl InsertableTemplate {
         raw_purpose_text: String,
         lang: String,
         created_by: Uuid,
+        
     ) -> Result<Self, CustomError> {
 
         let insertable_name_text = InsertableText::new(
             None,
             &lang, 
             raw_name_text.to_owned(),
-            created_by);
+            created_by,
+        );
 
         let name_text = Text::create(&insertable_name_text)?;
 
@@ -340,7 +344,8 @@ impl InsertableTemplate {
             None,
             &lang, 
             raw_purpose_text,
-            created_by);
+            created_by,
+        );
 
         let slug = raw_name_text.to_snake_case();
 

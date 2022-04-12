@@ -1,3 +1,4 @@
+use magic_crypt::MagicCryptTrait;
 use uuid::Uuid;
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
@@ -7,7 +8,7 @@ use std::io::{Read, Write};
 use std::str;
 use pulldown_cmark::{html, Options, Parser};
 
-use crate::{database, run_rake, get_keyword_html, process_text_redactions};
+use crate::{database, run_rake, get_keyword_html, process_text_redactions, MAGIC_CRYPT};
 use crate::schema::texts;
 use crate::errors::CustomError;
 
@@ -20,7 +21,7 @@ pub struct Text {
     // Might want to make this a different data type
     pub section_id: Option<Uuid>,
     pub lang: String,
-    pub content: Vec<Vec<u8>>,
+    pub content: Vec<String>,
     pub keywords: Option<serde_json::Value>,
     pub translated: Vec<bool>,
     pub machine_translation: Vec<bool>,
@@ -48,22 +49,10 @@ impl LatestText {
         let decrypted_content = {
             let encrypted_content = &text.content.last().unwrap().clone()[..];
             
-            let decryptor = match age::Decryptor::new(encrypted_content)
-                .expect("Unable to create decryptor") {
-                    age::Decryptor::Passphrase(d) => d,
-                    _ => unreachable!(),
-            };
-
-            let mut decrypted = Vec::new();
-            let mut reader = decryptor.decrypt(&age::secrecy::Secret::new(std::env::var("SECRET_KEY").unwrap()), None)
-                .expect("Unable to create reader");
-            
-            reader.read_to_end(&mut decrypted).expect("Unable to read and decrypt");
-
-            str::from_utf8(&decrypted).unwrap().to_string()
+            MAGIC_CRYPT.decrypt_base64_to_string(encrypted_content).expect("Unable to decrypt string")
         };
 
-        let processed_text = process_text_redactions(decrypted_content, redact);
+        let processed_text = process_text_redactions(decrypted_content.clone(), redact);
 
         let content = if markdown {
             let mut options = Options::empty();
@@ -77,7 +66,7 @@ impl LatestText {
             html_content
             
         } else {
-            processed_text
+            decrypted_content
         };
 
         // get keywords from text
@@ -141,23 +130,11 @@ impl Text {
         for t in texts {
 
             let decrypted_content = {
-                let encrypted_content = &t.content.last().unwrap().clone()[..];
-            
-                let decryptor = match age::Decryptor::new(encrypted_content)
-                    .expect("Unable to create decryptor") {
-                        age::Decryptor::Passphrase(d) => d,
-                        _ => unreachable!(),
-                };
-    
-                let mut decrypted = Vec::new();
-                let mut reader = decryptor.decrypt(&age::secrecy::Secret::new(std::env::var("SECRET_KEY").unwrap()), None)
-                    .expect("Unable to create reader");
+                let encrypted_content = &t.content.last().unwrap().clone();
                 
-                reader.read_to_end(&mut decrypted).expect("Unable to read and decrypt");
-    
-                str::from_utf8(&decrypted).unwrap().to_string()
+                MAGIC_CRYPT.decrypt_base64_to_string(encrypted_content).expect("Unable to decrypt string")
             };
-
+    
             // get the latest version of the text
             treemap.insert(t.id, decrypted_content);
         };
@@ -175,21 +152,12 @@ impl Text {
 
         let mut text = Text::get_text_by_id(text_id, lang).expect("Unable to retrieve text");
 
-        let encrypted_content = {
-            let encryptor = age::Encryptor::with_user_passphrase(age::secrecy::Secret::new(std::env::var("SECRET_KEY").unwrap()));
-            let mut encrypted = Vec::new();
-            let mut writer = encryptor.wrap_output(&mut encrypted)
-                .expect("Unable to create writer");
-
-            writer.write_all(content.as_ref()).expect("Unable to encrypt content");
-            writer.finish().unwrap();
-
-            encrypted
-        };
-
         if text.section_id != None {
             text.keywords = Some(run_rake(&content).unwrap());
         };
+
+        let encrypted_content = MAGIC_CRYPT.encrypt_str_to_base64(content);
+
 
         text.content.push(encrypted_content);
         text.translated.push(false);
@@ -232,7 +200,7 @@ impl From<InsertableText> for Text {
 #[table_name = "texts"]
 pub struct InsertableText {
     pub lang: String,
-    pub content: Vec<Vec<u8>>,
+    pub content: Vec<String>,
     pub keywords: serde_json::Value,
     pub translated: Vec<bool>,
     pub machine_translation: Vec<bool>,
@@ -247,29 +215,18 @@ impl InsertableText {
         translated: bool,
         machine_translation: bool,
         section_id: Option<Uuid>,
-        created_by_id: Uuid
+        created_by_id: Uuid,
     ) -> Self {
         
         let keywords = run_rake(&content)
             .expect("Unable to get keywords");
 
-        let encrypted_content = {
-            let encryptor = age::Encryptor::with_user_passphrase(age::secrecy::Secret::new(std::env::var("SECRET_KEY").unwrap()));
-            let mut encrypted = Vec::new();
-            let mut writer = encryptor.wrap_output(&mut encrypted)
-                .expect("Unable to create writer");
-
-            writer.write_all(content.as_ref()).expect("Unable to encrypt content");
-            writer.finish().unwrap();
-
-            encrypted
-        };
+        let encrypted_content = MAGIC_CRYPT.encrypt_str_to_base64(content);
 
         let content = vec![encrypted_content];
         let translated = vec![translated];
         let machine_translation = vec![machine_translation];
         let created_by_id = vec![created_by_id];
-
 
         InsertableText {
             lang,
@@ -291,17 +248,7 @@ impl InsertableText {
         let keywords = run_rake(&content)
             .expect("Unable to get keywords");
             
-        let encrypted_content = {
-            let encryptor = age::Encryptor::with_user_passphrase(age::secrecy::Secret::new(std::env::var("SECRET_KEY").unwrap()));
-            let mut encrypted = Vec::new();
-            let mut writer = encryptor.wrap_output(&mut encrypted)
-                .expect("Unable to create writer");
-
-            writer.write_all(content.as_ref()).expect("Unable to encrypt content");
-            writer.finish().unwrap();
-
-            encrypted
-        };
+        let encrypted_content = MAGIC_CRYPT.encrypt_str_to_base64(content);
 
         let content = vec![encrypted_content];
         let translated = vec![false];

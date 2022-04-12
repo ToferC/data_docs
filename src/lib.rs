@@ -13,6 +13,7 @@ use rake::*;
 use uuid::Uuid;
 use core::iter::zip;
 use regex::Regex;
+use magic_crypt::{new_magic_crypt, MagicCryptTrait};
 
 use rand::{thread_rng, Rng};
 use rand::distributions::Alphanumeric;
@@ -34,10 +35,16 @@ extern crate lazy_static;
 
 const APP_NAME: &str = "Data Docs";
 
+lazy_static! {
+    // Set up MagicCrypt
+    static ref MAGIC_CRYPT: magic_crypt::MagicCrypt256 = magic_crypt::new_magic_crypt!(env::var("SECRET_KEY").expect("Unable to find secret key"), 256);
+}
+
 #[derive(Clone, Debug)]
 pub struct AppData {
     pub tmpl: Tera,
     pub mail_client: SGClient,
+    pub encryptor: magic_crypt::MagicCrypt256,
 }
 
 // Test in constucting template and simple document
@@ -204,7 +211,7 @@ Using sampling points upstream from wastewater treatment plants to monitor sub-s
             Some(section.id),
             lang,
             doc_content,
-            user.id
+            user.id,
         );
 
         let _final_text = Text::create(&section_text).expect("Unable to create text");
