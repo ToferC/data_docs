@@ -33,9 +33,9 @@
                 <br>
                 <button 
                     class="btn btn-primary"
-                    hx-put="/{{ lang }}/edit_text/{{ section.text_id }}"
+                    hx-put="/{{ lang }}/edit_text/{{ section.text_id }}/{{ document_view }}" 
                     >Save</button>
-                <button class="btn" hx-get="/{{ lang }}/text/{{ section.text_id }}">Cancel</button>
+                <button class="btn" hx-get="/{{ lang }}/text/{{ section.text_id }}/{{ document_view }}">Cancel</button>
             </form> 
         </div>
 
