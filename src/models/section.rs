@@ -125,7 +125,6 @@ impl ReadableSection {
         
             let mut html_content = String::new();
             html::push_html(&mut html_content, parser);
-            println!("\nHTML output:\n{}\n", &html_content);
 
             html_content
             
