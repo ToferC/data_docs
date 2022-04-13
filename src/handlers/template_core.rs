@@ -179,6 +179,7 @@ pub async fn edit_template_core(
                 raw_name_text,
                 &lang,
                 user.id,
+                false,
             ).expect("Unable to update text");
         };
 
@@ -188,6 +189,7 @@ pub async fn edit_template_core(
                 raw_purpose_text,
                 &lang,
                 user.id,
+                false,
             ).expect("Unable to update text");
         };
 

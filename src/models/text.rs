@@ -6,13 +6,14 @@ use diesel::prelude::*;
 use std::{collections::BTreeMap};
 use std::str;
 use pulldown_cmark::{html, Options, Parser};
+use deepl_api::{DeepL, TranslatableTextList};
 
 use crate::{database, run_rake, get_keyword_html, process_text_redactions, MAGIC_CRYPT};
 use crate::schema::texts;
 use crate::errors::CustomError;
 
 
-#[derive(Debug, Serialize, Deserialize, AsChangeset, Queryable, Insertable)]
+#[derive(Debug, Serialize, Deserialize, AsChangeset, Queryable, Insertable, Clone)]
 #[table_name = "texts"]
 pub struct Text {
     pub id: Uuid,
@@ -94,6 +95,37 @@ impl Text {
             .values(text)
             .get_result(&conn)?;
 
+        let translation_lang = match text.lang.as_str() {
+            "en" => "fr",
+            _ => "en",
+        };
+
+        let mut translated_text = v.clone();
+
+        translated_text.lang = translation_lang.to_string();
+
+        let encrypted_content = MAGIC_CRYPT.encrypt_str_to_base64("default_translation_traduction_par_defaut");
+
+        translated_text.content = vec![encrypted_content];
+
+        let _t: Text = diesel::insert_into(texts::table)
+            .values(&translated_text)
+            .get_result(&conn)?;
+
+        Ok(v)
+    }
+
+    pub fn update_or_create(text: &InsertableText) -> Result<Self, CustomError> {
+
+        let conn = database::connection()?;
+
+        let v: Text = diesel::insert_into(texts::table)
+            .values(text)
+            .on_conflict((texts::id, texts::lang))
+            .do_update()
+            .set(text)
+            .get_result(&conn)?;
+
         Ok(v)
     }
 
@@ -146,6 +178,7 @@ impl Text {
         content: String, 
         lang: &str,
         created_by_id:Uuid,
+        machine_translation: bool,
     ) -> Result<Self, CustomError> {
         let conn = database::connection()?;
 
@@ -160,7 +193,7 @@ impl Text {
 
         text.content.push(encrypted_content);
         text.translated.push(false);
-        text.machine_translation.push(false);
+        text.machine_translation.push(machine_translation);
         text.created_by_id.push(created_by_id);
         text.created_at.push(chrono::Utc::now().naive_utc());
 
@@ -169,6 +202,65 @@ impl Text {
             .filter(texts::id.eq(text_id))
             .set(text)
             .get_result(&conn)?;
+        Ok(v)
+    }
+
+    pub async fn machine_translate_text(&self, user_id: Uuid) -> Result<Self, CustomError> {
+        // goes through Text and sends content Vec<String> to DEEPL for translation if translate_all == true
+        // otherwise, translates only the last content string
+        let key = match std::env::var("DEEPL_API_KEY") {
+            Ok(val) if val.len() > 0 => val,
+            _ => {
+                eprintln!("Error: no DEEPL_API_KEY found. Please provide your API key in this environment variable.");
+                std::process::exit(1);
+            }
+        };
+
+        let deepl = DeepL::new(key);
+
+        let mut source = "EN".to_string();
+        let mut target = "FR".to_string();
+
+        let translate_lang = match self.lang.as_str() {
+            "en" => {
+                "fr".to_string()
+            },
+            "fr" => {
+                source = "FR".to_string();
+                target = "EN".to_string();
+                "en".to_string()
+            },
+            _ => {
+                "fr".to_string()
+            },
+        };
+
+        // Set up struct for DEEPL translation
+        let translatable_text = TranslatableTextList {
+            source_language: Some(source),
+            target_language: target,
+            texts: vec![self.content.last().unwrap().clone()],
+        };
+
+        // Send to API
+        let translated = deepl.translate(None, translatable_text)
+            .await
+            .expect("Unable to return translations");
+
+        let mut translated_strings = Vec::new();
+
+        for t in translated {
+            translated_strings.push(t.text);
+        };
+
+        let v = Text::update(
+            self.id,
+            translated_strings.last().unwrap().to_string(),
+            &translate_lang,
+            user_id,
+            true,
+        ).expect("Unable to update translated Text");
+
         Ok(v)
     }
 }
@@ -195,7 +287,7 @@ impl From<InsertableText> for Text {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, Insertable)]
+#[derive(Debug, Serialize, Deserialize, Insertable, AsChangeset)]
 #[table_name = "texts"]
 pub struct InsertableText {
     pub lang: String,

@@ -131,6 +131,7 @@ pub async fn edit_template_section(
                 raw_header_text,
                 &lang,
                 user.id,
+                false,
             ).expect("Unable to update text");
         };
 
@@ -140,6 +141,7 @@ pub async fn edit_template_section(
                 raw_instructions_text,
                 &lang,
                 user.id,
+                false,
             ).expect("Unable to update text");
         };
         
@@ -149,6 +151,7 @@ pub async fn edit_template_section(
                 raw_help_text,
                 &lang,
                 user.id,
+                false,
             ).expect("Unable to update text");
         };
 
