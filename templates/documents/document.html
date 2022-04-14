@@ -44,7 +44,9 @@
             </button>
         {% endif %}
                 <div>{{ section.content | safe }}</div>
-                <div>Keywords: {{ section.keywords | safe }}</div>
+                {% if document_view == "internal" %}
+                    <div>Keywords: {{ section.keywords | safe }}</div>
+                {% endif %}
         </form>
     </div>
     <hr>
