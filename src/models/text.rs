@@ -199,7 +199,8 @@ impl Text {
 
 
         let v = diesel::update(texts::table)
-            .filter(texts::id.eq(text_id))
+            .filter(texts::id.eq(text_id)
+            .and(texts::lang.eq(lang)))
             .set(text)
             .get_result(&conn)?;
         Ok(v)

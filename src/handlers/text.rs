@@ -144,7 +144,11 @@ pub async fn edit_text_put(
 
         println!("Updating text: {:?}", &content);
 
-        let text = Text::update(text_id, content.to_string(), &lang, user.id, false)
+        let text = Text::update(
+            text_id, 
+            content.to_string(), 
+            &lang, user.id, 
+            false)
             .expect("Unable to update Text");
 
         // Determine view of text to render
