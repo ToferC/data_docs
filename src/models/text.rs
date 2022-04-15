@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 use diesel::prelude::*;
 use std::{collections::BTreeMap};
 use std::str;
+use std::iter::zip;
 use pulldown_cmark::{html, Options, Parser};
 use deepl_api::{DeepL, TranslatableTextList};
 
@@ -206,7 +207,7 @@ impl Text {
         Ok(v)
     }
 
-    pub async fn machine_translate_text(&self, user_id: Uuid) -> Result<Self, CustomError> {
+    pub async fn machine_translate_text(texts: Vec<Text>, user_id: Uuid, current_lang: &str) -> Result<Vec<Text>, CustomError> {
         // goes through Text and sends content Vec<String> to DEEPL for translation if translate_all == true
         // otherwise, translates only the last content string
         let key = match std::env::var("DEEPL_API_KEY") {
@@ -222,7 +223,7 @@ impl Text {
         let mut source = "EN".to_string();
         let mut target = "FR".to_string();
 
-        let translate_lang = match self.lang.as_str() {
+        let translate_lang = match current_lang {
             "en" => {
                 "fr".to_string()
             },
@@ -236,11 +237,17 @@ impl Text {
             },
         };
 
+        let texts_to_translate: Vec<String> = texts
+            .clone()
+            .into_iter()
+            .map(|t| t.content.last().unwrap().clone())
+            .collect();
+
         // Set up struct for DEEPL translation
         let translatable_text = TranslatableTextList {
             source_language: Some(source),
             target_language: target,
-            texts: vec![self.content.last().unwrap().clone()],
+            texts: texts_to_translate.clone(),
         };
 
         // Send to API
@@ -248,21 +255,21 @@ impl Text {
             .await
             .expect("Unable to return translations");
 
-        let mut translated_strings = Vec::new();
+        let mut translated_texts: Vec<Text> = Vec::new();
 
-        for t in translated {
-            translated_strings.push(t.text);
+        for (text, tr) in zip(texts, translated) {
+            let v = Text::update(
+                text.id,
+                tr.text.to_string(),
+                &translate_lang,
+                user_id,
+                true,
+            ).expect("Unable to update translated Text");
+
+            translated_texts.push(v);
         };
 
-        let v = Text::update(
-            self.id,
-            translated_strings.last().unwrap().to_string(),
-            &translate_lang,
-            user_id,
-            true,
-        ).expect("Unable to update translated Text");
-
-        Ok(v)
+        Ok(translated_texts)
     }
 }
 
