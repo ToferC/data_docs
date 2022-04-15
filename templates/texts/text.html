@@ -3,11 +3,15 @@
     hx-swap="outerHTML"
     hx-target="this"
 >
+{% if document_view == "internal" %}
 <button
     hx-get="/{{ lang }}/edit_text/{{ text.id }}/{{ document_view }}" 
     class="btn">
             Edit
     </button>
+{% endif %}
         <div>{{ text.content | safe }}</div>
-        <div>Keywords: {{ text.keywords | safe }}</div>
+        {% if document_view == "internal" %}
+            <div>Keywords: {{ text.keywords | safe }}</div>
+        {% endif %}
 </div>

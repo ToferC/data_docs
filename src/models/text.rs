@@ -191,7 +191,6 @@ impl Text {
 
         let encrypted_content = MAGIC_CRYPT.encrypt_str_to_base64(content);
 
-
         text.content.push(encrypted_content);
         text.translated.push(false);
         text.machine_translation.push(machine_translation);
