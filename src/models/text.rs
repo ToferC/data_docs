@@ -6,6 +6,7 @@ use diesel::prelude::*;
 use std::{collections::BTreeMap};
 use std::str;
 use std::iter::zip;
+use std::sync::{Arc, Mutex};
 use pulldown_cmark::{html, Options, Parser};
 use deepl_api::{DeepL, TranslatableTextList};
 
@@ -191,84 +192,27 @@ impl Text {
 
         let encrypted_content = MAGIC_CRYPT.encrypt_str_to_base64(content);
 
+        
         text.content.push(encrypted_content);
         text.translated.push(false);
         text.machine_translation.push(machine_translation);
         text.created_by_id.push(created_by_id);
         text.created_at.push(chrono::Utc::now().naive_utc());
+        
+        
+        let v: Text = diesel::update(texts::table)
+        .filter(texts::id.eq(text_id)
+        .and(texts::lang.eq(lang)))
+        .set(text)
+        .get_result(&conn)?;
 
+        let l = Arc::new(lang.to_owned().clone());
 
-        let v = diesel::update(texts::table)
-            .filter(texts::id.eq(text_id)
-            .and(texts::lang.eq(lang)))
-            .set(text)
-            .get_result(&conn)?;
+        if machine_translation {
+            let _translate = tokio::spawn(machine_translate_text(Arc::new(vec![v.clone()]), created_by_id, l));
+        };
+        
         Ok(v)
-    }
-
-    pub async fn machine_translate_text(texts: Vec<Text>, user_id: Uuid, current_lang: &str) -> Result<Vec<Text>, CustomError> {
-        // goes through Text and sends content Vec<String> to DEEPL for translation if translate_all == true
-        // otherwise, translates only the last content string
-        let key = match std::env::var("DEEPL_API_KEY") {
-            Ok(val) if val.len() > 0 => val,
-            _ => {
-                eprintln!("Error: no DEEPL_API_KEY found. Please provide your API key in this environment variable.");
-                std::process::exit(1);
-            }
-        };
-
-        let deepl = DeepL::new(key);
-
-        let mut source = "EN".to_string();
-        let mut target = "FR".to_string();
-
-        let translate_lang = match current_lang {
-            "en" => {
-                "fr".to_string()
-            },
-            "fr" => {
-                source = "FR".to_string();
-                target = "EN".to_string();
-                "en".to_string()
-            },
-            _ => {
-                "fr".to_string()
-            },
-        };
-
-        let texts_to_translate: Vec<String> = texts
-            .clone()
-            .into_iter()
-            .map(|t| t.content.last().unwrap().clone())
-            .collect();
-
-        // Set up struct for DEEPL translation
-        let translatable_text = TranslatableTextList {
-            source_language: Some(source),
-            target_language: target,
-            texts: texts_to_translate.clone(),
-        };
-
-        // Send to API
-        let translated = deepl.translate(None, translatable_text)
-            .await
-            .expect("Unable to return translations");
-
-        let mut translated_texts: Vec<Text> = Vec::new();
-
-        for (text, tr) in zip(texts, translated) {
-            let v = Text::update(
-                text.id,
-                tr.text.to_string(),
-                &translate_lang,
-                user_id,
-                true,
-            ).expect("Unable to update translated Text");
-
-            translated_texts.push(v);
-        };
-
-        Ok(translated_texts)
     }
 }
 
@@ -363,4 +307,71 @@ impl InsertableText {
             created_by_id,
         }
     }
+}
+
+pub async fn machine_translate_text<'a>(texts: Arc<Vec<Text>>, user_id: Uuid, current_lang: Arc<String>) -> Result<Vec<Text>, CustomError> {
+    // goes through Text and sends content Vec<String> to DEEPL for translation if translate_all == true
+    // otherwise, translates only the last content string
+    let key = match std::env::var("DEEPL_API_KEY") {
+        Ok(val) if val.len() > 0 => val,
+        _ => {
+            eprintln!("Error: no DEEPL_API_KEY found. Please provide your API key in this environment variable.");
+            std::process::exit(1);
+        }
+    };
+
+    let texts = &*texts.clone();
+
+    let deepl = DeepL::new(key);
+
+    let mut source = "EN".to_string();
+    let mut target = "FR".to_string();
+
+    let translate_lang = match &*current_lang.clone().as_str() {
+        "en" => {
+            "fr".to_string()
+        },
+        "fr" => {
+            source = "FR".to_string();
+            target = "EN".to_string();
+            "en".to_string()
+        },
+        _ => {
+            "fr".to_string()
+        },
+    };
+
+    let texts_to_translate: Vec<String> = texts
+        .clone()
+        .into_iter()
+        .map(|t| t.content.last().unwrap().clone())
+        .collect::<Vec<String>>();
+
+    // Set up struct for DEEPL translation
+    let translatable_text = TranslatableTextList {
+        source_language: Some(source),
+        target_language: target,
+        texts: texts_to_translate.clone(),
+    };
+
+    // Send to API
+    let translated = deepl.translate(None, translatable_text)
+        .await
+        .expect("Unable to return translations");
+
+    let mut translated_texts: Vec<Text> = Vec::new();
+
+    for (text, tr) in zip(texts.clone(), translated) {
+        let v = Text::update(
+            text.id,
+            tr.text.to_string(),
+            &translate_lang,
+            user_id,
+            true,
+        ).expect("Unable to update translated Text");
+
+        translated_texts.push(v);
+    };
+
+    Ok(translated_texts)
 }

@@ -16,6 +16,7 @@ actix-service = "2.0.2"
 actix-identity = "0.3.1"
 actix-session = "0.4.1"
 actix-web-static-files = "3.0.5"
+tokio = { version = "0.2", features = ["full"] }
 
 # database and data
 diesel = { version = "1.4.8", features = ["postgres", "extras", "uuid", "r2d2", "chrono", "uuidv07"]}
