@@ -25,6 +25,11 @@
                 <label>Character Limit (Optional)</label>
                 <input type="number" name="character_limit" default="0">
             </div>
+            <div>
+                <label for="machine_translate">Machine Translate</label>
+                <input type="checkbox" id="machine_translate" name="machine_translate" value="true"
+                checked>
+            </div>
                 <button 
                     class="btn btn-primary"
                     hx-put="/{{ lang }}/edit_text/{{ section.text_id }}"

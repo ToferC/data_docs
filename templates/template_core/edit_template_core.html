@@ -13,6 +13,11 @@
             <label>Purpose</label><br>
             <textarea rows="5" cols="60" name="purpose_text" required>{{ template_core.purpose_text }}</textarea>
         </div>
+        <div>
+            <label for="machine_translate">Machine Translate</label>
+            <input type="checkbox" id="machine_translate" name="machine_translate" value="true"
+            checked>
+        </div>
         
         <p>Last Updated: {{ template_core.updated_at }}</p>
         

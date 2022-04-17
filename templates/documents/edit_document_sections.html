@@ -31,6 +31,11 @@
             <form>
                 <textarea rows="15" cols="60" name="content" placeholder="Enter Markdown here..." required>{{ section.content }}</textarea>
                 <br>
+                <div>
+                    <label for="machine_translate">Machine Translate</label>
+                    <input type="checkbox" id="machine_translate" name="machine_translate" value="true"
+                    checked>
+                </div>
                 <button 
                     class="btn btn-primary"
                     hx-put="/{{ lang }}/edit_text/{{ section.text_id }}/{{ document_view }}" 
