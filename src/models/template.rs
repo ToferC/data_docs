@@ -360,7 +360,11 @@ impl InsertableTemplate {
 
         let t = Arc::new(texts_to_translate);
 
-        let _translated = tokio::spawn(machine_translate_text(t, created_by_id, Arc::new(lang.to_string())));
+        let _translated = tokio::spawn(
+            machine_translate_text(
+                t, Arc::new(lang.to_string())
+            )
+        );
 
 
         Ok(InsertableTemplate {

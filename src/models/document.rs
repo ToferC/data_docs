@@ -4,14 +4,12 @@ use diesel::prelude::*;
 use diesel::{BelongingToDsl, QueryDsl};
 use chrono::prelude::*;
 use std::collections::BTreeMap;
-use std::sync::Arc;
-
 
 use crate::database;
 use crate::schema::{documents, template_sections, texts};
 use crate::errors::CustomError;
 use crate::models::{InsertableText, Text, TemplateSection,
-    ReadableTemplateSection, User, Section, ReadableSection, machine_translate_text};
+    ReadableTemplateSection, User, Section, ReadableSection};
 
 #[derive(Debug, Serialize, Deserialize, AsChangeset, Queryable, Insertable, Identifiable, Associations, PartialEq, Clone)]
 #[table_name = "documents"]

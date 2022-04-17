@@ -108,7 +108,6 @@ impl Text {
             let _translate = tokio::spawn(
                 machine_translate_text(
                     Arc::new(vec![v.clone()]), 
-                    *text.created_by_id.last().unwrap(), 
                     l,
                 )
             );
@@ -222,7 +221,7 @@ impl Text {
         let l = Arc::new(lang.to_owned().clone());
 
         if machine_translation {
-            let _translate = tokio::spawn(machine_translate_text(Arc::new(vec![v.clone()]), created_by_id, l));
+            let _translate = tokio::spawn(machine_translate_text(Arc::new(vec![v.clone()]), l));
         };
         
         Ok(v)
@@ -322,7 +321,7 @@ impl InsertableText {
     }
 }
 
-pub async fn machine_translate_text<'a>(texts: Arc<Vec<Text>>, user_id: Uuid, current_lang: Arc<String>) -> Result<Vec<Text>, CustomError> {
+pub async fn machine_translate_text<'a>(texts: Arc<Vec<Text>>, current_lang: Arc<String>) -> Result<Vec<Text>, CustomError> {
     // goes through Text and sends content Vec<String> to DEEPL for translation if translate_all == true
     // otherwise, translates only the last content string
     let key = match std::env::var("DEEPL_API_KEY") {
