@@ -145,6 +145,7 @@ pub fn construct_demo_document(template_id: Uuid, lang: &str) -> Result<Document
         "To inform the minister".to_string(),
         "en",
         user.id,
+        "protected_b".to_string(),
         true,
     ).unwrap();
 

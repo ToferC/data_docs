@@ -137,6 +137,8 @@ pub async fn save_document_core(
         // validate authorized to edit document
         let raw_title = form.title.trim().to_string();
         let raw_purpose = form.purpose.trim().to_string();
+        let security_classification = form.security_classification.clone();
+
         let machine_translate = match form.machine_translate.as_str() {
             "true" => true,
             _ => false,
@@ -151,6 +153,7 @@ pub async fn save_document_core(
             raw_purpose,
             &lang,
             user.id,
+            security_classification,
             machine_translate,
         ).expect("Unable to generate insertable_document");
 

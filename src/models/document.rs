@@ -21,6 +21,7 @@ pub struct Document {
     // pub approvals: Option<Vec<Uuid>>, // Replace with Approvals
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
+    pub security_classification: String,
     pub published: bool,
     pub created_by_id: Uuid,
 }
@@ -34,6 +35,7 @@ pub struct ReadableDocument {
     pub purpose_text: String,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
+    pub security_classification: String,
     pub published: bool,
     pub created_by: String,
 }
@@ -45,6 +47,7 @@ pub struct InsertableDocument {
     pub title_text_id: Uuid,
     pub purpose_text_id: Uuid,
     pub created_by_id: Uuid,
+    pub security_classification: String,
 }
 
 impl InsertableDocument {
@@ -54,6 +57,7 @@ impl InsertableDocument {
         raw_purpose_text: String,
         lang: &str,
         created_by_id: Uuid,
+        security_classification: String,
         machine_translate: bool,
     ) -> Result<Self, CustomError> {
 
@@ -78,6 +82,7 @@ impl InsertableDocument {
             title_text_id: title_text.id,
             purpose_text_id: purpose_text.id,
             created_by_id: created_by_id,
+            security_classification,
         })
     }
 }
@@ -134,6 +139,7 @@ impl Document {
             created_at: document.created_at,
             updated_at: document.updated_at,
             published: document.published,
+            security_classification: document.security_classification.to_string(),
             created_by: user_email,
         };
 
@@ -177,6 +183,7 @@ impl Document {
             purpose_text: texts.get(&document.purpose_text_id).unwrap().to_string(),
             created_at: document.created_at,
             updated_at: document.updated_at,
+            security_classification: document.security_classification.to_string(),
             published: document.published,
             created_by: user_email,
         };
@@ -228,6 +235,7 @@ impl Document {
                 purpose_text: texts.get(&document.purpose_text_id).unwrap().to_string(),
                 created_at: document.created_at,
                 updated_at: document.updated_at,
+                security_classification: document.security_classification.to_string(),
                 published: document.published,
                 created_by: users.get(&document.created_by_id).unwrap().to_string(),
             };
@@ -268,6 +276,7 @@ impl Document {
                 purpose_text: texts.get(&document.purpose_text_id).unwrap().to_string(),
                 created_at: document.created_at,
                 updated_at: document.updated_at,
+                security_classification: document.security_classification.to_string(),
                 published: document.published,
                 created_by: users.get(&document.created_by_id).unwrap().to_string(),
             };

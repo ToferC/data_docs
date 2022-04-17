@@ -59,6 +59,7 @@ CREATE TABLE IF NOT EXISTS documents (
     purpose_text_id UUID NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    security_classification VARCHAR(64) NOT NULL DEFAULT 'unclassified',
     published bool NOT NULL DEFAULT false,
     created_by_id UUID NOT NULL
 );

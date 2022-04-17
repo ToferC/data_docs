@@ -5,6 +5,7 @@ use serde::{Deserialize};
 pub struct DocumentForm {
     pub title: String,
     pub purpose: String,
+    pub security_classification: String,
     pub machine_translate: String,
 }
 
