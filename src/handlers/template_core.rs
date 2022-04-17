@@ -88,7 +88,7 @@ pub async fn save_template_core(
         // validate authorized to edit document
         let raw_name_text = form.name_text.trim().to_string();
         let raw_purpose_text = form.purpose_text.trim().to_string();
-        
+
         let machine_translate = match form.machine_translate.as_str() {
             "true" => true,
             _ => false,
@@ -173,6 +173,11 @@ pub async fn edit_template_core(
         let raw_name_text = form.name_text.trim().to_string();
         let raw_purpose_text = form.purpose_text.trim().to_string();
 
+        let machine_translate = match form.machine_translate.as_str() {
+            "true" => true,
+            _ => false,
+        };
+
         let user = User::find_from_slug(&session_user).expect("Unable to find user");
 
         // update template_core
@@ -185,7 +190,7 @@ pub async fn edit_template_core(
                 raw_name_text,
                 &lang,
                 user.id,
-                false,
+                machine_translate,
             ).expect("Unable to update text");
         };
 
@@ -195,7 +200,7 @@ pub async fn edit_template_core(
                 raw_purpose_text,
                 &lang,
                 user.id,
-                false,
+                machine_translate,
             ).expect("Unable to update text");
         };
 

@@ -119,6 +119,11 @@ pub async fn edit_template_section(
         let template_section = TemplateSection::get_readable_by_id(template_section_id, &lang)
             .expect("Unable to load template section");
 
+        let machine_translate = match form.machine_translate.as_str() {
+            "true" => true,
+            _ => false,
+        };
+
         // validate authorized to edit document
         let raw_header_text = form.header_text.trim().to_string();
         let raw_instructions_text = form.instructions_text.trim().to_string();
@@ -131,7 +136,7 @@ pub async fn edit_template_section(
                 raw_header_text,
                 &lang,
                 user.id,
-                false,
+                machine_translate,
             ).expect("Unable to update text");
         };
 
@@ -141,7 +146,7 @@ pub async fn edit_template_section(
                 raw_instructions_text,
                 &lang,
                 user.id,
-                false,
+                machine_translate,
             ).expect("Unable to update text");
         };
         
@@ -151,7 +156,7 @@ pub async fn edit_template_section(
                 raw_help_text,
                 &lang,
                 user.id,
-                false,
+                machine_translate,
             ).expect("Unable to update text");
         };
 
