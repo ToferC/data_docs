@@ -66,6 +66,11 @@ pub async fn create_new_text(
         // validate authorized to edit document
         let content = form.content.trim();
 
+        let machine_translate = match form.machine_translate.as_str() {
+            "true" => true,
+            _ => false,
+        };
+
         println!("Saving text: {}", content);
 
         let user = User::find_from_slug(&session_user).expect("Unable to find user");
@@ -74,7 +79,7 @@ pub async fn create_new_text(
 
         println!("Saving text: {:?}", &insertable_text.content);
 
-        let text = Text::create(&insertable_text).expect("Unable to create text");
+        let text = Text::create(&insertable_text, machine_translate).expect("Unable to create text");
 
         println!("Saved!");
 

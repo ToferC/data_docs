@@ -6,11 +6,12 @@ use diesel::{BelongingToDsl, QueryDsl};
 use chrono::NaiveDateTime;
 use uuid::Uuid;
 use inflector::Inflector;
+use std::sync::Arc;
 
 use crate::errors::CustomError;
 use crate::database;
 use crate::schema::{templates, texts};
-use crate::models::{Text, InsertableText, TemplateSection, ReadableTemplateSection};
+use crate::models::{Text, InsertableText, TemplateSection, ReadableTemplateSection, machine_translate_text};
 
 #[derive(Debug, Serialize, Deserialize, Insertable, AsChangeset, Queryable, Identifiable)]
 /// Core data structure which to build a Document
@@ -56,6 +57,7 @@ impl Template {
         raw_purpose_text: String,
         lang: &str,
         created_by: Uuid,
+        machine_translate: bool,
     ) -> Result<Self, CustomError> {
 
         let insertable_name_text = InsertableText::new(
@@ -65,7 +67,7 @@ impl Template {
             created_by,
         );
 
-        let name_text = Text::create(&insertable_name_text)?;
+        let name_text = Text::create(&insertable_name_text, machine_translate)?;
 
         let insertable_purpose_text = InsertableText::new(
             None,
@@ -76,7 +78,7 @@ impl Template {
 
         let slug = raw_name_text.to_snake_case();
 
-        let purpose_text = Text::create(&insertable_purpose_text)?;
+        let purpose_text = Text::create(&insertable_purpose_text, machine_translate)?;
 
         let template = Template {
             id: id,
@@ -327,29 +329,39 @@ impl InsertableTemplate {
         raw_name_text: String,
         raw_purpose_text: String,
         lang: String,
-        created_by: Uuid,
-        
+        created_by_id: Uuid,
+        machine_translate: bool,
     ) -> Result<Self, CustomError> {
 
         let insertable_name_text = InsertableText::new(
             None,
             &lang, 
             raw_name_text.to_owned(),
-            created_by,
+            created_by_id,
         );
 
-        let name_text = Text::create(&insertable_name_text)?;
+        let name_text = Text::create(&insertable_name_text, machine_translate)?;
 
         let insertable_purpose_text = InsertableText::new(
             None,
             &lang, 
             raw_purpose_text,
-            created_by,
+            created_by_id,
         );
 
         let slug = raw_name_text.to_snake_case();
 
-        let purpose_text = Text::create(&insertable_purpose_text)?;
+        let purpose_text = Text::create(&insertable_purpose_text, machine_translate)?;
+
+        // translations
+        let mut texts_to_translate = Vec::new();
+        texts_to_translate.push(name_text.clone());
+        texts_to_translate.push(purpose_text.clone());
+
+        let t = Arc::new(texts_to_translate);
+
+        let _translated = tokio::spawn(machine_translate_text(t, created_by_id, Arc::new(lang.to_string())));
+
 
         Ok(InsertableTemplate {
             name_text_id: name_text.id,

@@ -30,6 +30,11 @@
             <label>Purpose</label><br>
             <textarea rows="5" cols="60" name="purpose" placeholder="Add purpose here..." required></textarea>
         </div>
+        <div>
+            <input type="checkbox" id="machine_translate" name="machine_translate" value="true"
+            checked>
+            <label for="machine_translate">Machine Translate</label>
+        </div>
         <button class="btn btn-primary" type="submit">Save</button>
         <a class="btn" hx-get="/{{ lang }}/template_index">Cancel</a>
     </form>

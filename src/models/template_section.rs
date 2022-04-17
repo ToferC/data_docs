@@ -60,6 +60,7 @@ impl TemplateSection {
             None,
             lang.to_string(),
             created_by_id,
+            false,
         ).unwrap();
 
         let v = diesel::insert_into(template_sections::table)
@@ -168,7 +169,7 @@ impl InsertableTemplateSection {
         character_limit: Option<i32>,
         lang: String,
         created_by_id: Uuid,
-        
+        machine_translate: bool,
     ) -> Result<Self, CustomError> {
 
         let insertable_header_text = InsertableText::new(
@@ -178,7 +179,7 @@ impl InsertableTemplateSection {
             created_by_id,
         );
 
-        let header_text = Text::create(&insertable_header_text)?;
+        let header_text = Text::create(&insertable_header_text, machine_translate)?;
 
         let insertable_instructions_text = InsertableText::new(
             None,
@@ -187,7 +188,7 @@ impl InsertableTemplateSection {
             created_by_id,
         );
 
-        let instructions_text = Text::create(&insertable_instructions_text)?;
+        let instructions_text = Text::create(&insertable_instructions_text, machine_translate)?;
 
         let insertable_help_text = InsertableText::new(
             None,
@@ -196,7 +197,7 @@ impl InsertableTemplateSection {
             created_by_id,
         );
 
-        let help_text = Text::create(&insertable_help_text)?;
+        let help_text = Text::create(&insertable_help_text, machine_translate)?;
 
         Ok(InsertableTemplateSection {
             template_id,

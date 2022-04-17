@@ -6,7 +6,7 @@ use diesel::prelude::*;
 use std::{collections::BTreeMap};
 use std::str;
 use std::iter::zip;
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc};
 use pulldown_cmark::{html, Options, Parser};
 use deepl_api::{DeepL, TranslatableTextList};
 
@@ -89,7 +89,7 @@ impl LatestText {
 }
 
 impl Text {
-    pub fn create(text: &InsertableText) -> Result<Self, CustomError> {
+    pub fn create(text: &InsertableText, machine_translation: bool) -> Result<Self, CustomError> {
 
         let conn = database::connection()?;
 
@@ -102,22 +102,35 @@ impl Text {
             _ => "en",
         };
 
-        let mut translated_text = v.clone();
+        let l = Arc::new(v.lang.to_owned().clone());
 
-        translated_text.lang = translation_lang.to_string();
+        if machine_translation {
+            let _translate = tokio::spawn(
+                machine_translate_text(
+                    Arc::new(vec![v.clone()]), 
+                    *text.created_by_id.last().unwrap(), 
+                    l,
+                )
+            );
+        } else {
+            let mut translated_text = v.clone();
+    
+            translated_text.lang = translation_lang.to_string();
+    
+            let encrypted_content = MAGIC_CRYPT.encrypt_str_to_base64("default_translation_traduction_par_defaut");
+    
+            translated_text.content = vec![encrypted_content];
+    
+            let _t: Text = diesel::insert_into(texts::table)
+                .values(&translated_text)
+                .get_result(&conn)?;
+        };
 
-        let encrypted_content = MAGIC_CRYPT.encrypt_str_to_base64("default_translation_traduction_par_defaut");
-
-        translated_text.content = vec![encrypted_content];
-
-        let _t: Text = diesel::insert_into(texts::table)
-            .values(&translated_text)
-            .get_result(&conn)?;
 
         Ok(v)
     }
 
-    pub fn update_or_create(text: &InsertableText) -> Result<Self, CustomError> {
+    pub fn update_or_create(text: &Text) -> Result<Self, CustomError> {
 
         let conn = database::connection()?;
 
@@ -201,10 +214,10 @@ impl Text {
         
         
         let v: Text = diesel::update(texts::table)
-        .filter(texts::id.eq(text_id)
-        .and(texts::lang.eq(lang)))
-        .set(text)
-        .get_result(&conn)?;
+            .filter(texts::id.eq(text_id)
+            .and(texts::lang.eq(lang)))
+            .set(text)
+            .get_result(&conn)?;
 
         let l = Arc::new(lang.to_owned().clone());
 
@@ -344,7 +357,7 @@ pub async fn machine_translate_text<'a>(texts: Arc<Vec<Text>>, user_id: Uuid, cu
     let texts_to_translate: Vec<String> = texts
         .clone()
         .into_iter()
-        .map(|t| t.content.last().unwrap().clone())
+        .map(|t| MAGIC_CRYPT.decrypt_base64_to_string(t.content.last().unwrap().clone()).expect("Unable to decrypt content"))
         .collect::<Vec<String>>();
 
     // Set up struct for DEEPL translation
@@ -361,14 +374,15 @@ pub async fn machine_translate_text<'a>(texts: Arc<Vec<Text>>, user_id: Uuid, cu
 
     let mut translated_texts: Vec<Text> = Vec::new();
 
-    for (text, tr) in zip(texts.clone(), translated) {
-        let v = Text::update(
-            text.id,
-            tr.text.to_string(),
-            &translate_lang,
-            user_id,
-            true,
-        ).expect("Unable to update translated Text");
+    for (mut text, tr) in zip(texts.clone(), translated) {
+
+        let encrypted_content = MAGIC_CRYPT.encrypt_str_to_base64(tr.text.to_string());
+
+        text.content.push(encrypted_content);
+        text.lang = translate_lang.clone();
+
+        let v = Text::update_or_create(&text)
+            .expect("Unable to update translated Text");
 
         translated_texts.push(v);
     };

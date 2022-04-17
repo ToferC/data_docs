@@ -5,23 +5,27 @@ use serde::{Deserialize};
 pub struct DocumentForm {
     pub title: String,
     pub purpose: String,
+    pub machine_translate: String,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct TextForm {
     pub content: String,
+    pub machine_translate: String,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct TemplateCoreForm {
     pub name_text: String,
     pub purpose_text: String,
+    pub machine_translate: String,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct NewTemplateCoreForm {
     pub name_text: String,
     pub purpose_text: String,
+    pub machine_translate: String,
     pub number_of_sections: i32,
 }
 
@@ -32,6 +36,7 @@ pub struct TemplateSectionForm {
     pub instructions_text: String,
     pub help_text: String,
     pub character_limit: i32,
+    pub machine_translate: String,
 }
 
 

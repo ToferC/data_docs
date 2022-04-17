@@ -211,6 +211,11 @@ pub async fn save_template_section(
         let instructions_text = form.instructions_text.trim().to_string();
         let help_text = form.help_text.trim().to_string();
         let raw_character_limit = form.character_limit;
+        
+        let machine_translate = match form.machine_translate.as_str() {
+            "true" => true,
+            _ => false,
+        };
 
         let character_limit = match raw_character_limit {
             0 => None,
@@ -229,6 +234,7 @@ pub async fn save_template_section(
             character_limit,
             lang,
             user.id,
+            machine_translate,
         ).expect("Unable to create template section");
 
         let template_section = TemplateSection::create(&insertable_template_section)

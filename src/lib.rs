@@ -59,6 +59,7 @@ pub fn construct_demo_template() -> Result<Template, CustomError> {
         "Demo Purpose".to_string(),
         "en".to_string(),
         user.id,
+        true,
     )?;
 
     let template = Template::create(&template)?;
@@ -72,6 +73,7 @@ pub fn construct_demo_template() -> Result<Template, CustomError> {
         None,
         "en".to_string(),
         user.id,
+        true,
     )?;
 
     let background = InsertableTemplateSection::new(
@@ -83,6 +85,7 @@ pub fn construct_demo_template() -> Result<Template, CustomError> {
         None,
         "en".to_string(),
         user.id,
+        true,
     )?;
 
     let options = InsertableTemplateSection::new(
@@ -94,6 +97,7 @@ pub fn construct_demo_template() -> Result<Template, CustomError> {
         None,
         "en".to_string(),
         user.id,
+        true,
     )?;
 
     let recommendation = InsertableTemplateSection::new(
@@ -105,6 +109,7 @@ pub fn construct_demo_template() -> Result<Template, CustomError> {
         None,
         "en".to_string(),
         user.id,
+        true,
     )?;
 
     let _issue = TemplateSection::create(&issue)?;
@@ -140,6 +145,7 @@ pub fn construct_demo_document(template_id: Uuid, lang: &str) -> Result<Document
         "To inform the minister".to_string(),
         "en",
         user.id,
+        true,
     ).unwrap();
 
     let document = Document::create(&insertable_document).expect("Unable to create document");
@@ -213,7 +219,7 @@ Using sampling points upstream from wastewater treatment plants to monitor sub-s
             user.id,
         );
 
-        let _final_text = Text::create(&section_text).expect("Unable to create text");
+        let _final_text = Text::create(&section_text, true).expect("Unable to create text");
 
     };
 

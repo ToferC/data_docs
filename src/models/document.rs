@@ -4,13 +4,14 @@ use diesel::prelude::*;
 use diesel::{BelongingToDsl, QueryDsl};
 use chrono::prelude::*;
 use std::collections::BTreeMap;
+use std::sync::Arc;
 
 
 use crate::database;
 use crate::schema::{documents, template_sections, texts};
 use crate::errors::CustomError;
 use crate::models::{InsertableText, Text, TemplateSection,
-    ReadableTemplateSection, User, Section, ReadableSection};
+    ReadableTemplateSection, User, Section, ReadableSection, machine_translate_text};
 
 #[derive(Debug, Serialize, Deserialize, AsChangeset, Queryable, Insertable, Identifiable, Associations, PartialEq, Clone)]
 #[table_name = "documents"]
@@ -55,6 +56,7 @@ impl InsertableDocument {
         raw_purpose_text: String,
         lang: &str,
         created_by_id: Uuid,
+        machine_translate: bool,
     ) -> Result<Self, CustomError> {
 
         let insertable_name_text = InsertableText::new(
@@ -63,7 +65,7 @@ impl InsertableDocument {
             raw_title_text.to_owned(),
             created_by_id);
 
-        let title_text = Text::create(&insertable_name_text)?;
+        let title_text = Text::create(&insertable_name_text, machine_translate)?;
 
         let insertable_purpose_text = InsertableText::new(
             None,
@@ -71,7 +73,7 @@ impl InsertableDocument {
             raw_purpose_text,
             created_by_id);
 
-        let purpose_text = Text::create(&insertable_purpose_text)?;
+        let purpose_text = Text::create(&insertable_purpose_text, machine_translate)?;
 
         Ok(InsertableDocument {
             template_id,

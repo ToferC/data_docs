@@ -88,6 +88,11 @@ pub async fn save_template_core(
         // validate authorized to edit document
         let raw_name_text = form.name_text.trim().to_string();
         let raw_purpose_text = form.purpose_text.trim().to_string();
+        
+        let machine_translate = match form.machine_translate.as_str() {
+            "true" => true,
+            _ => false,
+        };
 
         let user = User::find_from_slug(&session_user).expect("Unable to find user");
 
@@ -98,6 +103,7 @@ pub async fn save_template_core(
             raw_purpose_text,
             &lang,
             user.id,
+            machine_translate,
         ).expect("Unable to create template");
 
         for i in 0..form.number_of_sections {

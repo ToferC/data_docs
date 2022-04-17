@@ -137,6 +137,10 @@ pub async fn save_document_core(
         // validate authorized to edit document
         let raw_title = form.title.trim().to_string();
         let raw_purpose = form.purpose.trim().to_string();
+        let machine_translate = match form.machine_translate.as_str() {
+            "true" => true,
+            _ => false,
+        };
 
         let user = User::find_from_slug(&session_user).expect("Unable to find user");
 
@@ -147,6 +151,7 @@ pub async fn save_document_core(
             raw_purpose,
             &lang,
             user.id,
+            machine_translate,
         ).expect("Unable to generate insertable_document");
 
         let document = Document::create(&document)
@@ -175,7 +180,7 @@ pub async fn save_document_core(
                 user.id,
             );
 
-            let _text = Text::create(&default_text)
+            let _text = Text::create(&default_text, machine_translate)
                 .expect("Unable to create text");
         }
 
