@@ -145,6 +145,11 @@ pub async fn edit_text_put(
         
         let content = form.content.trim();
 
+        let machine_translate = match form.machine_translate.as_str() {
+            "true" => true,
+            _ => false,
+        };
+
         let user = User::find_from_slug(&session_user).expect("Unable to find user");
 
         println!("Updating text: {:?}", &content);
@@ -153,7 +158,7 @@ pub async fn edit_text_put(
             text_id, 
             content.to_string(), 
             &lang, user.id, 
-            false)
+            machine_translate)
             .expect("Unable to update Text");
 
         // Determine view of text to render
