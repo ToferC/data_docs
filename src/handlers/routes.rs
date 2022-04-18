@@ -73,10 +73,15 @@ use crate::handlers::{
     // documents
     document_index,
     get_document,
-    create_document_core,
-    save_document_core,
     edit_document_sections,
     switch_document_published,
+    
+    // document_core
+    get_document_core,
+    create_document_core_form,
+    create_document_core_post,
+    edit_document_core_form,
+    edit_document_core_put,
 
     // text
     get_text,
@@ -154,10 +159,15 @@ pub fn configure_services(config: &mut web::ServiceConfig) {
      // documents
      config.service(document_index);
      config.service(get_document);
-     config.service(create_document_core);
      config.service(edit_document_sections);
-     config.service(save_document_core);
      config.service(switch_document_published);
+     
+     // document_core
+     config.service(create_document_core_form);
+     config.service(create_document_core_post);
+     config.service(get_document_core);
+     config.service(edit_document_core_form);
+     config.service(edit_document_core_put);
 
      // text
      config.service(get_text);

@@ -1,0 +1,39 @@
+<div 
+id="{{document_core.id}}-content"
+hx-target="this"
+hx-swap="outerHTML"
+>
+<form>
+
+    <div>
+        <br>
+        <label>Title</label><br>
+        <input type="text" name="title" placeholder="Add title here..." size=60 value="{{ document_core.title_text }}" required>
+      </div>
+      <div>
+          <label>Purpose</label><br>
+          <textarea rows="5" cols="60" name="purpose" placeholder="Add purpose here..." required>{{ document_core.purpose_text }}</textarea>
+      </div>
+      <div>
+          <label for="security_classification">Security Classification</label>
+          <select name="security_classification" id="security_classification_select">
+              <option {% if document_core.security_classification == "unclassified" %}selected{% endif %} value="unclassified">Unclassified</option>
+              <option {% if document_core.security_classification == "protected_a" %}selected{% endif %} value="protected_a">Protected A</option>
+              <option {% if document_core.security_classification == "protected_b" %}selected{% endif %} value="protected_b">Protected B</option>
+              <option {% if document_core.security_classification == "secret" %}selected{% endif %} value="secret">Secret</option>
+          </select>
+      </div>
+      <div>
+          <label for="machine_translate">Machine Translate</label>
+          <input type="checkbox" id="machine_translate" name="machine_translate" value="true"
+          checked>
+      </div>
+
+<button 
+      hx-put="/{{ lang }}/edit_document_core_put/{{ document_core.id }}"
+      class="btn btn-primary"
+      >Save</button>
+    <button class="btn" hx-get="/{{ lang }}/get_document_core/{{ document_core.id }}/{{ document_view }}">Cancel</button>
+
+</form> 
+</div>

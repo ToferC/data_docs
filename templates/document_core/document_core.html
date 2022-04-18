@@ -1,0 +1,22 @@
+<div 
+    id="{{document_core.id}}-content"
+    hx-swap="outerHTML"
+    hx-target="this"
+>
+{% if document_view == "internal" %}
+<button
+    hx-get="/{{ lang }}/edit_document_core_form/{{ document_core.id }}" 
+    class="btn">
+            Edit
+    </button>
+{% endif %}
+    <h1>{{ document_core.title_text | title }}</h1>
+    
+    <ul>
+        <li>Purpose: {{ document_core.purpose_text }}</li>
+        <li>Created at: {{ document_core.created_at | date(format="%Y-%m-%d %H:%M") }}</li>
+        <li>Created by: {{ document_core.created_by }}</li>
+        <li>Security Classification: {{ document_core.security_classification | title }}</li>
+        <li>Status: {% if document_core.published == true %}Published{% else %}Draft{% endif %}</li>
+    </ul>
+</div>

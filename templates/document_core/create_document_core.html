@@ -31,9 +31,18 @@
             <textarea rows="5" cols="60" name="purpose" placeholder="Add purpose here..." required></textarea>
         </div>
         <div>
+            <label for="security_classification">Security Classification</label>
+            <select name="security_classification" id="security_classification_select">
+                <option value="unclassified" selected>Unclassified</option>
+                <option value="protected_a">Protected A</option>
+                <option value="protected_b">Protected B</option>
+                <option value="secret">Secret</option>
+            </select>
+        </div>
+        <div>
+            <label for="machine_translate">Machine Translate</label>
             <input type="checkbox" id="machine_translate" name="machine_translate" value="true"
             checked>
-            <label for="machine_translate">Machine Translate</label>
         </div>
         <button class="btn btn-primary" type="submit">Save</button>
         <a class="btn" hx-get="/{{ lang }}/template_index">Cancel</a>

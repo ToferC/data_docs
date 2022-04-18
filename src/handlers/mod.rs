@@ -10,6 +10,7 @@ pub mod api;
 pub mod template;
 pub mod text;
 pub mod document;
+pub mod document_core;
 pub mod template_section;
 pub mod template_core;
 
@@ -25,5 +26,6 @@ pub use api::*;
 pub use template::*;
 pub use text::*;
 pub use document::*;
+pub use document_core::*;
 pub use template_section::*;
 pub use template_core::*;

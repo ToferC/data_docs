@@ -6,24 +6,37 @@
 
 {% block content %}
 
-<div class="col m-md-2 m-1">
+<div>
 
+    <div class="col m-md-2 m-1"
+        id="{{document.id}}-content"
+        hx-swap="outerHTML"
+        hx-target="this"
+    >
 
-
-    <h1>{{ document.title_text | title }}</h1>
-    
-    <ul>
-        <li>Purpose: {{ document.purpose_text }}</li>
-        <li>Created at: {{ document.created_at | date(format="%Y-%m-%d %H:%M") }}</li>
-        <li>Created by: {{ document.created_by }}</li>
-        <li>Status: {% if document.published == true %}Published{% else %}Draft{% endif %}</li>
-    </ul>
+        <h1>{{ document.title_text | title }}</h1>
+        
+        <ul>
+            <li>Purpose: {{ document.purpose_text }}</li>
+            <li>Created at: {{ document.created_at | date(format="%Y-%m-%d %H:%M") }}</li>
+            <li>Created by: {{ document.created_by }}</li>
+            <li>Security Classification: {{ document.security_classification | title }}</li>
+            <li>Status: {% if document.published == true %}Published{% else %}Draft{% endif %}</li>
+        </ul>
+        <button 
+            class="btn btn-a11y"
+            hx-get="/{{ lang }}/edit_document_core_form/{{ document.id }}" 
+            >
+            Edit
+        </button>
         <a 
         class="btn btn-info"
         href="/{{ lang }}/document/{{ document.id }}/{% if document_view == 'internal' %}open{% else %}internal{% endif %}"
         >
-            Switch to {% if document_view == "internal" %}Open{% else %}Internal{% endif %}
-    </a>
+        Switch to {% if document_view == "internal" %}Open{% else %}Internal{% endif %}
+        </a>
+    </div>
+    
     <hr>
     
     {% for key, section in sections %}

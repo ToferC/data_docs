@@ -6,7 +6,7 @@ use chrono::prelude::*;
 use std::collections::BTreeMap;
 
 use crate::database;
-use crate::schema::{documents, template_sections, texts};
+use crate::schema::{documents, template_sections, texts, sections};
 use crate::errors::CustomError;
 use crate::models::{InsertableText, Text, TemplateSection,
     ReadableTemplateSection, User, Section, ReadableSection};
@@ -32,7 +32,9 @@ pub struct ReadableDocument {
     pub id: Uuid,
     pub template_id: Uuid,
     pub title_text: String,
+    pub title_text_id: Uuid,
     pub purpose_text: String,
+    pub purpose_text_id: Uuid,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
     pub security_classification: String,
@@ -111,15 +113,12 @@ impl Document {
         Ok(document)
     }
 
-    pub fn get_readable_by_id(id: Uuid, lang: &str, markdown: bool, redact: bool) -> Result<(ReadableDocument, BTreeMap<Uuid, ReadableSection>), CustomError> {
+    pub fn get_readable_core_by_id(id: Uuid, lang: &str, markdown: bool, redact: bool) -> Result<ReadableDocument, CustomError> {
         let conn = database::connection()?;
 
         let document = documents::table
             .filter(documents::id.eq(id))
             .first::<Self>(&conn)?;
-
-        let sections = Section::belonging_to(&document)
-            .load::<Section>(&conn)?;
 
         // Get texts for document
         let mut text_ids = Vec::new();
@@ -135,13 +134,26 @@ impl Document {
             id: document.id,
             template_id: document.template_id,
             title_text: texts.get(&document.title_text_id).unwrap().to_string(),
+            title_text_id: document.title_text_id,
             purpose_text: texts.get(&document.purpose_text_id).unwrap().to_string(),
+            purpose_text_id: document.purpose_text_id,
             created_at: document.created_at,
             updated_at: document.updated_at,
             published: document.published,
             security_classification: document.security_classification.to_string(),
             created_by: user_email,
         };
+
+        Ok(readable_document)
+    }
+
+    pub fn get_readable_sections_by_id(id: Uuid, lang: &str, markdown: bool, redact: bool) -> Result<BTreeMap<Uuid, ReadableSection>, CustomError> {
+        let conn = database::connection()?;
+
+        let sections = sections::table
+            .filter(sections::document_id.eq(id))
+            .load::<Section>(&conn)?;
+
 
         // Get the ReadableSections with the data that we need to render them
 
@@ -152,7 +164,18 @@ impl Document {
             readable_sections.insert(section.id, rs);
         }
 
-        Ok((readable_document, readable_sections))
+        Ok(readable_sections)
+    }
+
+    pub fn get_all_readable_by_id(id: Uuid, lang: &str, markdown: bool, redact: bool) -> Result<(ReadableDocument, BTreeMap<Uuid, ReadableSection>), CustomError> {
+        let conn = database::connection()?;
+
+        let document = Document::get_readable_core_by_id(id, lang, markdown, redact)?;
+
+        let mut readable_sections: BTreeMap<Uuid, ReadableSection> = Document::get_readable_sections_by_id(
+            id, lang, markdown, redact)?;
+
+        Ok((document, readable_sections))
     }
 
     pub fn get_readable_plus_template_sections_by_id(id: Uuid, lang: &str) -> Result<(ReadableDocument, BTreeMap<Uuid, ReadableTemplateSection>), CustomError> {
@@ -180,7 +203,9 @@ impl Document {
             id: document.id,
             template_id: document.template_id,
             title_text: texts.get(&document.title_text_id).unwrap().to_string(),
+            title_text_id: document.title_text_id,
             purpose_text: texts.get(&document.purpose_text_id).unwrap().to_string(),
+            purpose_text_id: document.purpose_text_id,
             created_at: document.created_at,
             updated_at: document.updated_at,
             security_classification: document.security_classification.to_string(),
@@ -232,7 +257,9 @@ impl Document {
                 id: document.id,
                 template_id: document.template_id,
                 title_text: texts.get(&document.title_text_id).unwrap().to_string(),
+                title_text_id: document.title_text_id,
                 purpose_text: texts.get(&document.purpose_text_id).unwrap().to_string(),
+                purpose_text_id: document.purpose_text_id,
                 created_at: document.created_at,
                 updated_at: document.updated_at,
                 security_classification: document.security_classification.to_string(),
@@ -273,7 +300,9 @@ impl Document {
                 id: document.id,
                 template_id: document.template_id,
                 title_text: texts.get(&document.title_text_id).unwrap().to_string(),
+                title_text_id: document.title_text_id,
                 purpose_text: texts.get(&document.purpose_text_id).unwrap().to_string(),
+                purpose_text_id: document.purpose_text_id,
                 created_at: document.created_at,
                 updated_at: document.updated_at,
                 security_classification: document.security_classification.to_string(),
