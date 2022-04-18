@@ -113,7 +113,7 @@ impl Template {
     }
 
     pub fn update(
-        template: &InsertableTemplate,
+        template: &Template,
     ) -> Result<Self, CustomError> {
 
         let conn = database::connection()?;

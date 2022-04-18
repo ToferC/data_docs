@@ -204,6 +204,13 @@ pub async fn edit_template_core(
             ).expect("Unable to update text");
         };
 
+        let mut template = Template::get_core_by_id(template_id)
+            .expect("Unable to load template");
+
+        template.updated_at = chrono::Utc::now().naive_utc();
+
+        Template::update(&template).expect("Unable to update template");
+
         let readable_template_core = Template::get_readable_core_by_id(template_id, &lang)
             .expect("Unable to get readable template");
 
