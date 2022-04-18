@@ -155,11 +155,11 @@ pub async fn create_document_core_post(
     }
 }
 
-#[get("/{lang}/edit_document_core_form/{document_id}")]
+#[get("/{lang}/edit_document_core_form/{document_id}/{document_view}")]
 /// Form to edit an existing document_core
 pub async fn edit_document_core_form(
     data: web::Data<AppData>,
-    web::Path((lang, document_id)): web::Path<(String, Uuid)>,
+    web::Path((lang, document_id, document_view)): web::Path<(String, Uuid, String)>,
     id: Identity,
     req:HttpRequest,
 ) -> impl Responder {
@@ -180,18 +180,18 @@ pub async fn edit_document_core_form(
             .expect("Unable to load document core");
 
         ctx.insert("document_core", &document_core);
-        ctx.insert("document_view", "internal");
+        ctx.insert("document_view", &document_view);
 
         let rendered = data.tmpl.render("document_core/edit_document_core_form.html", &ctx).unwrap();
         HttpResponse::Ok().body(rendered)
     }
 }
 
-#[put("/{lang}/edit_document_core_put/{document_id}")]
+#[put("/{lang}/edit_document_core_put/{document_id}/{document_view}")]
 // Put and update an existing document core
 pub async fn edit_document_core_put(
     data: web::Data<AppData>,
-    web::Path((lang, document_id)): web::Path<(String, Uuid)>,
+    web::Path((lang, document_id, document_view)): web::Path<(String, Uuid, String)>,
     form: web::Form<DocumentForm>,
     id: Identity,
     req:HttpRequest) -> impl Responder {
@@ -207,6 +207,11 @@ pub async fn edit_document_core_put(
         );
         return err.error_response()
     } else {
+
+        let redact = match document_view.as_str() {
+            "internal" => false,
+            _ => true,
+        };
 
         let raw_title_text = form.title.trim().to_string();
         let raw_purpose_text = form.purpose.trim().to_string();
@@ -256,7 +261,8 @@ pub async fn edit_document_core_put(
         Document::update(&document)
             .expect("Unable to update document");
 
-        let readable_document_core = Document::get_readable_core_by_id(document_id, &lang, true, false)
+        let readable_document_core = Document::get_readable_core_by_id(
+            document_id, &lang, true, redact)
             .expect("Unable to get readable document");
 
         ctx.insert("document_core", &readable_document_core);

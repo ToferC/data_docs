@@ -1,11 +1,12 @@
 use serde::{Serialize, Deserialize};
 use uuid::Uuid;
 use diesel::prelude::*;
-use diesel::{BelongingToDsl, QueryDsl};
+use diesel::{QueryDsl};
 use chrono::prelude::*;
 use std::collections::BTreeMap;
+use pulldown_cmark::{html, Options, Parser};
 
-use crate::database;
+use crate::{database, process_text_redactions};
 use crate::schema::{documents, template_sections, texts, sections};
 use crate::errors::CustomError;
 use crate::models::{InsertableText, Text, TemplateSection,
@@ -126,7 +127,35 @@ impl Document {
         text_ids.push(document.title_text_id);
         text_ids.push(document.purpose_text_id);
 
-        let texts = Text::get_text_map(text_ids, lang)?;
+        // Todo -> enable markdown for purpose text
+        
+        let raw_texts = Text::get_text_map(text_ids, lang)?;
+
+        let mut texts: BTreeMap<Uuid, String> = BTreeMap::new();
+
+        // Process and redact purpose text if necessary
+
+        for (k, v) in raw_texts {
+            
+            let processed_text = process_text_redactions(v.clone(), redact);
+    
+            let content = if markdown {
+                let mut options = Options::empty();
+                options.insert(Options::ENABLE_TABLES);
+                
+                let parser = Parser::new(&processed_text);
+            
+                let mut html_content = String::new();
+                html::push_html(&mut html_content, parser);
+    
+                html_content
+                
+            } else {
+                processed_text
+            };
+            texts.insert(k, content);
+
+        }
 
         let user_email = User::find_email_from_id(document.created_by_id)?;
 
@@ -154,7 +183,6 @@ impl Document {
             .filter(sections::document_id.eq(id))
             .load::<Section>(&conn)?;
 
-
         // Get the ReadableSections with the data that we need to render them
 
         let mut readable_sections: BTreeMap<Uuid, ReadableSection> = BTreeMap::new();
@@ -168,11 +196,10 @@ impl Document {
     }
 
     pub fn get_all_readable_by_id(id: Uuid, lang: &str, markdown: bool, redact: bool) -> Result<(ReadableDocument, BTreeMap<Uuid, ReadableSection>), CustomError> {
-        let conn = database::connection()?;
 
         let document = Document::get_readable_core_by_id(id, lang, markdown, redact)?;
 
-        let mut readable_sections: BTreeMap<Uuid, ReadableSection> = Document::get_readable_sections_by_id(
+        let readable_sections: BTreeMap<Uuid, ReadableSection> = Document::get_readable_sections_by_id(
             id, lang, markdown, redact)?;
 
         Ok((document, readable_sections))

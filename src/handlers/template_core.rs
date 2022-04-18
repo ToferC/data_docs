@@ -218,12 +218,5 @@ pub async fn edit_template_core(
 
         let rendered = data.tmpl.render("template_core/template_core.html", &ctx).unwrap();
         HttpResponse::Ok().body(rendered)
-
-        /*
-        return HttpResponse::Found()
-            .header("Content-Type", "GET")
-            .header("Location", format!("/{}/template_core/{}", &lang, &template_core.id))
-            .finish()
-        */
     }
 }

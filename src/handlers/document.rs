@@ -1,13 +1,12 @@
 use std::collections::BTreeMap;
 
-use actix_web::{HttpRequest, HttpResponse, Responder, get, post, web, ResponseError};
+use actix_web::{HttpRequest, HttpResponse, Responder, get, web, ResponseError};
 use actix_identity::{Identity};
 use uuid::Uuid;
 
 use crate::{AppData, generate_basic_context};
-use crate::models::{Section, User, Template, Document, InsertableDocument, InsertableSection,
-    InsertableText, Text};
-use super::DocumentForm;
+use crate::models::{Document};
+
 use crate::errors::CustomError;
 
 #[get("/{lang}/document_index/{document_view}")]

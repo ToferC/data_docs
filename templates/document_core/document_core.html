@@ -3,20 +3,29 @@
     hx-swap="outerHTML"
     hx-target="this"
 >
+<h1>{{ document_core.title_text | title | safe }}</h1>
+
+<h4>Purpose</h4>
+{{ document_core.purpose_text | safe }}
+
+<h4>Details</h4>
+<ul>
+    <li>Created at: {{ document_core.created_at | date(format="%Y-%m-%d %H:%M") }} by {{ document_core.created_by }}</li>
+    <li>Updated at: {{ document_core.updated_at | date(format="%Y-%m-%d %H:%M") }}</li>
+    <li>Security Classification: {{ document_core.security_classification | title }}</li>
+    <li>Status: {% if document_core.published == true %}Published{% else %}Draft{% endif %}</li>
+</ul>
 {% if document_view == "internal" %}
-<button
-    hx-get="/{{ lang }}/edit_document_core_form/{{ document_core.id }}" 
+    <button
+    hx-get="/{{ lang }}/edit_document_core_form/{{ document_core.id }}/{{ document_view }}" 
     class="btn">
             Edit
     </button>
+    <a 
+        class="btn btn-info"
+        href="/{{ lang }}/document/{{ document_core.id }}/{% if document_view == 'internal' %}open{% else %}internal{% endif %}"
+        >
+        Switch to {% if document_view == "internal" %}Open{% else %}Internal{% endif %}
+    </a>
 {% endif %}
-    <h1>{{ document_core.title_text | title }}</h1>
-    
-    <ul>
-        <li>Purpose: {{ document_core.purpose_text }}</li>
-        <li>Created at: {{ document_core.created_at | date(format="%Y-%m-%d %H:%M") }}</li>
-        <li>Created by: {{ document_core.created_by }}</li>
-        <li>Security Classification: {{ document_core.security_classification | title }}</li>
-        <li>Status: {% if document_core.published == true %}Published{% else %}Draft{% endif %}</li>
-    </ul>
 </div>
