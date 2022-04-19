@@ -301,12 +301,20 @@
                 {% endif %}
             </ul>
             <a class="btn btn-dark" href="/toggle_language{{ path }}">{{ fluent(key="language-toggle", lang=lang ) }}</a>
-            <!--
+         
                 <form class="form-inline my-2 my-lg-0">
-                    <input class="form-control mr-sm-2" type="search" placeholder="Under Construction" aria-label="Search">
+                    <input 
+                        class="form-control mr-sm-2" 
+                        type="search" 
+                        name="search"
+                        hx-post="/search"
+                        hx-trigger="keyup changed delay:500ms, search"
+                        hx-target="search-results"
+                        placeholder="Under Construction" 
+                        aria-label="Search">
                     <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
                 </form>
-            -->
+
             </div>
           </nav>
     </div>
