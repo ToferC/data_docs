@@ -251,6 +251,14 @@ pub fn generate_basic_context(
     ctx.insert("lang", &validated_lang);
     ctx.insert("path", &path);
 
+    // default document_view to internal if user is signed in or otherwise changed in handler
+    let document_view = match session_user.as_str() {
+        "" => "internal",
+        _ => "open",
+    };
+
+    ctx.insert("document_view", &document_view);
+
     (ctx, session_user, role, lang.to_owned())
 }
 

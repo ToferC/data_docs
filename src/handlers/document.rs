@@ -106,7 +106,6 @@ pub async fn edit_document_sections(
         }
 
         ctx.insert("document", &document);
-        ctx.insert("document_view", "internal");
         ctx.insert("sections", &ordered_sections);
 
         let rendered = data.tmpl.render("documents/edit_document_sections.html", &ctx).unwrap();

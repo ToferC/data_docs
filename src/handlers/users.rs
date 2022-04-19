@@ -92,7 +92,6 @@ pub async fn user_page_handler(
                     .expect("Unable to retrieve documents");
 
                 ctx.insert("documents", &documents);
-                ctx.insert("document_view", "internal");
             
                 let rendered = data.tmpl.render("users/user_page.html", &ctx).unwrap();
                 HttpResponse::Ok().body(rendered)

@@ -17,7 +17,8 @@ pub async fn get_text(
 
     let (mut ctx, _session_user, role, lang) = generate_basic_context(id, &lang, req.uri().path());
 
-    if role == "CHANGE TO NOT SIGNED IN".to_string() {
+    if role != "user".to_string() &&
+        role != "admin".to_string() {
         let err = CustomError::new(
             406,
             "Not authorized".to_string(),
@@ -54,7 +55,8 @@ pub async fn create_new_text(
 
     let (mut ctx, session_user, role, lang) = generate_basic_context(id, &lang, req.uri().path());
 
-    if role == "CHANGE TO NOT SIGNED IN".to_string() {
+    if role != "user".to_string() &&
+        role != "admin".to_string() {
         let err = CustomError::new(
             406,
             "Not authorized".to_string(),
@@ -84,7 +86,6 @@ pub async fn create_new_text(
         println!("Saved!");
 
         ctx.insert("text", &text);
-        ctx.insert("document_view", "internal");
 
         let rendered = data.tmpl.render("texts/text.html", &ctx).unwrap();
         HttpResponse::Ok().body(rendered)
@@ -101,7 +102,8 @@ pub async fn edit_text_form(
 
     let (mut ctx, _session_user, role, lang) = generate_basic_context(id, &lang, req.uri().path());
 
-    if role == "CHANGE TO NOT SIGNED IN".to_string() {
+    if role != "user".to_string() &&
+        role != "admin".to_string() {
         let err = CustomError::new(
             406,
             "Not authorized".to_string(),
@@ -133,7 +135,8 @@ pub async fn edit_text_put(
     let (mut ctx, session_user, role, lang) = generate_basic_context(id, &lang, req.uri().path());
 
     // validate authorized to edit document
-    if role == "CHANGE TO NOT SIGNED IN".to_string() {
+    if role != "user".to_string() &&
+        role != "admin".to_string() {
         let err = CustomError::new(
             406,
             "Not authorized".to_string(),

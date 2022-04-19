@@ -166,7 +166,8 @@ pub async fn edit_document_core_form(
 
     let (mut ctx, _session_user, role, lang) = generate_basic_context(id, &lang, req.uri().path());
 
-    if role == "CHANGE TO NOT SIGNED IN".to_string() {
+    if role != "user".to_string() &&
+        role != "admin".to_string() {
         let err = CustomError::new(
             406,
             "Not authorized".to_string(),
@@ -266,7 +267,6 @@ pub async fn edit_document_core_put(
             .expect("Unable to get readable document");
 
         ctx.insert("document_core", &readable_document_core);
-        ctx.insert("document_view", "internal");
 
         let rendered = data.tmpl.render("document_core/document_core.html", &ctx).unwrap();
         HttpResponse::Ok().body(rendered)

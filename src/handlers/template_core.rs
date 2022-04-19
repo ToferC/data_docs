@@ -17,7 +17,8 @@ pub async fn get_template_core(
 
     let (mut ctx, _session_user, role, lang) = generate_basic_context(id, &lang, req.uri().path());
 
-    if role == "CHANGE TO NOT SIGNED IN".to_string() {
+    if role != "user".to_string() &&
+        role != "admin".to_string() {
         let err = CustomError::new(
             406,
             "Not authorized".to_string(),
@@ -130,7 +131,8 @@ pub async fn edit_template_core_form(
 
     let (mut ctx, _session_user, role, lang) = generate_basic_context(id, &lang, req.uri().path());
 
-    if role == "CHANGE TO NOT SIGNED IN".to_string() {
+    if role != "user".to_string() &&
+        role != "admin".to_string() {
         let err = CustomError::new(
             406,
             "Not authorized".to_string(),

@@ -10,14 +10,34 @@
 
 
 
-    <h1>{{ document.title_text | title }}</h1>
-    
-    <ul>
-        <li>Purpose: {{ document.purpose_text }}</li>
-        <li>Created at: {{ document.created_at | date(format="%Y-%m-%d %H:%M") }}</li>
-        <li>Created by: {{ document.created_by }}</li>
-    </ul>
-    
+    <div
+        id="{{document.id}}-content"
+        hx-swap="outerHTML"
+        hx-target="this"
+    >
+
+        <h1>{{ document.title_text | title | safe }}</h1>
+
+        <h4>Purpose</h4>
+        {{ document.purpose_text | safe }}
+        <br>
+        
+        <h4>Details</h4>
+        <ul>
+            <li>Created at: {{ document.created_at | date(format="%Y-%m-%d %H:%M") }} by {{ document.created_by }}</li>
+            <li>Updated at: {{ document.updated_at | date(format="%Y-%m-%d %H:%M") }}</li>
+            <li>Security Classification: {{ document.security_classification | title }}</li>
+            <li>Status: {% if document.published == true %}Published{% else %}Draft{% endif %}</li>
+        </ul>
+        {% if document_view == "internal" %}
+        <button 
+            class="btn btn-a11y"
+            hx-get="/{{ lang }}/edit_document_core_form/{{ document.id }}/{{ document_view }}" 
+            >
+            Edit
+        </button>
+        {% endif %}
+    </div>
     <hr>
         
     {% for key, section in sections %}

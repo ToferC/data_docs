@@ -118,8 +118,8 @@ impl Template {
 
         let conn = database::connection()?;
 
-        let v = diesel::insert_into(templates::table)
-            .values(template)
+        let v = diesel::update(templates::table)
+            .set(template)
             .get_result(&conn)?;
 
         Ok(v)

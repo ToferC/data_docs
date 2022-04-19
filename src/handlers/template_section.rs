@@ -17,7 +17,8 @@ pub async fn get_template_section(
 
     let (mut ctx, _session_user, role, lang) = generate_basic_context(id, &lang, req.uri().path());
 
-    if role == "CHANGE TO NOT SIGNED IN".to_string() {
+    if role != "user".to_string() &&
+        role != "admin".to_string() {
         let err = CustomError::new(
             406,
             "Not authorized".to_string(),
@@ -47,7 +48,8 @@ pub async fn create_template_sections(
 
     let (mut ctx, _session_user, role, lang) = generate_basic_context(id, &lang, req.uri().path());
 
-    if role == "CHANGE TO NOT SIGNED IN".to_string() {
+    if role != "user".to_string() &&
+        role != "admin".to_string() {
         let err = CustomError::new(
             406,
             "Not authorized".to_string(),
@@ -76,7 +78,8 @@ pub async fn edit_template_section_form(
 
     let (mut ctx, _session_user, role, lang) = generate_basic_context(id, &lang, req.uri().path());
 
-    if role == "CHANGE TO NOT SIGNED IN".to_string() {
+    if role != "user".to_string() &&
+        role != "admin".to_string() {
         let err = CustomError::new(
             406,
             "Not authorized".to_string(),
@@ -105,7 +108,8 @@ pub async fn edit_template_section(
 
     let (mut ctx, session_user, role, lang) = generate_basic_context(id, &lang, req.uri().path());
 
-    if role == "CHANGE TO NOT SIGNED IN".to_string() {
+    if role != "user".to_string() &&
+        role != "admin".to_string() {
         let err = CustomError::new(
             406,
             "Not authorized".to_string(),
@@ -208,6 +212,7 @@ pub async fn save_template_section(
             406,
             "Not authorized".to_string(),
         );
+        println!("{}", &err);
         return err.error_response()
     } else {
 
