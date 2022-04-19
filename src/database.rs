@@ -35,7 +35,7 @@ pub fn init() {
 
     match admin {
         // Checking admin and if not, add default data structures
-        Ok(u) => println!("Admin exists {:?} - bypass setup", &u),
+        Ok(u) => println!("Admin exists {:?} - bypass setup", &u.email),
         Err(_e) => {
 
             let admin_data = UserData {

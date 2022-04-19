@@ -3,12 +3,12 @@
     hx-swap="outerHTML"
     hx-target="this"
 >
-<button
-    hx-get="/{{ lang }}/edit_template_section/{{ template_section.id }}" 
-    class="btn">
-            Edit
-    </button>
-    <h3>{{ template_section.header_text | title }}</h3>
+    <h3>{{ template_section.header_text | title }} 
+        <button
+            hx-get="/{{ lang }}/edit_template_section/{{ template_section.id }}" 
+            class="btn">
+                Edit
+        </button></h3>
     <ul>
         <li>{{ fluent(key="section-order-number", lang=lang, number=template_section.order_number )}}</li>
         <li>{{ fluent(key="section-instructions", lang=lang )}} {{ template_section.instructions_text }}</li>

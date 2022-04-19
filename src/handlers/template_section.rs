@@ -176,9 +176,12 @@ pub async fn edit_template_section(
             ts.character_limit = character_limit;
         };
 
+        // This will need to support flexible re-ordering of all template_sections TODO
+        /*
         if ts.order_number != form.order_number {
             ts.order_number = form.order_number;
         };
+        */
 
         let updated_template_section = TemplateSection::update(&ts)
             .expect("Unable to update template_section");

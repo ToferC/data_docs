@@ -14,7 +14,16 @@
         hx-target="this"
     >
 
-        <h1>{{ document.title_text | title | safe }}</h1>
+        <h1>{{ document.title_text | title | safe }} 
+            {% if document_view == "internal" %}
+            <button 
+                class="btn btn-a11y"
+                hx-get="/{{ lang }}/edit_document_core_form/{{ document.id }}/{{ document_view }}" 
+                >
+                Edit
+            </button>
+            {% endif %}
+        </h1>
 
         <h4>Purpose</h4>
         {{ document.purpose_text | safe }}
@@ -27,14 +36,6 @@
             <li>Security Classification: {{ document.security_classification | title }}</li>
             <li>Status: {% if document.published == true %}Published{% else %}Draft{% endif %}</li>
         </ul>
-        {% if document_view == "internal" %}
-        <button 
-            class="btn btn-a11y"
-            hx-get="/{{ lang }}/edit_document_core_form/{{ document.id }}/{{ document_view }}" 
-            >
-            Edit
-        </button>
-        {% endif %}
         <a 
         class="btn btn-info"
         href="/{{ lang }}/document/{{ document.id }}/{% if document_view == 'internal' %}open{% else %}internal{% endif %}"
