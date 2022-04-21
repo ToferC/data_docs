@@ -12,7 +12,7 @@ use std::env;
 use rake::*;
 use uuid::Uuid;
 use core::iter::zip;
-use regex::Regex;
+use regex::{Regex, Captures};
 
 use rand::{thread_rng, Rng};
 use rand::distributions::Alphanumeric;
@@ -391,7 +391,18 @@ pub fn process_text_redactions(html_string: String, redact: bool) -> String {
 
     let response_string = match redact {
         true => {
-            let final_string = RE.replace_all(&html_string, format!("{}[{}]", &"\u{25A0}".repeat(12), "$act"));
+            let final_string = RE.replace_all(&html_string, |caps: &Captures| {
+
+                let text = caps.name("text").map_or("", |m| m.as_str());
+
+                let final_text = generate_redacted_string(text);
+
+                format!(
+                    "{}[{}]",
+                    final_text, 
+                    caps.name("act").map_or("", |m| m.as_str())
+                )
+            });
             final_string.to_string()
         },
         false => {
@@ -401,4 +412,17 @@ pub fn process_text_redactions(html_string: String, redact: bool) -> String {
     };
     
     response_string
+}
+
+fn generate_redacted_string(s: &str) -> String {
+
+    let ns = s.clone();
+    let mut result = String::new();
+
+    for w in ns.split(" ") {
+        result.push_str(&"\u{25A0}".repeat(w.len()));
+        result.push_str(&" ");
+    };
+
+    result
 }
