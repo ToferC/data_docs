@@ -65,6 +65,7 @@
         {% endif %}
                 <div>{{ section.content | safe }}</div>
                 {% if document_view == "internal" %}
+                    <p><small>Updated at: {{ section.updated_at | date(format="%Y-%m-%d %H:%M") }}</small></p>
                     <div>Keywords: {{ section.keywords | safe }}</div>
                 {% endif %}
         </form>

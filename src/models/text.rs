@@ -388,3 +388,54 @@ pub async fn machine_translate_text<'a>(texts: Arc<Vec<Text>>, current_lang: Arc
 
     Ok(translated_texts)
 }
+
+pub async fn machine_translate_string<'a>(texts: Arc<Vec<String>>, current_lang: Arc<String>) -> Result<Vec<String>, CustomError> {
+    // goes through Text and sends content Vec<String> to DEEPL for translation if translate_all == true
+    // otherwise, translates only the last content string
+    let key = match std::env::var("DEEPL_API_KEY") {
+        Ok(val) if val.len() > 0 => val,
+        _ => {
+            eprintln!("Error: no DEEPL_API_KEY found. Please provide your API key in this environment variable.");
+            std::process::exit(1);
+        }
+    };;
+
+    let deepl = DeepL::new(key);
+
+    let mut source = "EN".to_string();
+    let mut target = "FR".to_string();
+
+    let translate_lang = match &*current_lang.clone().as_str() {
+        "en" => {
+            "fr".to_string()
+        },
+        "fr" => {
+            source = "FR".to_string();
+            target = "EN".to_string();
+            "en".to_string()
+        },
+        _ => {
+            "fr".to_string()
+        },
+    };
+
+    // Set up struct for DEEPL translation
+    let translatable_text = TranslatableTextList {
+        source_language: Some(source),
+        target_language: target,
+        texts: texts.to_vec(),
+    };
+
+    // Send to API
+    let translated = deepl.translate(None, translatable_text)
+        .await
+        .expect("Unable to return translations");
+
+    let mut translated_texts: Vec<String> = Vec::new();
+
+    for t in translated {
+        translated_texts.push(t.text);
+    };
+
+    Ok(translated_texts)
+}

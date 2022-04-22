@@ -46,6 +46,7 @@ casbin = "2.0.9"
 # Text and Markdown
 pulldown-cmark = { version = "0.9.1", default-features = false, features = ["simd"] }
 rake = "0.3.3"
+pithy = "0.1.7"
 
 # templating
 tera = "1.15.0"

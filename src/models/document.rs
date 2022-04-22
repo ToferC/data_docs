@@ -41,6 +41,7 @@ pub struct ReadableDocument {
     pub security_classification: String,
     pub published: bool,
     pub created_by: String,
+    pub created_by_id: Uuid,
 }
 
 #[derive(Debug, Serialize, Deserialize, Insertable)]
@@ -171,6 +172,7 @@ impl Document {
             published: document.published,
             security_classification: document.security_classification.to_string(),
             created_by: user_email,
+            created_by_id: document.created_by_id,
         };
 
         Ok(readable_document)
@@ -238,6 +240,7 @@ impl Document {
             security_classification: document.security_classification.to_string(),
             published: document.published,
             created_by: user_email,
+            created_by_id: document.created_by_id,
         };
 
         // Get the ReadableSections with the data that we need to render them
@@ -292,6 +295,7 @@ impl Document {
                 security_classification: document.security_classification.to_string(),
                 published: document.published,
                 created_by: users.get(&document.created_by_id).unwrap().to_string(),
+                created_by_id: document.created_by_id,
             };
 
             readable_documents.push(readable_document);
@@ -335,6 +339,7 @@ impl Document {
                 security_classification: document.security_classification.to_string(),
                 published: document.published,
                 created_by: users.get(&document.created_by_id).unwrap().to_string(),
+                created_by_id: document.created_by_id,
             };
 
             readable_documents.push(readable_document);

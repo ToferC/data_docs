@@ -6,6 +6,7 @@ mod authentication;
 mod template;
 mod section;
 mod template_section;
+mod metadata;
 
 
 pub use user::*;
@@ -16,3 +17,4 @@ pub use authentication::*;
 pub use template::*;
 pub use section::*;
 pub use template_section::*;
+pub use metadata::*;

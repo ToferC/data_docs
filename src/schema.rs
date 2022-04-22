@@ -22,6 +22,23 @@ table! {
 }
 
 table! {
+    metadata (id) {
+        id -> Uuid,
+        searchable_title_en -> Varchar,
+        searchable_title_fr -> Varchar,
+        document_id -> Uuid,
+        author_id -> Uuid,
+        subject_id -> Uuid,
+        category_id -> Uuid,
+        summary_text_en -> Text,
+        summary_text_fr -> Text,
+        keyword_ids -> Array<Uuid>,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+table! {
     password_reset_token (id) {
         id -> Uuid,
         email_address -> Varchar,
@@ -94,6 +111,7 @@ table! {
 }
 
 joinable!(documents -> templates (template_id));
+joinable!(metadata -> documents (document_id));
 joinable!(sections -> documents (document_id));
 joinable!(sections -> template_sections (template_section_id));
 joinable!(template_sections -> templates (template_id));
@@ -102,6 +120,7 @@ joinable!(texts -> sections (section_id));
 allow_tables_to_appear_in_same_query!(
     documents,
     email_verification_code,
+    metadata,
     password_reset_token,
     sections,
     template_sections,

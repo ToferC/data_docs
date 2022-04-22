@@ -91,3 +91,20 @@ CREATE TABLE IF NOT EXISTS texts (
     created_by_id UUID[] NOT NULL,
     PRIMARY KEY(id, lang)
 );
+
+CREATE TABLE IF NOT EXISTS metadata (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    searchable_title_en VARCHAR(256) NOT NULL,
+    searchable_title_fr VARCHAR(256) NOT NULL,
+    document_id UUID NOT NULL,
+    FOREIGN KEY(document_id)
+        REFERENCES documents(id) ON DELETE CASCADE,
+    author_id UUID NOT NULL,
+    subject_id UUID NOT NULL,
+    category_id UUID NOT NULL,
+    summary_text_en TEXT NOT NULL,
+    summary_text_fr TEXT NOT NULL,
+    keyword_ids UUID[] NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+)
