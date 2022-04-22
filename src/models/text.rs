@@ -398,14 +398,14 @@ pub async fn machine_translate_string<'a>(texts: Arc<Vec<String>>, current_lang:
             eprintln!("Error: no DEEPL_API_KEY found. Please provide your API key in this environment variable.");
             std::process::exit(1);
         }
-    };;
+    };
 
     let deepl = DeepL::new(key);
 
     let mut source = "EN".to_string();
     let mut target = "FR".to_string();
 
-    let translate_lang = match &*current_lang.clone().as_str() {
+    match &*current_lang.clone().as_str() {
         "en" => {
             "fr".to_string()
         },
