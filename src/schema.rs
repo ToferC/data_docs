@@ -1,4 +1,14 @@
 table! {
+    categories (id) {
+        id -> Uuid,
+        en_string -> Varchar,
+        fr_string -> Varchar,
+        en_description -> Nullable<Text>,
+        fr_description -> Nullable<Text>,
+    }
+}
+
+table! {
     documents (id) {
         id -> Uuid,
         template_id -> Uuid,
@@ -18,6 +28,16 @@ table! {
         email_address -> Varchar,
         activation_code -> Varchar,
         expires_on -> Timestamp,
+    }
+}
+
+table! {
+    keywords (id) {
+        id -> Uuid,
+        en_string -> Varchar,
+        fr_string -> Varchar,
+        en_description -> Nullable<Text>,
+        fr_description -> Nullable<Text>,
     }
 }
 
@@ -55,6 +75,16 @@ table! {
         created_at -> Timestamp,
         updated_at -> Timestamp,
         created_by_id -> Uuid,
+    }
+}
+
+table! {
+    subjects (id) {
+        id -> Uuid,
+        en_string -> Varchar,
+        fr_string -> Varchar,
+        en_description -> Nullable<Text>,
+        fr_description -> Nullable<Text>,
     }
 }
 
@@ -118,11 +148,14 @@ joinable!(template_sections -> templates (template_id));
 joinable!(texts -> sections (section_id));
 
 allow_tables_to_appear_in_same_query!(
+    categories,
     documents,
     email_verification_code,
+    keywords,
     metadata,
     password_reset_token,
     sections,
+    subjects,
     template_sections,
     templates,
     texts,

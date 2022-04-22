@@ -3,17 +3,13 @@ use uuid::Uuid;
 use diesel::prelude::*;
 use diesel::{QueryDsl};
 use chrono::prelude::*;
-use std::collections::BTreeMap;
-use pulldown_cmark::{html, Options, Parser};
 use pithy::{Summariser};
 use std::sync::Arc;
 
-use crate::{database, process_text_redactions};
-use crate::schema::{metadata};
+use crate::{database};
+use crate::schema::{metadata, categories, subjects, keywords};
 use crate::errors::CustomError;
-use crate::models::{InsertableText, Text, TemplateSection, Document,
-    ReadableTemplateSection, User, Section, ReadableSection,
-    machine_translate_string};
+use crate::models::{Document, machine_translate_string};
 
 #[derive(Debug, Serialize, Deserialize, AsChangeset, Queryable, Identifiable, Associations, PartialEq, Clone)]
 #[table_name = "metadata"]
@@ -59,7 +55,7 @@ impl InsertableMetaData {
 
         let mut text = String::new();
 
-        for (id, s) in sections {
+        for (_id, s) in sections {
             text.push_str(&s.content);
             text.push_str("\n");
         };

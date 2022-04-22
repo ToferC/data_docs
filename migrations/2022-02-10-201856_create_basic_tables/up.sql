@@ -107,4 +107,28 @@ CREATE TABLE IF NOT EXISTS metadata (
     keyword_ids UUID[] NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW()
-)
+);
+
+CREATE TABLE IF NOT EXISTS subjects (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    en_string VARCHAR(256) NOT NULL,
+    fr_string VARCHAR(256) NOT NULL,
+    en_description TEXT,
+    fr_description TEXT
+);
+
+CREATE TABLE IF NOT EXISTS categories (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    en_string VARCHAR(256) NOT NULL,
+    fr_string VARCHAR(256) NOT NULL,
+    en_description TEXT,
+    fr_description TEXT
+);
+
+CREATE TABLE IF NOT EXISTS keywords (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    en_string VARCHAR(256) NOT NULL,
+    fr_string VARCHAR(256) NOT NULL,
+    en_description TEXT,
+    fr_description TEXT
+);
