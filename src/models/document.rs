@@ -10,7 +10,8 @@ use crate::{database, process_text_redactions};
 use crate::schema::{documents, template_sections, texts, sections};
 use crate::errors::CustomError;
 use crate::models::{InsertableText, Text, TemplateSection,
-    ReadableTemplateSection, User, Section, ReadableSection};
+    ReadableTemplateSection, User, Section, ReadableSection,
+    MetaData, InsertableMetaData};
 
 #[derive(Debug, Serialize, Deserialize, AsChangeset, Queryable, Insertable, Identifiable, Associations, PartialEq, Clone)]
 #[table_name = "documents"]
@@ -98,9 +99,13 @@ impl Document {
 
         let conn = database::connection()?;
 
-        let v = diesel::insert_into(documents::table)
+        let v: Document = diesel::insert_into(documents::table)
             .values(document)
             .get_result(&conn)?;
+
+        let default_meta = InsertableMetaData::default(v.id, document.created_by_id);
+
+        let _created_meta = MetaData::create(&default_meta)?;
 
         Ok(v)
     }

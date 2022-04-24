@@ -100,11 +100,11 @@ CREATE TABLE IF NOT EXISTS metadata (
     FOREIGN KEY(document_id)
         REFERENCES documents(id) ON DELETE CASCADE,
     author_id UUID NOT NULL,
-    subject_id UUID NOT NULL,
-    category_id UUID NOT NULL,
+    subject_id UUID,
+    category_id UUID,
     summary_text_en TEXT NOT NULL,
     summary_text_fr TEXT NOT NULL,
-    keyword_ids UUID[] NOT NULL,
+    keyword_ids UUID[],
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );

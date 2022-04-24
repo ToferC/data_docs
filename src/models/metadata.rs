@@ -19,27 +19,27 @@ pub struct MetaData {
     searchable_title_fr: String,
     document_id: Uuid,
     author_id: Uuid,
-    subject_id: Uuid,
-    category_id: Uuid,
+    subject_id: Option<Uuid>,
+    category_id: Option<Uuid>,
     summary_text_en: String,
     summary_text_fr: String,
-    keyword_ids: Vec<Uuid>,
+    keyword_ids: Option<Vec<Uuid>>,
     created_at: NaiveDateTime,
     updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, Insertable)]
+#[derive(Debug, Serialize, Deserialize, Insertable, AsChangeset, Clone)]
 #[table_name = "metadata"]
 pub struct InsertableMetaData {
     document_id: Uuid,
     searchable_title_en: String,
     searchable_title_fr: String,
     author_id: Uuid,
-    subject_id: Uuid,
-    category_id: Uuid,
+    subject_id: Option<Uuid>,
+    category_id: Option<Uuid>,
     summary_text_en: String,
     summary_text_fr: String,
-    keyword_ids: Vec<Uuid>
+    keyword_ids: Option<Vec<Uuid>>
 }
 
 impl InsertableMetaData {
@@ -111,14 +111,28 @@ impl InsertableMetaData {
             searchable_title_en: en_title,
             searchable_title_fr: fr_title,
             author_id: document.created_by_id,
-            subject_id: Uuid::new_v4(),
-            category_id: Uuid::new_v4(),
+            subject_id: None,
+            category_id: None,
             summary_text_en: en_summary,
             summary_text_fr: fr_summary,
-            keyword_ids: vec![Uuid::new_v4()],
+            keyword_ids: None,
         };
 
         Ok(meta)
+    }
+
+    pub fn default(document_id: Uuid, author_id: Uuid) -> Self {
+        InsertableMetaData {
+            document_id,
+            searchable_title_en: String::new(),
+            searchable_title_fr: String::new(),
+            author_id: author_id,
+            subject_id: None,
+            category_id: None,
+            summary_text_en: String::new(),
+            summary_text_fr: String::new(),
+            keyword_ids: None,
+        }
     }
 }
 
@@ -156,10 +170,10 @@ impl MetaData {
         Ok(document)
     }
 
-    pub fn update(metadata: &MetaData) -> Result<Self, CustomError> {
+    pub fn update(id: Uuid, metadata: &InsertableMetaData) -> Result<Self, CustomError> {
         let conn = database::connection()?;
         let v = diesel::update(metadata::table)
-            .filter(metadata::id.eq(metadata.id))
+            .filter(metadata::id.eq(id))
             .set(metadata)
             .get_result(&conn)?;
         Ok(v)
