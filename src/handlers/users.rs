@@ -191,7 +191,7 @@ pub async fn edit_user_post(
             if email_changed || user_name_changed {
                 // changes registered, update user
                 // changes registered, update user
-                let user_update = User::update(user);
+                let user_update = user.update();
 
                 match user_update {
                     Ok(user) => {
@@ -304,7 +304,7 @@ pub async fn admin_edit_user_post(
 
             
             // changes registered, update user
-            let user_update = User::update(user);
+            let user_update = user.update();
 
             match user_update {
                 Ok(user) => {

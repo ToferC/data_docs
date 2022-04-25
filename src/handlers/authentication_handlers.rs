@@ -314,7 +314,7 @@ pub async fn verify_code(
     
     // validate user
     user.validated = true;
-    let user = User::update(user).expect("Unable to update user");
+    let user = user.update().expect("Unable to update user");
 
     // delete email_verification
     EmailVerification::delete(verification_code.id).expect("Unable to delete verification code");

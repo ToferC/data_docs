@@ -74,7 +74,7 @@ use crate::handlers::{
     document_index,
     get_document,
     edit_document_sections,
-    switch_document_published,
+    toggle_document_published,
     
     // document_core
     get_document_core,
@@ -160,7 +160,7 @@ pub fn configure_services(config: &mut web::ServiceConfig) {
      config.service(document_index);
      config.service(get_document);
      config.service(edit_document_sections);
-     config.service(switch_document_published);
+     config.service(toggle_document_published);
      
      // document_core
      config.service(create_document_core_form);

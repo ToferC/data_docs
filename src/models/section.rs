@@ -50,6 +50,14 @@ impl Section {
 
         Ok(v)
     }
+
+    pub fn update(&self) -> Result<Self, CustomError> {
+        let conn = database::connection()?;
+        let v = diesel::update(sections::table)
+            .set(self)
+            .get_result(&conn)?;
+        Ok(v)
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, Insertable)]

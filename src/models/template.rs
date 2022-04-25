@@ -112,14 +112,12 @@ impl Template {
         Ok(v)
     }
 
-    pub fn update(
-        template: &Template,
-    ) -> Result<Self, CustomError> {
+    pub fn update(&self) -> Result<Self, CustomError> {
 
         let conn = database::connection()?;
 
         let v = diesel::update(templates::table)
-            .set(template)
+            .set(self)
             .get_result(&conn)?;
 
         Ok(v)

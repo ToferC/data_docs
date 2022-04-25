@@ -369,11 +369,10 @@ impl Document {
         texts
     }
 
-    pub fn update(document: &Document) -> Result<Self, CustomError> {
+    pub fn update(&self) -> Result<Self, CustomError> {
         let conn = database::connection()?;
         let v = diesel::update(documents::table)
-            .filter(documents::id.eq(document.id))
-            .set(document)
+            .set(self)
             .get_result(&conn)?;
         Ok(v)
     }

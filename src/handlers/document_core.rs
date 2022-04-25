@@ -259,7 +259,7 @@ pub async fn edit_document_core_put(
 
         document.updated_at = chrono::Utc::now().naive_utc();
         
-        Document::update(&document)
+        document.update()
             .expect("Unable to update document");
 
         let readable_document_core = Document::get_readable_core_by_id(

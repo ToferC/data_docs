@@ -192,11 +192,10 @@ impl User {
         Ok(sl)
     }
 
-    pub fn update(user: User) -> Result<Self, CustomError> {
+    pub fn update(&self) -> Result<Self, CustomError> {
         let conn = database::connection()?;
         let user = diesel::update(users::table)
-            .filter(users::id.eq(user.id))
-            .set(user)
+            .set(self)
             .get_result(&conn)?;
         Ok(user)
     }

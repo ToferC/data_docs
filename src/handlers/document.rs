@@ -113,8 +113,8 @@ pub async fn edit_document_sections(
     }
 }
 
-#[get("/{lang}/switch_document_published/{document_id}/{document_view}")]
-pub async fn switch_document_published(
+#[get("/{lang}/toggle_document_published/{document_id}/{document_view}")]
+pub async fn toggle_document_published(
     _data: web::Data<AppData>,
     web::Path((lang, document_id, document_view)): web::Path<(String, Uuid, String)>,
     
@@ -136,7 +136,7 @@ pub async fn switch_document_published(
         true => false,
     };
 
-    let d = Document::update(&document)
+    let d = document.update()
         .expect("Unable to update document");
 
     HttpResponse::Found().header(

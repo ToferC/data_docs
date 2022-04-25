@@ -43,7 +43,7 @@ pub struct InsertableMetaData {
 }
 
 impl InsertableMetaData {
-    pub async fn new(document_id: Uuid, lang: &str) -> Result<Self, CustomError> {
+    pub async fn update_document(document_id: Uuid, lang: &str) -> Result<Self, CustomError> {
 
         let (document, sections) = Document::get_all_readable_by_id(
             document_id, 
@@ -170,7 +170,15 @@ impl MetaData {
         Ok(document)
     }
 
-    pub fn update(id: Uuid, metadata: &InsertableMetaData) -> Result<Self, CustomError> {
+    pub fn update(metadata: &MetaData) -> Result<Self, CustomError> {
+        let conn = database::connection()?;
+        let v = diesel::update(metadata::table)
+            .set(metadata)
+            .get_result(&conn)?;
+        Ok(v)
+    }
+
+    pub fn update_from_metadata(id: Uuid, metadata: &InsertableMetaData) -> Result<Self, CustomError> {
         let conn = database::connection()?;
         let v = diesel::update(metadata::table)
             .filter(metadata::id.eq(id))

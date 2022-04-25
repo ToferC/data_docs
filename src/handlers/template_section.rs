@@ -183,7 +183,7 @@ pub async fn edit_template_section(
         };
         */
 
-        let updated_template_section = TemplateSection::update(&ts)
+        let updated_template_section = ts.update()
             .expect("Unable to update template_section");
 
         let readable_template_section = TemplateSection::get_readable_by_id(

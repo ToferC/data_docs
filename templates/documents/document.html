@@ -37,10 +37,14 @@
             <li>Status: {% if document.published == true %}Published{% else %}Draft{% endif %}</li>
         </ul>
         <a 
-        class="btn btn-info"
-        href="/{{ lang }}/document/{{ document.id }}/{% if document_view == 'internal' %}open{% else %}internal{% endif %}"
-        >
-        Switch to {% if document_view == "internal" %}Open{% else %}Internal{% endif %}
+            class="btn btn-info"
+            href="/{{ lang }}/document/{{ document.id }}/{% if document_view == 'internal' %}open{% else %}internal{% endif %}">
+                Switch to {% if document_view == "internal" %}Open{% else %}Internal{% endif %}
+        </a>
+        <a 
+            class="btn btn-secondary" 
+            href="/{{ lang }}/toggle_document_published/{{ document.id }}/{{ document_view }}">
+                {% if document.published == true %}Unpublish{% else %}Publish{% endif %}
         </a>
     </div>
     

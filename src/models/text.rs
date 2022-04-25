@@ -13,6 +13,7 @@ use deepl_api::{DeepL, TranslatableTextList};
 use crate::{database, run_rake, get_keyword_html, process_text_redactions, MAGIC_CRYPT};
 use crate::schema::texts;
 use crate::errors::CustomError;
+use crate::models::{InsertableMetaData, MetaData};
 
 
 #[derive(Debug, Serialize, Deserialize, AsChangeset, Queryable, Insertable, Clone)]
@@ -223,7 +224,7 @@ impl Text {
         if machine_translation {
             let _translate = tokio::spawn(machine_translate_text(Arc::new(vec![v.clone()]), l));
         };
-        
+                
         Ok(v)
     }
 }
