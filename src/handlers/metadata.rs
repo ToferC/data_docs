@@ -35,7 +35,7 @@ pub async fn get_metadata(
 
         let metadata = MetaData::get_metadata_by_id(metadata_id, &lang).expect("Unable to retrieve metadata");
 
-        let metadata = LatestMetaData::get_from(metadata, true, redact);
+        let metadata = ReadableMetaData::from(metadata, lang);
 
         ctx.insert("metadata", &metadata);
         ctx.insert("document_view", &document_view);

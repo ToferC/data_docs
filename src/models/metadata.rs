@@ -28,6 +28,23 @@ pub struct MetaData {
     pub updated_at: NaiveDateTime,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct ReadableMetaData {
+    pub document_id: Uuid,
+    pub title: String,
+    pub author: String,
+    pub subject: TextLink,
+    pub category: TextLink,
+    pub summary_text: String,
+    pub keyword_ids: Vec<TextLink>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct TextLink {
+    pub text: String,
+    pub link: String,
+}
+
 #[derive(Debug, Serialize, Deserialize, Insertable, AsChangeset, Clone)]
 #[table_name = "metadata"]
 pub struct InsertableMetaData {
@@ -40,6 +57,46 @@ pub struct InsertableMetaData {
     pub summary_text_en: String,
     pub summary_text_fr: String,
     pub keyword_ids: Option<Vec<Uuid>>
+}
+
+impl ReadableMetaData {
+    pub fn from_metadata(metadata: MetaData, lang: &str) -> Self {
+
+        let title = match lang {
+            "en" => metadata.searchable_title_en,
+            _ => metadata.searchable_title_fr,
+        };
+
+        let summary_text = match lang {
+            "en" => metadata.summary_text_en,
+            _ => metadata.summary_text_fr,
+        };
+
+        let subject = TextLink {
+            text: "Health".to_string(),
+            link: "link".to_string(),
+        };
+
+        let category = TextLink {
+            text: "Health".to_string(),
+            link: "link".to_string(),
+        };
+
+        let keyword = TextLink {
+            text: "Wastewater".to_string(),
+            link: "link".to_string(),
+        };
+
+        ReadableMetaData {
+            document_id: metadata.document_id,
+            title,
+            author: "default@email.com".to_string(),
+            subject,
+            category,
+            summary_text,
+            keyword_ids: vec![keyword],
+        }
+    }
 }
 
 impl InsertableMetaData {
