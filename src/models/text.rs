@@ -1,3 +1,4 @@
+use actix_web::guard::Method;
 use magic_crypt::MagicCryptTrait;
 use uuid::Uuid;
 use chrono::NaiveDateTime;
@@ -13,7 +14,7 @@ use deepl_api::{DeepL, TranslatableTextList};
 use crate::{database, run_rake, get_keyword_html, process_text_redactions, MAGIC_CRYPT};
 use crate::schema::texts;
 use crate::errors::CustomError;
-use crate::models::{InsertableMetaData, MetaData};
+use crate::models::{InsertableMetaData, MetaData, Section};
 
 
 #[derive(Debug, Serialize, Deserialize, AsChangeset, Queryable, Insertable, Clone)]
@@ -189,7 +190,7 @@ impl Text {
     }
 
     pub fn update(
-        text_id: Uuid, 
+        text_id: Uuid,
         content: String, 
         lang: &str,
         created_by_id:Uuid,
@@ -216,7 +217,7 @@ impl Text {
         let v: Text = diesel::update(texts::table)
             .filter(texts::id.eq(text_id)
             .and(texts::lang.eq(lang)))
-            .set(text)
+            .set(&text)
             .get_result(&conn)?;
 
         let l = Arc::new(lang.to_owned().clone());
@@ -224,7 +225,30 @@ impl Text {
         if machine_translation {
             let _translate = tokio::spawn(machine_translate_text(Arc::new(vec![v.clone()]), l));
         };
+
+        match text.section_id {
+            Some(id) => {
+                // This is convoluted as heck. Fix it.
+                let section = Section::get_by_id(id).expect("Unable to load section");
                 
+                let l: Arc<String> = Arc::new(lang.to_string());
+                let _r = tokio::spawn(async move {
+                    let md = InsertableMetaData::update_document(
+                        Arc::new(section.document_id), 
+                        l)
+                            .await
+                            .expect("Unable to update document metadata");
+
+                    let current_md = MetaData::get_by_document_id(section.document_id).expect("Unable to find metadata");
+    
+                    MetaData::update_from_metadata(current_md.id, &md)
+                        .expect("Unable to update MetaData");
+                        }
+                );
+            },
+            None => (),
+        };
+
         Ok(v)
     }
 }

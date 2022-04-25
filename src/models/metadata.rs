@@ -14,40 +14,42 @@ use crate::models::{Document, machine_translate_string};
 #[derive(Debug, Serialize, Deserialize, AsChangeset, Queryable, Identifiable, Associations, PartialEq, Clone)]
 #[table_name = "metadata"]
 pub struct MetaData {
-    id: Uuid,
-    searchable_title_en: String,
-    searchable_title_fr: String,
-    document_id: Uuid,
-    author_id: Uuid,
-    subject_id: Option<Uuid>,
-    category_id: Option<Uuid>,
-    summary_text_en: String,
-    summary_text_fr: String,
-    keyword_ids: Option<Vec<Uuid>>,
-    created_at: NaiveDateTime,
-    updated_at: NaiveDateTime,
+    pub id: Uuid,
+    pub searchable_title_en: String,
+    pub searchable_title_fr: String,
+    pub document_id: Uuid,
+    pub author_id: Uuid,
+    pub subject_id: Option<Uuid>,
+    pub category_id: Option<Uuid>,
+    pub summary_text_en: String,
+    pub summary_text_fr: String,
+    pub keyword_ids: Option<Vec<Uuid>>,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
 }
 
 #[derive(Debug, Serialize, Deserialize, Insertable, AsChangeset, Clone)]
 #[table_name = "metadata"]
 pub struct InsertableMetaData {
-    document_id: Uuid,
-    searchable_title_en: String,
-    searchable_title_fr: String,
-    author_id: Uuid,
-    subject_id: Option<Uuid>,
-    category_id: Option<Uuid>,
-    summary_text_en: String,
-    summary_text_fr: String,
-    keyword_ids: Option<Vec<Uuid>>
+    pub document_id: Uuid,
+    pub searchable_title_en: String,
+    pub searchable_title_fr: String,
+    pub author_id: Uuid,
+    pub subject_id: Option<Uuid>,
+    pub category_id: Option<Uuid>,
+    pub summary_text_en: String,
+    pub summary_text_fr: String,
+    pub keyword_ids: Option<Vec<Uuid>>
 }
 
 impl InsertableMetaData {
-    pub async fn update_document(document_id: Uuid, lang: &str) -> Result<Self, CustomError> {
+    pub async fn update_document(document_id: Arc<Uuid>, lang: Arc<String>) -> Result<Self, CustomError> {
+
+        let l = &*lang.as_str();
 
         let (document, sections) = Document::get_all_readable_by_id(
-            document_id, 
-            lang,
+            *document_id, 
+            l,
             false,
             false,
         )
@@ -88,26 +90,24 @@ impl InsertableMetaData {
         translation_text.push(document.title_text.clone());
         translation_text.push(summary.clone());
 
-        let l = Arc::new(lang.to_owned().clone());
-
         let translations = machine_translate_string(
             Arc::new(translation_text),
-            l,
+            Arc::new(l.to_string()),
         ).await?;
            
-        let (en_title, fr_title) = match lang {
+        let (en_title, fr_title) = match l {
             "en" => (document.title_text.clone(), translations[0].clone()),
             _ => (translations[0].clone(), document.title_text.clone())
         };
 
-        let (en_summary, fr_summary) = match lang {
+        let (en_summary, fr_summary) = match l {
             "en" => (summary.clone(), translations[1].clone()),
             _ => (translations[1].clone(), summary.clone())
         };
 
 
         let meta = InsertableMetaData {
-            document_id,
+            document_id: *document_id,
             searchable_title_en: en_title,
             searchable_title_fr: fr_title,
             author_id: document.created_by_id,
