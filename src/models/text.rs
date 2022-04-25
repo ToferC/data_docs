@@ -1,4 +1,3 @@
-use actix_web::guard::Method;
 use magic_crypt::MagicCryptTrait;
 use uuid::Uuid;
 use chrono::NaiveDateTime;

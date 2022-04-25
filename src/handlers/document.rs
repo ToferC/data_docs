@@ -5,7 +5,7 @@ use actix_identity::{Identity};
 use uuid::Uuid;
 
 use crate::{AppData, generate_basic_context};
-use crate::models::{Document};
+use crate::models::{Document, MetaData};
 
 use crate::errors::CustomError;
 
@@ -69,9 +69,12 @@ pub async fn get_document(
         ordered_sections.insert(v.order_number, v);
     };
 
+    let metadata = MetaData::get_by_document_id(document_id).expect("Unable to retrieve metadata for document");
+
     ctx.insert("document", &document);
     ctx.insert("sections", &ordered_sections);
     ctx.insert("document_view", &document_view);
+    ctx.insert("metadata", &metadata);
 
     let rendered = data.tmpl.render("documents/document.html", &ctx).unwrap();
     HttpResponse::Ok().body(rendered)
