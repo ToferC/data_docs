@@ -36,7 +36,7 @@ pub struct ReadableMetaData {
     pub subject: TextLink,
     pub category: TextLink,
     pub summary_text: String,
-    pub keyword_ids: Vec<TextLink>,
+    pub keywords: Vec<TextLink>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -94,7 +94,7 @@ impl ReadableMetaData {
             subject,
             category,
             summary_text,
-            keyword_ids: vec![keyword],
+            keywords: vec![keyword],
         }
     }
 }
@@ -131,7 +131,7 @@ impl InsertableMetaData {
         );
 
         let top_sentences = summariser.approximate_top_sentences(
-            1,
+            2,
             3.,
             1.5,
         );
@@ -139,7 +139,7 @@ impl InsertableMetaData {
         let mut summary = String::new();
 
         for ts in top_sentences {
-            summary.push_str(&ts.text);
+            summary.push_str(format!("{}. ", &ts.text).as_str());
         };
 
         let mut translation_text = Vec::new();

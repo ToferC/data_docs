@@ -14,7 +14,7 @@
         hx-target="this"
     >
 
-        <h1>{{ document.title_text | title | safe }} 
+        <h1>{{ document.title_text | title }} 
             {% if document_view == "internal" %}
             <button 
                 class="btn btn-a11y"
@@ -30,23 +30,33 @@
         <br>
         
         <h4>Details</h4>
-        <ul>
-            <li>Created at: {{ document.created_at | date(format="%Y-%m-%d %H:%M") }} by {{ document.created_by }}</li>
-            <li>Updated at: {{ document.updated_at | date(format="%Y-%m-%d %H:%M") }}</li>
-            <li>Security Classification: {{ document.security_classification | title }}</li>
-            <li>Status: {% if document.published == true %}Published{% else %}Draft{% endif %}</li>
-        </ul>
-        <a 
-            class="btn btn-info"
-            href="/{{ lang }}/document/{{ document.id }}/{% if document_view == 'internal' %}open{% else %}internal{% endif %}">
-                Switch to {% if document_view == "internal" %}Open{% else %}Internal{% endif %}
-        </a>
-        <a 
-            class="btn btn-secondary" 
-            href="/{{ lang }}/toggle_document_published/{{ document.id }}/{{ document_view }}">
-                {% if document.published == true %}Unpublish{% else %}Publish{% endif %}
-        </a>
-    </div>
+        <div class="row">
+            <div class="col">
+                <ul>
+                    <li>Created at: {{ document.created_at | date(format="%Y-%m-%d %H:%M") }} by {{ document.created_by }}</li>
+                    <li>Updated at: {{ document.updated_at | date(format="%Y-%m-%d %H:%M") }}</li>
+                    <li>Security Classification: {{ document.security_classification | title }}</li>
+                    <li>Status: {% if document.published == true %}Published{% else %}Draft{% endif %}</li>
+                    <li>Subject: {{ metadata.subject.text }}</li>
+                    <li>Category: {{ metadata.category.text }}</li>
+                    <li>Keywords: {% for keyword in metadata.keywords %}{{ keyword.text }}, {% endfor %}</li>
+                </ul>
+            </div>
+            <div class="col">
+                <p>Summary: {{ metadata.summary_text }}</p>
+            </div>
+        </div>
+            <a 
+                class="btn btn-info"
+                href="/{{ lang }}/document/{{ document.id }}/{% if document_view == 'internal' %}open{% else %}internal{% endif %}">
+                    Switch to {% if document_view == "internal" %}Open{% else %}Internal{% endif %}
+            </a>
+            <a 
+                class="btn btn-secondary" 
+                href="/{{ lang }}/toggle_document_published/{{ document.id }}/{{ document_view }}">
+                    {% if document.published == true %}Unpublish{% else %}Publish{% endif %}
+            </a>
+            </div>
     
     <hr>
     

@@ -204,7 +204,7 @@ impl Document {
 
     pub fn get_all_readable_by_id(id: Uuid, lang: &str, markdown: bool, redact: bool) -> Result<(ReadableDocument, BTreeMap<Uuid, ReadableSection>), CustomError> {
 
-        let document = Document::get_readable_core_by_id(id, lang, markdown, redact)?;
+        let document = Document::get_readable_core_by_id(id, lang, false, redact)?;
 
         let readable_sections: BTreeMap<Uuid, ReadableSection> = Document::get_readable_sections_by_id(
             id, lang, markdown, redact)?;

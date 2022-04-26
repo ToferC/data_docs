@@ -16,7 +16,7 @@ see-templates = See Templates
 ## Base & Navbar
 button-explore-demo-data = Explore demonstration data
 about = About the Project
-language-toggle = Français
+language-toggle = English
 profile = Profile
 logout = Logout
 user-index = User Index
