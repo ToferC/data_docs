@@ -130,7 +130,6 @@ pub async fn edit_template_section(
 
         // validate authorized to edit document
         let raw_header_text = form.header_text.trim().to_string();
-        let raw_instructions_text = form.instructions_text.trim().to_string();
         let raw_help_text = form.help_text.trim().to_string();
         let raw_character_limit = form.character_limit;
 
@@ -138,16 +137,6 @@ pub async fn edit_template_section(
             let _header_text = Text::update(
                 template_section.header_text_id,
                 raw_header_text,
-                &lang,
-                user.id,
-                machine_translate,
-            ).expect("Unable to update text");
-        };
-
-        if template_section.instructions_text != raw_instructions_text {
-            let _instructions_text = Text::update(
-                template_section.instructions_text_id,
-                raw_instructions_text,
                 &lang,
                 user.id,
                 machine_translate,
@@ -177,11 +166,10 @@ pub async fn edit_template_section(
         };
 
         // This will need to support flexible re-ordering of all template_sections TODO
-        /*
+
         if ts.order_number != form.order_number {
             ts.order_number = form.order_number;
         };
-        */
 
         let updated_template_section = ts.update()
             .expect("Unable to update template_section");
@@ -221,7 +209,6 @@ pub async fn save_template_section(
 
         // validate authorized to edit document
         let header_text = form.header_text.trim().to_string();
-        let instructions_text = form.instructions_text.trim().to_string();
         let help_text = form.help_text.trim().to_string();
         let raw_character_limit = form.character_limit;
         
@@ -242,7 +229,6 @@ pub async fn save_template_section(
             template_id,
             header_text,
             form.order_number,
-            instructions_text,
             help_text,
             character_limit,
             lang,

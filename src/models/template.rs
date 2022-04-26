@@ -117,6 +117,7 @@ impl Template {
         let conn = database::connection()?;
 
         let v = diesel::update(templates::table)
+            .filter(templates::id.eq(self.id))
             .set(self)
             .get_result(&conn)?;
 
@@ -180,7 +181,6 @@ impl Template {
 
         for section in sections.iter() {
             text_ids.push(section.header_text_id);
-            text_ids.push(section.instructions_text_id);
             text_ids.push(section.help_text_id);
         }
 
@@ -210,8 +210,6 @@ impl Template {
             let readable_template_section = ReadableTemplateSection {
                 header_text: texts.get(&template_section.header_text_id).unwrap().to_string(),
                 header_text_id: template_section.header_text_id,
-                instructions_text: texts.get(&template_section.instructions_text_id).unwrap().to_string(),
-                instructions_text_id: template_section.instructions_text_id,
                 help_text: texts.get(&template_section.help_text_id).unwrap().to_string(),
                 help_text_id: template_section.help_text_id,
                 order_number: template_section.order_number,
@@ -281,7 +279,6 @@ impl Template {
 
         for section in sections.clone().into_iter() {
             text_ids.push(section.header_text_id);
-            text_ids.push(section.instructions_text_id);
             text_ids.push(section.help_text_id);
         }
 

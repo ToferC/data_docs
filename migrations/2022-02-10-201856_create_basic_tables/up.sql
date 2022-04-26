@@ -45,7 +45,6 @@ CREATE TABLE IF NOT EXISTS template_sections (
         REFERENCES templates(id) ON DELETE CASCADE,
     header_text_id UUID NOT NULL,
     order_number INT NOT NULL,
-    instructions_text_id UUID NOT NULL,
     help_text_id UUID NOT NULL,
     character_limit INT 
 );

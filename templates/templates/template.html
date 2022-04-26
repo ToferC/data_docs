@@ -27,6 +27,7 @@
             <li>Created at: {{ template_core.created_at | date(format="%Y-%m-%d %H:%M") }}</li>
             <li>Updated at: {{ template_core.updated_at | date(format="%Y-%m-%d %H:%M") }}</li>
         </ul>
+        <a class="btn btn-primary" href="/{{ lang }}/create_document_core_form/{{ template_core.id }}">{{ fluent(key="create", lang=lang )}}</a>
     </div>
     
     <hr>
@@ -47,10 +48,9 @@
             </button></h3>
         <ul>
             <!-- Might not need this. Implicit. Need to figure out order number and flexible re-ordering.
-                {% set order_number = template_section.order_number + 1 %}
-                <li>{{ fluent(key="section-order-number", lang=lang, number=order_number )}}</li>
             -->
-            <li>{{ fluent(key="section-instructions", lang=lang )}} {{ template_section.instructions_text }}</li>
+            {% set order_number = template_section.order_number + 1 %}
+            <li>{{ fluent(key="section-order-number", lang=lang, number=order_number )}}</li>
             <li>{{ fluent(key="section-help-text", lang=lang )}} {{ template_section.help_text }}</li>
             <li>{{ fluent(key="section-character-limit", lang=lang, limit=template_section.character_limit )}}</li>
         </ul>

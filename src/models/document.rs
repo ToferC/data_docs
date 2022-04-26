@@ -372,6 +372,7 @@ impl Document {
     pub fn update(&self) -> Result<Self, CustomError> {
         let conn = database::connection()?;
         let v = diesel::update(documents::table)
+            .filter(documents::id.eq(self.id))
             .set(self)
             .get_result(&conn)?;
         Ok(v)

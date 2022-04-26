@@ -195,6 +195,7 @@ impl User {
     pub fn update(&self) -> Result<Self, CustomError> {
         let conn = database::connection()?;
         let user = diesel::update(users::table)
+            .filter(users::id.eq(self.id))
             .set(self)
             .get_result(&conn)?;
         Ok(user)

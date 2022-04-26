@@ -230,6 +230,7 @@ impl MetaData {
     pub fn update(metadata: &MetaData) -> Result<Self, CustomError> {
         let conn = database::connection()?;
         let v = diesel::update(metadata::table)
+            .filter(metadata::id.eq(metadata.id))
             .set(metadata)
             .get_result(&conn)?;
         Ok(v)

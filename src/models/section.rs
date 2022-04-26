@@ -54,6 +54,7 @@ impl Section {
     pub fn update(&self) -> Result<Self, CustomError> {
         let conn = database::connection()?;
         let v = diesel::update(sections::table)
+            .filter(sections::id.eq(self.id))
             .set(self)
             .get_result(&conn)?;
         Ok(v)
@@ -91,7 +92,6 @@ pub struct ReadableSection {
     pub id: Uuid,
     pub header_text: String,
     pub order_number: i32,
-    pub instructions_text: String,
     pub help_text: String,
     pub text_id: Uuid,
     pub content: String,
@@ -147,7 +147,6 @@ impl ReadableSection {
             id: section.id,
             header_text: template_section.header_text,
             order_number: template_section.order_number,
-            instructions_text: template_section.instructions_text,
             help_text: template_section.help_text,
             text_id: text.id,
             content,

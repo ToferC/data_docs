@@ -34,12 +34,10 @@ pub struct NewTemplateCoreForm {
 pub struct TemplateSectionForm {
     pub header_text: String,
     pub order_number: i32,
-    pub instructions_text: String,
     pub help_text: String,
     pub character_limit: i32,
     pub machine_translate: String,
 }
-
 
 // Administrative Forms
 

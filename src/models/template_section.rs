@@ -16,7 +16,6 @@ pub struct TemplateSection {
     pub template_id: Uuid,
     pub header_text_id: Uuid,
     pub order_number: i32,
-    pub instructions_text_id: Uuid,
     pub help_text_id: Uuid,
     pub character_limit: Option<i32>,
 }
@@ -28,8 +27,6 @@ pub struct ReadableTemplateSection {
     pub header_text: String,
     pub header_text_id: Uuid,
     pub order_number: i32,
-    pub instructions_text: String,
-    pub instructions_text_id: Uuid,
     pub help_text: String,
     pub help_text_id: Uuid,
     pub character_limit: i32,
@@ -55,7 +52,6 @@ impl TemplateSection {
             template_id,
             format!("Header for item {}", section_number + 1),
             section_number,
-            format!("Instructions text for item {}", section_number + 1),
             format!("Help text for item {}", section_number + 1),
             None,
             lang.to_string(),
@@ -75,6 +71,7 @@ impl TemplateSection {
         let conn = database::connection()?;
 
         let v = diesel::update(template_sections::table)
+            .filter(template_sections::id.eq(self.id))
             .set(self)
             .get_result(&conn)?;
 
@@ -86,7 +83,6 @@ impl TemplateSection {
 
         let mut text_ids = Vec::new();
         text_ids.push(self.header_text_id);
-        text_ids.push(self.instructions_text_id);
         text_ids.push(self.help_text_id);
 
         let texts = texts::table
@@ -119,7 +115,6 @@ impl TemplateSection {
         let mut text_ids = Vec::new();
 
         text_ids.push(template_section.header_text_id);
-        text_ids.push(template_section.instructions_text_id);
         text_ids.push(template_section.help_text_id);
 
         let texts = Text::get_text_map(text_ids, lang)?;
@@ -133,8 +128,6 @@ impl TemplateSection {
         let readable_template_section = ReadableTemplateSection {
             header_text: texts.get(&template_section.header_text_id).unwrap().to_string(),
             header_text_id: template_section.header_text_id,
-            instructions_text: texts.get(&template_section.instructions_text_id).unwrap().to_string(),
-            instructions_text_id: template_section.instructions_text_id,
             help_text: texts.get(&template_section.help_text_id).unwrap().to_string(),
             help_text_id: template_section.help_text_id,
             order_number: template_section.order_number,
@@ -153,7 +146,6 @@ pub struct InsertableTemplateSection {
     pub template_id: Uuid,
     pub header_text_id: Uuid,
     pub order_number: i32,
-    pub instructions_text_id: Uuid,
     pub help_text_id: Uuid,
     pub character_limit: Option<i32>,
 }
@@ -163,7 +155,6 @@ impl InsertableTemplateSection {
         template_id: Uuid,
         header_text: String,
         order_number: i32,
-        instructions_text: String,
         help_text: String,
         character_limit: Option<i32>,
         lang: String,
@@ -180,15 +171,6 @@ impl InsertableTemplateSection {
 
         let header_text = Text::create(&insertable_header_text, machine_translate)?;
 
-        let insertable_instructions_text = InsertableText::new(
-            None,
-            &lang, 
-            instructions_text,
-            created_by_id,
-        );
-
-        let instructions_text = Text::create(&insertable_instructions_text, machine_translate)?;
-
         let insertable_help_text = InsertableText::new(
             None,
             &lang, 
@@ -202,7 +184,6 @@ impl InsertableTemplateSection {
             template_id,
             header_text_id: header_text.id,
             order_number,
-            instructions_text_id: instructions_text.id,
             help_text_id: help_text.id,
             character_limit,
         })

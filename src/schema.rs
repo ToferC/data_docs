@@ -94,7 +94,6 @@ table! {
         template_id -> Uuid,
         header_text_id -> Uuid,
         order_number -> Int4,
-        instructions_text_id -> Uuid,
         help_text_id -> Uuid,
         character_limit -> Nullable<Int4>,
     }
