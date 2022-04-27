@@ -9,6 +9,13 @@ pub struct DocumentForm {
     pub machine_translate: String,
 }
 
+#[derive(Deserialize, Debug)]
+pub struct MetaDataForm {
+    pub subject: String,
+    pub category: String,
+    pub keywords: String,
+}
+
 #[derive(Debug, Deserialize)]
 pub struct TextForm {
     pub content: String,

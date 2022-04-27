@@ -29,22 +29,31 @@
         {{ document.purpose_text | safe }}
         <br>
         
-        <h4>Details</h4>
         <div class="row">
             <div class="col">
+                <h4>Details</h4>
                 <ul>
                     <li>Created at: {{ document.created_at | date(format="%Y-%m-%d %H:%M") }} by {{ document.created_by }}</li>
                     <li>Updated at: {{ document.updated_at | date(format="%Y-%m-%d %H:%M") }}</li>
                     <li>Security Classification: {{ document.security_classification | title }}</li>
                     <li>Status: {% if document.published == true %}Published{% else %}Draft{% endif %}</li>
+                </ul>
+            </div>
+            <div class="col" 
+                hx-get="/{{ lang }}/metadata/{{ metadata.id }}/{{ document_view }}" 
+                hx-trigger="load" 
+                hx-target="this" 
+                hx-swap="innerHTML">
+                <h4>Metadata</h4>
+                <ul>    
                     <li>Subject: {{ metadata.subject.text }}</li>
                     <li>Category: {{ metadata.category.text }}</li>
                     <li>Keywords: {% for keyword in metadata.keywords %}{{ keyword.text }}, {% endfor %}</li>
                 </ul>
-            </div>
-            <div class="col">
-                <p>Summary: {{ metadata.summary_text }}</p>
-            </div>
+                <div>
+                    <p>Summary: {{ metadata.summary_text }}</p>
+                </div>
+            </div> <!-- end of metadata/get -->
         </div>
             <a 
                 class="btn btn-info"

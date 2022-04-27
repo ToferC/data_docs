@@ -1,0 +1,15 @@
+<div class="col"
+    id="metadata"
+    hx-get="/{{ lang }}/metadata/{{ metadata.id }}/{{ document_view }}" 
+    hx-trigger="load" 
+    hx-swap="innerHTML">
+    <h4>Metadata</h4>
+    <ul>    
+        <li>Subject: {{ metadata.subject.text }}</li>
+        <li>Category: {{ metadata.category.text }}</li>
+        <li>Keywords: {% for keyword in metadata.keywords %}{{ keyword.text }}, {% endfor %}</li>
+    </ul>
+    <div>
+        <p>Summary: {{ metadata.summary_text }}</p>
+    </div>
+</div> <!-- end of metadata/get -->

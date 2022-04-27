@@ -30,6 +30,7 @@ pub struct MetaData {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ReadableMetaData {
+    pub id: Uuid,
     pub document_id: Uuid,
     pub title: String,
     pub author: String,
@@ -88,6 +89,7 @@ impl ReadableMetaData {
         };
 
         ReadableMetaData {
+            id: metadata.id,
             document_id: metadata.document_id,
             title,
             author: "default@email.com".to_string(),

@@ -3,8 +3,8 @@ use actix_identity::{Identity};
 use uuid::Uuid;
 
 use crate::{AppData, generate_basic_context};
-use crate::handlers::MetaDataForm;
-use crate::models::{MetaData, LatestMetaData, InsertableMetaData, User};
+use crate::models::{MetaData, InsertableMetaData, ReadableMetaData, User};
+use super::MetaDataForm;
 use crate::errors::CustomError;
 
 #[get("/{lang}/metadata/{metadata_id}/{document_view}")]
@@ -27,15 +27,9 @@ pub async fn get_metadata(
         return err.error_response()
     } else {
 
-        // Determine view of metadata to render
-        let redact = match document_view.as_str() {
-            "internal" => false,
-            _ => true,
-        };
+        let metadata = MetaData::get_by_id(metadata_id).expect("Unable to retrieve metadata");
 
-        let metadata = MetaData::get_metadata_by_id(metadata_id, &lang).expect("Unable to retrieve metadata");
-
-        let metadata = ReadableMetaData::from(metadata, lang);
+        let metadata = ReadableMetaData::from_metadata(metadata, &lang);
 
         ctx.insert("metadata", &metadata);
         ctx.insert("document_view", &document_view);
@@ -44,6 +38,8 @@ pub async fn get_metadata(
         HttpResponse::Ok().body(rendered)
     }
 }
+
+/*
 
 #[post("/{lang}/create_metadata/{section_id}")]
 pub async fn create_new_metadata(
@@ -66,7 +62,7 @@ pub async fn create_new_metadata(
     } else {
 
         // validate authorized to edit document
-        let content = form.content.trim();
+        let subject = form.subject.trim();
 
         let machine_translate = match form.machine_translate.as_str() {
             "true" => true,
@@ -181,3 +177,5 @@ pub async fn edit_metadata_put(
         HttpResponse::Ok().body(rendered)
     }
 }
+
+*/

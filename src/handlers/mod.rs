@@ -13,6 +13,7 @@ pub mod document;
 pub mod document_core;
 pub mod template_section;
 pub mod template_core;
+pub mod metadata;
 
 pub use base::{index, raw_index};
 pub use routes::configure_services;
@@ -29,3 +30,4 @@ pub use document::*;
 pub use document_core::*;
 pub use template_section::*;
 pub use template_core::*;
+pub use metadata::*;
