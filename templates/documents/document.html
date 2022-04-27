@@ -41,8 +41,7 @@
             </div>
             <div class="col" 
                 hx-get="/{{ lang }}/metadata/{{ metadata.id }}/{{ document_view }}" 
-                hx-trigger="load" 
-                hx-target="this" 
+                hx-trigger="textUpdate from:body" 
                 hx-swap="innerHTML">
                 <h4>Metadata</h4>
                 <ul>    

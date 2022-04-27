@@ -178,6 +178,8 @@ pub async fn edit_text_put(
         ctx.insert("document_view", &document_view);
 
         let rendered = data.tmpl.render("texts/text.html", &ctx).unwrap();
-        HttpResponse::Ok().body(rendered)
+        HttpResponse::Ok()
+            .header("HX-Trigger", "textUpdate")
+            .body(rendered)
     }
 }
