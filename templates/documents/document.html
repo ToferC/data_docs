@@ -41,8 +41,9 @@
             </div>
             <div class="col" 
                 hx-get="/{{ lang }}/metadata/{{ metadata.id }}/{{ document_view }}" 
-                hx-trigger="textUpdate from:body" 
-                hx-swap="innerHTML">
+                hx-trigger="textUpdate from:body"
+                hx-target="this"
+                >
                 <h4>Metadata</h4>
                 <ul>    
                     <li>Subject: {{ metadata.subject.text }}</li>
@@ -97,5 +98,11 @@
     {% endfor %}
 
 </div>
+
+<script>
+    document.body.addEventListener("textUpdate", function(evt){
+        alert("Summary updated");
+    })
+</script>
 
 {% endblock content %}

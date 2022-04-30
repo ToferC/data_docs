@@ -89,6 +89,8 @@ use crate::handlers::{
     edit_text_form,
     edit_text_put,
 
+    // metadata
+    get_metadata,
 
 };
 
@@ -175,5 +177,6 @@ pub fn configure_services(config: &mut web::ServiceConfig) {
      config.service(edit_text_form);
      config.service(edit_text_put);
 
-
+    // metadata
+    config.service(get_metadata);
 }
