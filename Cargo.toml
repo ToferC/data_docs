@@ -48,6 +48,9 @@ pulldown-cmark = { version = "0.9.1", default-features = false, features = ["sim
 rake = "0.3.3"
 pithy = "0.1.7"
 
+# Document parsing
+docx = "1.1.2"
+
 # templating
 tera = "1.15.0"
 tera-text-filters = "1.0"
