@@ -27,13 +27,14 @@ By treating documents as data and building a workflow and analytics flow around 
 * Clone the repository
 * Create a database on Postgresql 13 or 14
 * Create `.env` file with the following environmental variables:
-    * COOKIE_SECRET_KEY
+    * COOKIE_SECRET_KEY (at least 32 characters - base key for document encryption. Should be rotated and pulled from system.)
     * DATABASE_URL
     * SENDGRID_API_KEY
     * DEEPL_API_KEY
     * ADMIN_NAME
     * ADMIN_EMAIL
     * ADMIN_PASSWORD
+    * SECRET_KEY (at least 32 characters - base key for document encryption. Should be rotated and pulled from system.)
 * Install `diesel_cli`
 * From repo root $ `diesel migration run`
 * From repo root $ `cargo run`

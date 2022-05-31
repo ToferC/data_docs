@@ -17,6 +17,7 @@ actix-identity = "0.3.1"
 actix-session = "0.4.1"
 actix-web-static-files = "3.0.5"
 tokio = { version = "0.2", features = ["full"] }
+futures = "*"
 
 # database and data
 diesel = { version = "1.4.8", features = ["postgres", "extras", "uuid", "r2d2", "chrono", "uuidv07"]}
@@ -49,7 +50,7 @@ rake = "0.3.3"
 pithy = "0.1.7"
 
 # Document parsing
-docx = "1.1.2"
+docx-rs = "0.2"
 
 # templating
 tera = "1.15.0"

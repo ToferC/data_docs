@@ -1,29 +1,35 @@
-use actix_web::{post, web};
-use actix_files::NamedFile;
+use actix_web::{post, web, Responder, HttpResponse, Error};
 use actix_multipart::Multipart;
-use futures::{StreamExt, TryStreamExt};
 use serde::{Serialize, Deserialize};
-use docx::{Document, DocxFile, Paragraph};
+use futures::{StreamExt, TryStreamExt};
+use docx_rs::*;
+use std::io::Write;
+
+use actix_web::{middleware, App, HttpServer};
+use std::io::*;
 
 #[post("/upload_files")]
-async fn upload_files(mut payload: Multipart) -> impl Responder {
-
-    // get each file
+async fn upload_file(mut payload: Multipart, file_path: String) -> Option<bool> {
+    // iterate over multipart stream
     while let Ok(Some(mut field)) = payload.try_next().await {
-        // transform from docx to data_doc associated with user
         let content_type = field.content_disposition().unwrap();
-        let filename = content_type.get_filename().unwrap();
+        //let filename = content_type.get_filename().unwrap();
+        let filepath = format!(".{}", file_path);
 
-        let mut rdr = Document::from()
-        let docx = DocxFile::from_reader(rdr).unwrap();
+        // File::create is blocking operation, use threadpool
+        let mut f = web::block(|| std::fs::File::create(filepath))
+            .await
+            .unwrap();
 
+        // Field in turn is stream of *Bytes* object
+        while let Some(chunk) = field.next().await {
+            let data = chunk.unwrap();
+            // filesystem operations are blocking, we have to use threadpool
+            f = web::block(move || f.write_all(&data).map(|_| f))
+                .await
+                .unwrap();
+        }
     }
 
-
-
-    // Create new template?
-
-
-    // Let user know
-
+    Some(true)
 }
